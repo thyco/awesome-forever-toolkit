@@ -1,7 +1,7 @@
 # Awesome Forever Toolkit: shared foundation, Utilities and Warrior
 
 Date: 2026-10-21
-Status: proposed design for review
+Status: approved; phase-one implementation complete locally, pending client validation
 
 ## Purpose and agreed scope
 

@@ -258,3 +258,15 @@ function Buttons.CooldownAll()
 
     return buttons
 end
+
+-- Reconcile discovery snapshots without touching effects owned by other features.
+function Buttons.ReleaseRemoved(previous, current, release, buttonOf)
+    buttonOf = buttonOf or function(button) return button end
+    local present = {}
+    for _, entry in ipairs(current) do present[buttonOf(entry)] = true end
+
+    for _, entry in ipairs(previous) do
+        local button = buttonOf(entry)
+        if not present[button] then release(button) end
+    end
+end

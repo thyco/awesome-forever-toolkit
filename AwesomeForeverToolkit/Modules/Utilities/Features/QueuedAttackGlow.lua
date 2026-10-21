@@ -21,7 +21,11 @@ function feature:Refresh(discover, rebuild)
     end
 
     if discover then
-        self.buttons = addon.Buttons.All()
+        local current = addon.Buttons.All()
+        addon.Buttons.ReleaseRemoved(self.buttons, current, function(button)
+            addon.QueuedGlow.Set(button, false)
+        end)
+        self.buttons = current
         for _, button in ipairs(self.buttons) do
             addon.QueuedGlow.Prepare(button)
         end

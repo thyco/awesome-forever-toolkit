@@ -93,9 +93,9 @@ Use existing dot/colon conventions consistently. No method should close over ano
 
 **Files:** Create Core files, manifest, tests/helpers.lua, tests/core.lua, tests/config.lua, tests/run.py, and a minimal README.
 
-- [ ] Inspect git status in all three repositories and any ancestor AGENTS.md. Record exact source revisions and uncommitted changes before copying. Use the worktree skill at execution time to determine whether isolation is needed; do not create an unnecessary second checkout of the empty project.
-- [ ] Write core tests around registration, repeated Start, non-Warrior eligibility, and scoped storage. Adapt the mock environment from Warrior's tests/helpers.lua; load actual manifest files with loadfile(path, "t", env), skipping bundled library implementation in favor of the existing mock.
-- [ ] Pin fresh-store behavior with executable assertions:
+- [x] Inspect git status in all three repositories and any ancestor AGENTS.md. Record exact source revisions and uncommitted changes before copying. Use the worktree skill at execution time to determine whether isolation is needed; do not create an unnecessary second checkout of the empty project.
+- [x] Write core tests around registration, repeated Start, non-Warrior eligibility, and scoped storage. Adapt the mock environment from Warrior's tests/helpers.lua; load actual manifest files with loadfile(path, "t", env), skipping bundled library implementation in favor of the existing mock.
+- [x] Pin fresh-store behavior with executable assertions:
 
 ```lua
 local H = dofile("tests/helpers.lua")
@@ -116,19 +116,19 @@ assert(world.env.WarriorAssistForeverDB == nil)
 assert(world.env.UtilsAssistForeverDB == nil)
 ```
 
-- [ ] Run lua tests/config.lua and lua tests/core.lua; confirm failure comes from missing functionality before implementation.
-- [ ] Implement scoped tables with schemaVersion = 1, copied defaults, validators/normalizers and listeners called only on changes. Reject unknown keys. A malformed module subtree is repaired without resetting unrelated subtrees.
-- [ ] Add module-status tests for loaded Utils/Warrior legacy addons, ensuring corresponding module Start is not called, other modules still start, and status explains disabling/reloading. Use C_AddOns.IsAddOnLoaded through a safe helper at PLAYER_LOGIN.
-- [ ] Implement registration/startup and command routing. Defer UI wiring until Task 6; do not leave manifest entries pointing to absent files.
-- [ ] Run both tests and luac -p on created Lua files; commit: "Add toolkit core and scoped configuration".
+- [x] Run lua tests/config.lua and lua tests/core.lua; confirm failure comes from missing functionality before implementation.
+- [x] Implement scoped tables with schemaVersion = 1, copied defaults, validators/normalizers and listeners called only on changes. Reject unknown keys. A malformed module subtree is repaired without resetting unrelated subtrees.
+- [x] Add module-status tests for loaded Utils/Warrior legacy addons, ensuring corresponding module Start is not called, other modules still start, and status explains disabling/reloading. Use C_AddOns.IsAddOnLoaded through a safe helper at PLAYER_LOGIN.
+- [x] Implement registration/startup and command routing. Defer UI wiring until Task 6; do not leave manifest entries pointing to absent files.
+- [x] Run both tests and luac -p on created Lua files; commit: "Add toolkit core and scoped configuration".
 
 ## Task 2: Shared client helpers and button catalog
 
 **Files:** Create Services/Client.lua, Services/Buttons.lua, tests/buttons.lua; extend tests/helpers.lua with gamepad fixtures.
 
-- [ ] Read both Client.lua implementations fully and compare every shared function. Bring over the behavior needed by both modules, keeping restricted values out of comparisons/stringification.
-- [ ] Port Warrior's native-gamepad tests and Utils' button-enumeration assertions into tests/buttons.lua. Add a setup where a gamepad frame appears after the first discovery and is replaced before a later one.
-- [ ] Add a direct shared-contract test using helper world:button(name, slot) and world:gamepadBar(key, slots), copied from Utils:
+- [x] Read both Client.lua implementations fully and compare every shared function. Bring over the behavior needed by both modules, keeping restricted values out of comparisons/stringification.
+- [x] Port Warrior's native-gamepad tests and Utils' button-enumeration assertions into tests/buttons.lua. Add a setup where a gamepad frame appears after the first discovery and is replaced before a later one.
+- [x] Add a direct shared-contract test using helper world:button(name, slot) and world:gamepadBar(key, slots), copied from Utils:
 
 ```lua
 local H = dofile("tests/helpers.lua")
@@ -150,17 +150,17 @@ assert(seen[standard])
 assert(seen[native[1]])
 ```
 
-- [ ] Run lua tests/buttons.lua and confirm red.
-- [ ] Merge discovery into the shared catalog: preserve eight standard bars, native normal/stance/possess coverage, pet classification, and optional supported third-party enumeration from Utils. Preserve Warrior's active-page check and stance override resolution.
-- [ ] Replace the implicit config dependency in SelectionLabel with its explicit argument. Add malformed index, secret mode, missing page, replaced frames, and hidden stance cases from existing fixtures.
-- [ ] Run lua tests/buttons.lua and core/config regressions; commit: "Share client compatibility and button discovery".
+- [x] Run lua tests/buttons.lua and confirm red.
+- [x] Merge discovery into the shared catalog: preserve eight standard bars, native normal/stance/possess coverage, pet classification, and optional supported third-party enumeration from Utils. Preserve Warrior's active-page check and stance override resolution.
+- [x] Replace the implicit config dependency in SelectionLabel with its explicit argument. Add malformed index, secret mode, missing page, replaced frames, and hidden stance cases from existing fixtures.
+- [x] Run lua tests/buttons.lua and core/config regressions; commit: "Share client compatibility and button discovery".
 
 ## Task 3: Shared proc-glow service
 
 **Files:** Create Services/Glow.lua, Libs/, tests/glow.lua.
 
-- [ ] Copy bundled libraries/notices after comparing versions; retain the tested Warrior proc-glow behavior, including reserved effects and geometry refresh. Review every method used by ReactiveAbilities and icons.
-- [ ] Port the existing glow assertions and add two-owner arbitration:
+- [x] Copy bundled libraries/notices after comparing versions; retain the tested Warrior proc-glow behavior, including reserved effects and geometry refresh. Review every method used by ReactiveAbilities and icons.
+- [x] Port the existing glow assertions and add two-owner arbitration:
 
 ```lua
 local H = dofile("tests/helpers.lua")
@@ -178,52 +178,52 @@ addon.Glow.Set(button, "warrior:test", false)
 assert(world.glowActive[button] == true)
 ```
 
-- [ ] Use the verified signature Glow.Set(button, owner, active, options), with options optional. Run lua tests/glow.lua before implementation and confirm the missing service failure.
-- [ ] Implement the shared service using the current Warrior code, renaming its library key to AwesomeForeverToolkit and avoiding module-specific globals. Preserve preparation outside combat and behavior for unprepared buttons.
-- [ ] Verify the second owner remains active, color changes do not restart intro flashes, ending combat cancels an intro as before, and disabling an owner never affects queued borders.
-- [ ] Run glow and button tests; commit: "Centralize proc glow presentation".
+- [x] Use the verified signature Glow.Set(button, owner, active, options), with options optional. Run lua tests/glow.lua before implementation and confirm the missing service failure.
+- [x] Implement the shared service using the current Warrior code, renaming its library key to AwesomeForeverToolkit and avoiding module-specific globals. Preserve preparation outside combat and behavior for unprepared buttons.
+- [x] Verify the second owner remains active, color changes do not restart intro flashes, ending combat cancels an intro as before, and disabling an owner never affects queued borders.
+- [x] Run glow and button tests; commit: "Centralize proc glow presentation".
 
 ## Task 4: Utilities module and regression suite
 
 **Files:** Create all Utilities files listed in the file map except Pages.lua (Task 6); copy tests/utilities/ from the existing suite and adapt its loader.
 
-- [ ] Copy the utility tests into the new repo, preserving assertions. Redirect dofile helper paths to tests/utilities/helpers.lua and manifest/module loaders to the new files.
-- [ ] Run python3 tests/run.py tests/utilities and confirm failures identify missing module behavior.
-- [ ] Introduce module-local namespace assignment at the start of each migrated module file:
+- [x] Copy the utility tests into the new repo, preserving assertions. Redirect dofile helper paths to tests/utilities/helpers.lua and manifest/module loaders to the new files.
+- [x] Run python3 tests/run.py tests/utilities and confirm failures identify missing module behavior.
+- [x] Introduce module-local namespace assignment at the start of each migrated module file:
 
 ```lua
 local _, root = ...
 local addon = root.modules.Utilities
 ```
 
-- [ ] Register Utilities before loading its files; inject root.Client and root.Buttons. Preserve the module-local feature list, range state and icon tint coordination. Bind Config to the character utilities store using the original defaults/validators.
-- [ ] Adapt Graphics.Initialize to root.Config.GetSection("account", "graphics"). Preserve no-write-before-selection, reset-to-client-default, locked CVar handling and delayed restoration.
-- [ ] Move Bootstrap behavior into Runtime, with module.Start owning event registration. Replace SettingsPanel refresh calls with the root window Refresh callback once available, guarded during startup. Do not carry over the old settings panel or slash registration.
-- [ ] Retain the external GamepadAssistForeverVisuals provider contract and guard malformed providers using the existing tests.
-- [ ] Port diagnostics and click-through command behavior under /aft; document exact routing as /aft utilities <existing utility command>. Do not claim legacy slash names.
-- [ ] Run python3 tests/run.py tests/utilities; include graphics, clickthrough, cooldown, next_swing, queued_glow, overlay_bridge and integration scenarios. Verify feature Stop paths release their own state.
-- [ ] Commit: "Integrate utility features with shared toolkit services".
+- [x] Register Utilities before loading its files; inject root.Client and root.Buttons. Preserve the module-local feature list, range state and icon tint coordination. Bind Config to the character utilities store using the original defaults/validators.
+- [x] Adapt Graphics.Initialize to root.Config.GetSection("account", "graphics"). Preserve no-write-before-selection, reset-to-client-default, locked CVar handling and delayed restoration.
+- [x] Move Bootstrap behavior into Runtime, with module.Start owning event registration. Replace SettingsPanel refresh calls with the root window Refresh callback once available, guarded during startup. Do not carry over the old settings panel or slash registration.
+- [x] Retain the external GamepadAssistForeverVisuals provider contract and guard malformed providers using the existing tests.
+- [x] Port diagnostics and click-through command behavior under /aft; document exact routing as /aft utilities <existing utility command>. Do not claim legacy slash names.
+- [x] Run python3 tests/run.py tests/utilities; include graphics, clickthrough, cooldown, next_swing, queued_glow, overlay_bridge and integration scenarios. Verify feature Stop paths release their own state.
+- [x] Commit: "Integrate utility features with shared toolkit services".
 
 ## Task 5: Warrior module and regression suite
 
 **Files:** Create all Warrior files listed above except Pages.lua; copy tests/warrior/ feature fixtures and tests.
 
-- [ ] Copy foundation, aura, feature, stance_icon, reactive_foundation, reactive_spells, reactive_feature, gamepad and integration tests. Redirect helper paths and module loads; retain behavior assertions.
-- [ ] Run python3 tests/run.py tests/warrior and confirm red for missing module code.
-- [ ] Add the Warrior namespace and inject shared Client, Buttons and Glow. Use account warrior Config with the exact current defaults and validators.
-- [ ] Move domain services and features with the same namespace prelude as Utilities, using root.modules.Warrior. Preserve original spell IDs, aura fallbacks, cooldown/range rules, stance behavior and subscriptions.
-- [ ] Replace Buttons.SelectionLabel(kind) calls with root.Buttons.SelectionLabel(addon.Config, kind). Namespace every proc owner ID. Preserve input-mode routing rather than adding simultaneous keyboard/gamepad activation.
-- [ ] Move Bootstrap behavior into Runtime and expose Diagnostics through /aft warrior. Start only after the core class/conflict check; do not independently create an old settings panel.
-- [ ] Copy referenced Warrior artwork and change only addon asset paths. Keep icon move/preview methods available for the shared window.
-- [ ] Run python3 tests/run.py tests/warrior plus shared-service tests. Assert zero Warrior runtime activation on HUNTER while utility initialization remains possible.
-- [ ] Commit: "Integrate Warrior reminders and native gamepad support".
+- [x] Copy foundation, aura, feature, stance_icon, reactive_foundation, reactive_spells, reactive_feature, gamepad and integration tests. Redirect helper paths and module loads; retain behavior assertions.
+- [x] Run python3 tests/run.py tests/warrior and confirm red for missing module code.
+- [x] Add the Warrior namespace and inject shared Client, Buttons and Glow. Use account warrior Config with the exact current defaults and validators.
+- [x] Move domain services and features with the same namespace prelude as Utilities, using root.modules.Warrior. Preserve original spell IDs, aura fallbacks, cooldown/range rules, stance behavior and subscriptions.
+- [x] Replace Buttons.SelectionLabel(kind) calls with root.Buttons.SelectionLabel(addon.Config, kind). Namespace every proc owner ID. Preserve input-mode routing rather than adding simultaneous keyboard/gamepad activation.
+- [x] Move Bootstrap behavior into Runtime and expose Diagnostics through /aft warrior. Start only after the core class/conflict check; do not independently create an old settings panel.
+- [x] Copy referenced Warrior artwork and change only addon asset paths. Keep icon move/preview methods available for the shared window.
+- [x] Run python3 tests/run.py tests/warrior plus shared-service tests. Assert zero Warrior runtime activation on HUNTER while utility initialization remains possible.
+- [x] Commit: "Integrate Warrior reminders and native gamepad support".
 
 ## Task 6: Shared standalone settings UI
 
 **Files:** Create UI/Window.lua, Widgets.lua, DisplayLocation.lua, Pages.lua and both modules' Pages.lua; create tests/settings.lua and tests/settings_close.lua.
 
-- [ ] Port Warrior's settings_close.lua into the shared harness, then add page-switch, unsupported remembered-page and utility-only edit cases. Existing helper mocks must invoke OnShow/OnHide callbacks so lifecycle ordering is actually exercised.
-- [ ] Add the reload-order assertion:
+- [x] Port Warrior's settings_close.lua into the shared harness, then add page-switch, unsupported remembered-page and utility-only edit cases. Existing helper mocks must invoke OnShow/OnHide callbacks so lifecycle ordering is actually exercised.
+- [x] Add the reload-order assertion:
 
 ```lua
 local H = dofile("tests/helpers.lua")
@@ -244,22 +244,22 @@ addon.Window:Close()
 assert(visibleAtReload == true)
 ```
 
-- [ ] Run lua tests/settings_close.lua and lua tests/settings.lua before implementing the window.
-- [ ] Build the standalone shell using Warrior's frame setup, explicit Escape handler, own close path and launch-only Blizzard settings entry. No shared Blizzard commit queue, no normal hide before a required reload, no reset of dirty status after cancellation.
-- [ ] Implement page registration, availability filtering and ShowPage. Save the page in character ui storage, fall back to general, and clear only outgoing previews when switching. A page switch never calls Close.
-- [ ] Reuse current safe widgets; add a vertical layout cursor to place successive sections without large repeated hardcoded offsets. Bind controls through Widgets.Setting(store,key). Return refreshable controls and retain color-picker cancel semantics.
-- [ ] Implement DisplayLocation.Create from the shared Buttons labels. Build separate standard bar/button and gamepad page/set/button controls, including Not selected values. This UI does not change current input mode.
-- [ ] Define module pages from existing setting groups. Warrior uses one selected feature at a time with relevant options and its existing preview method. Graphics retains live value, disabled reasons and reset-to-client-default.
-- [ ] Subscribe Warrior changes to Window:MarkReloadRequired regardless of current page, including icon dragging. Utility/general edits do not erase that flag. Hook common ClearPreviews into close and combat-hide paths.
-- [ ] Test X, Escape, footer, unchanged assignment, reverted color, icon position edit, combat interruption, repeated Close, page switches, missing gamepad UI, and missing Settings launcher API. The independent /aft window must remain usable if the optional launcher is unavailable.
-- [ ] Run settings tests and both module suites; commit: "Add shared standalone configuration window".
+- [x] Run lua tests/settings_close.lua and lua tests/settings.lua before implementing the window.
+- [x] Build the standalone shell using Warrior's frame setup, explicit Escape handler, own close path and launch-only Blizzard settings entry. No shared Blizzard commit queue, no normal hide before a required reload, no reset of dirty status after cancellation.
+- [x] Implement page registration, availability filtering and ShowPage. Save the page in character ui storage, fall back to general, and clear only outgoing previews when switching. A page switch never calls Close.
+- [x] Reuse current safe widgets; add a vertical layout cursor to place successive sections without large repeated hardcoded offsets. Bind controls through Widgets.Setting(store,key). Return refreshable controls and retain color-picker cancel semantics.
+- [x] Implement DisplayLocation.Create from the shared Buttons labels. Build separate standard bar/button and gamepad page/set/button controls, including Not selected values. This UI does not change current input mode.
+- [x] Define module pages from existing setting groups. Warrior uses one selected feature at a time with relevant options and its existing preview method. Graphics retains live value, disabled reasons and reset-to-client-default.
+- [x] Subscribe Warrior changes to Window:MarkReloadRequired regardless of current page, including icon dragging. Utility/general edits do not erase that flag. Hook common ClearPreviews into close and combat-hide paths.
+- [x] Test X, Escape, footer, unchanged assignment, reverted color, icon position edit, combat interruption, repeated Close, page switches, missing gamepad UI, and missing Settings launcher API. The independent /aft window must remain usable if the optional launcher is unavailable.
+- [x] Run settings tests and both module suites; commit: "Add shared standalone configuration window".
 
 ## Task 7: Approved icon and minimap launcher
 
 **Files:** Create UI/Minimap.lua, Media/Icon.tga, scripts/prepare_icon.py, tests/minimap.lua; update General page and manifest IconTexture.
 
-- [ ] Read the approved PNG and preserve it. Add a repeatable conversion script using Pillow to produce a square 256x256 RGBA TGA; this is format/size conversion, not a redesigned image. Inspect output and a small thumbnail.
-- [ ] Add launcher tests for click outside/inside combat, persisted drag angle, hide/reopen via slash command and missing Minimap. Example:
+- [x] Read the approved PNG and preserve it. Add a repeatable conversion script using Pillow to produce a square 256x256 RGBA TGA; this is format/size conversion, not a redesigned image. Inspect output and a small thumbnail.
+- [x] Add launcher tests for click outside/inside combat, persisted drag angle, hide/reopen via slash command and missing Minimap. Example:
 
 ```lua
 local H = dofile("tests/helpers.lua")
@@ -278,22 +278,22 @@ world.env.SlashCmdList.AWESOMEFOREVERTOOLKIT("")
 assert(addon.Window.canvas:IsVisible())
 ```
 
-- [ ] Run lua tests/minimap.lua and confirm red.
-- [ ] Implement a nonsecure launcher button parented to Minimap, with tooltip, explicit click to Window:Open, and dragging based on cursor coordinates divided by effective scale. Normalize finite angles to [0,360); default to 225 degrees and visible. Missing Minimap skips launcher creation while commands continue working.
-- [ ] Save minimapHidden and minimapAngle in character ui storage. General page controls refresh the launcher immediately. Do not use the same click to close an already open window: raise it instead.
-- [ ] Test UI scale conversion and nonfinite saved angle normalization in addition to the cases above.
-- [ ] Run minimap/settings suites and verify the converted image dimensions/alpha; commit: "Add comic icon and minimap configuration launcher".
+- [x] Run lua tests/minimap.lua and confirm red.
+- [x] Implement a nonsecure launcher button parented to Minimap, with tooltip, explicit click to Window:Open, and dragging based on cursor coordinates divided by effective scale. Normalize finite angles to [0,360); default to 225 degrees and visible. Missing Minimap skips launcher creation while commands continue working.
+- [x] Save minimapHidden and minimapAngle in character ui storage. General page controls refresh the launcher immediately. Do not use the same click to close an already open window: raise it instead.
+- [x] Test UI scale conversion and nonfinite saved angle normalization in addition to the cases above.
+- [x] Run minimap/settings suites and verify the converted image dimensions/alpha; commit: "Add comic icon and minimap configuration launcher".
 
 ## Task 8: Integration, packaging and delivery
 
 **Files:** Create tests/integration.lua, tests/package.py, scripts/package.py, docs/client-validation.md; finish README.md and manifest.
 
-- [ ] Add a real-manifest smoke test with both modules enabled. Assert there is one toolkit settings launcher, class availability is respected and repeated PLAYER_LOGIN cannot duplicate listeners or visuals.
-- [ ] Exercise a standard action button with utility tint/queued border and a Warrior glow. Stop the Warrior owner and assert the utility effects remain; stop utilities and assert the remaining Warrior effect remains. Reuse existing mock observations instead of comparing internal implementation tables.
-- [ ] Add package checks before implementing the packager: exactly one AwesomeForeverToolkit/ install root; all manifest paths exist; asset paths resolve; libraries and notices exist; no legacy addon folders, tests, research probes or absolute machine paths in the zip.
-- [ ] Implement Python packaging with zipfile and pathlib, sorting paths and including only the installable addon tree. Output dist/AwesomeForeverToolkit-0.1.0.zip; keep distribution zip untracked via .gitignore while committing all source files, scripts and source/converted artwork.
-- [ ] Document installation, old Utils/Warrior disablement, fresh defaults, /aft and /af, /aft status, utility/Warrior diagnostics, gamepad binding deferral, library attribution, and the in-game checklist from the approved spec.
-- [ ] Run these commands from the repo root:
+- [x] Add a real-manifest smoke test with both modules enabled. Assert there is one toolkit settings launcher, class availability is respected and repeated PLAYER_LOGIN cannot duplicate listeners or visuals.
+- [x] Exercise a standard action button with utility tint/queued border and a Warrior glow. Stop the Warrior owner and assert the utility effects remain; stop utilities and assert the remaining Warrior effect remains. Reuse existing mock observations instead of comparing internal implementation tables.
+- [x] Add package checks before implementing the packager: exactly one AwesomeForeverToolkit/ install root; all manifest paths exist; asset paths resolve; libraries and notices exist; no legacy addon folders, tests, research probes or absolute machine paths in the zip.
+- [x] Implement Python packaging with zipfile and pathlib, sorting paths and including only the installable addon tree. Output dist/AwesomeForeverToolkit-0.1.0.zip; keep distribution zip untracked via .gitignore while committing all source files, scripts and source/converted artwork.
+- [x] Document installation, old Utils/Warrior disablement, fresh defaults, /aft and /af, /aft status, utility/Warrior diagnostics, gamepad binding deferral, library attribution, and the in-game checklist from the approved spec.
+- [x] Run these commands from the repo root:
 
 ```sh
 python3 tests/run.py
@@ -304,12 +304,16 @@ git diff --check
 
 Run syntax validation once per Lua file using Python subprocess.run(["luac", "-p", str(path)], check=True) over AwesomeForeverToolkit and tests. The runner invokes each Lua test in its own process from the repo root; a provided directory argument limits collection. Explicitly exclude helpers.lua.
 
-- [ ] Inspect source for obsolete asset prefixes, old slash registration and legacy database references. Expected legacy addon names occur only in conflict detection and documentation; source provenance and tests may mention them deliberately.
-- [ ] Request a whole-change review using the applicable review skill, fix actionable findings and rerun affected checks. Do not claim mocked tests establish taint-free client behavior.
-- [ ] Commit: "Package toolkit foundation and document client validation". Verify git status is clean, summarize automated checks and outstanding in-game checks, and report commits. Do not push.
+- [x] Inspect source for obsolete asset prefixes, old slash registration and legacy database references. Expected legacy addon names occur only in conflict detection and documentation; source provenance and tests may mention them deliberately.
+- [x] Request a whole-change review using the applicable review skill, fix actionable findings and rerun affected checks. Do not claim mocked tests establish taint-free client behavior.
+- [x] Commit: "Package toolkit foundation and document client validation". Verify git status is clean, summarize automated checks and outstanding in-game checks, and report commits. Do not push.
 
 ## Execution handoff
 
 Recommended: inline execution in this chat, task by task, followed by whole-change review. These tasks share tightly coupled service and UI contracts; keeping the implementation context together should reduce integration overhead. Delegated execution remains available if the user prefers separate implementer/reviewer agents per task.
 
 This plan contains no completed implementation claims. After the user's plan review and execution choice, follow the selected execution skill and keep task checkboxes current in committed updates.
+
+## Completion record
+
+Implemented inline; see ../../implementation-notes.md for final checks, review outcome and decisions. Client validation remains outstanding.

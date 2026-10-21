@@ -9,7 +9,11 @@ end
 
 function feature:Refresh(discover)
     if discover then
-        self.buttons = addon.Buttons.CooldownAll()
+        local current = addon.Buttons.CooldownAll()
+        addon.Buttons.ReleaseRemoved(self.buttons, current, function(button)
+            addon.IconTint.SetCooldown(button, false)
+        end, function(entry) return entry.button end)
+        self.buttons = current
         for _, entry in ipairs(self.buttons) do
             addon.IconTint.Prepare(entry.button)
         end
