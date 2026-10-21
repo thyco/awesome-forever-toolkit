@@ -7,8 +7,12 @@
 ## SavedVariablesPerCharacter: AwesomeForeverToolkitCharacterDB
 ## OptionalDeps: UtilsAssistForever, WarriorAssistForever, Blizzard_GamepadActionBars
 
+Libs/LibStub/LibStub.lua
+Libs/LibCustomGlow-1.0/LibCustomGlow-1.0.lua
+
 Core/Addon.lua
 Core/Config.lua
 Services/Client.lua
 Services/Buttons.lua
+Services/Glow.lua
 Core/Bootstrap.lua
