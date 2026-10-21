@@ -41,4 +41,10 @@ Modules/Warrior/Services/BattleShoutIcon.lua
 Modules/Warrior/Features/BattleShoutReminder.lua
 Modules/Warrior/Features/ReactiveAbilities.lua
 Modules/Warrior/Runtime.lua
+UI/Widgets.lua
+UI/Window.lua
+UI/DisplayLocation.lua
+UI/Pages.lua
+Modules/Utilities/Pages.lua
+Modules/Warrior/Pages.lua
 Core/Bootstrap.lua

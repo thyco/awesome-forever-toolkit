@@ -117,15 +117,15 @@ function addon:Diagnostics()
 end
 
 function addon:StartRuntime()
-for _, event in ipairs({
-    "PLAYER_ENTERING_WORLD", "PLAYER_LEAVING_WORLD",
-    "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED",
-}) do
-    frame:RegisterEvent(event)
-end
-frame:RegisterUnitEvent("UNIT_AURA", "player")
-frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+    for _, event in ipairs({
+        "PLAYER_ENTERING_WORLD", "PLAYER_LEAVING_WORLD",
+        "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED",
+    }) do
+        frame:RegisterEvent(event)
+    end
 
+    frame:RegisterUnitEvent("UNIT_AURA", "player")
+    frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 end
 
 function addon:OnEvent(event, _, updateInfo, spellID)

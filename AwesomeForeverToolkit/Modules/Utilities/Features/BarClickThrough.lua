@@ -139,11 +139,11 @@ function feature:Command(message)
                 .. bars
                 .. (InCombatLockdown() and " (applies after combat)" or ""))
         else
-            print("Use /uaf clicky|noclicky 1-8|all")
+            print("Use /aft utilities clicky|noclicky 1-8|all")
         end
         return true
     elseif command == "options" or command == "o" then
-        addon.SettingsPanel:Open()
+        if root.Window then root.Window:Open() end
         return true
     elseif command == "status" or command == "s" then
         for index = 1, 8 do
@@ -160,7 +160,7 @@ function feature:Command(message)
 end
 
 function feature:Help()
-    print("Use /uaf config or /uaf clicky|noclicky 1-8|all; /uaf status lists bars.")
+    print("Use /aft config or /aft utilities clicky|noclicky 1-8|all; /aft utilities status lists bars.")
 end
 
 addon:RegisterFeature(feature)
