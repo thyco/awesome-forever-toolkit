@@ -1,0 +1,136 @@
+
+test('checkbox defaults on and switches coloring immediately', function()
+    local world, addon = setup()
+    local check = addon.SettingsPanel.controls.checkRangedAbilities
+    equal(check:GetChecked(), true)
+    check:SetChecked(false)
+
+    check.scripts.OnClick(check)
+
+    native(world.main)
+    native(world.side)
+    equal(world.env.AwesomeForeverToolkitCharacterDB.utilities.checkRangedAbilities, false)
+    check:SetChecked(true)
+    check.scripts.OnClick(check)
+    tinted(world.side)
+end)
+
+test('saved disabled preference survives initialization and reenable discovers bars', function()
+    local world, addon = setup(function(w)
+        w.env.AwesomeForeverToolkitCharacterDB.utilities = { checkRangedAbilities = false }
+    end)
+    native(world.main)
+    equal(next(world.queries), nil)
+    equal(addon.SettingsPanel.controls.checkRangedAbilities:GetChecked(), false)
+
+    addon.Config.Set('checkRangedAbilities', true)
+
+    tinted(world.side)
+end)
+
+test('range checkbox remains inside its own settings section', function()
+    local _, addon = setup()
+    local panel = addon.SettingsPanel
+    local count = 0
+    for _ in pairs(panel.controls) do count = count + 1 end
+
+    equal(count, 17)
+    equal(#panel.sections, 5)
+    equal(panel.controls.checkRangedAbilities.Text.text, 'Check ranged abilities')
+    equal(panel.controls.checkRangedAbilities.parent, panel.sections[1])
+    equal(panel.sections[1].children[1].text, 'Range checks')
+    equal(panel.controls.highlightQueuedAttacks.parent, panel.sections[2])
+    equal(panel.controls.queuedGlowNativeColor.parent, panel.sections[2])
+    equal(panel.controls.queuedGlowColor.parent, panel.sections[2])
+    equal(panel.sections[2].children[1].text, 'Queued attacks')
+    equal(panel.controls.greyOnCooldown.parent, panel.sections[3])
+    equal(panel.sections[3].children[1].text, 'Cooldown greying')
+    equal(panel.sections[4].children[1].text, 'Graphics settings')
+    equal(panel.graphicsControls.groundEffectDensity.slider.parent, panel.sections[4])
+    equal(panel.controls.clickThroughBar1.parent, panel.sections[5])
+    equal(panel.sections[5].children[1].text, 'Action bar click-through')
+end)
+
+test('settings groups live inside a bounded scroll viewport', function()
+    local _, addon = setup()
+    local panel = addon.SettingsPanel
+    local scroll = panel.scroll
+
+    equal(scroll.kind, 'ScrollFrame')
+    equal(scroll.template, 'ScrollFrameTemplate')
+    equal(scroll.parent, panel.canvas)
+    equal(scroll.scrollChild, panel.content)
+    equal(panel.content.parent, scroll)
+    equal(panel.content.height, 1088)
+    equal(panel.sections[1].parent, panel.content)
+    equal(panel.sections[5].parent, panel.content)
+    equal(scroll.points[1][1], 'TOPLEFT')
+    equal(scroll.points[2][1], 'BOTTOMRIGHT')
+
+    scroll.scripts.OnSizeChanged(scroll, 440, 400)
+
+    equal(panel.content.width, 440)
+
+    scroll:SetWidth(380)
+    panel.canvas:Show()
+
+    equal(panel.content.width, 380)
+end)
+
+test('addon icon appears in the manifest and settings header', function()
+    local _, addon = setup()
+    local iconPath = 'Interface\\AddOns\\UtilsAssistForever\\Media\\icon.tga'
+    local file = assert(io.open('tests/utilities/manifest.txt'))
+    local manifest = file:read('*a')
+    file:close()
+
+    assert(manifest:find('## IconTexture: ' .. iconPath, 1, true))
+    equal(addon.SettingsPanel.icon:GetTexture(), iconPath)
+
+    local icon = assert(io.open('AwesomeForeverToolkit/Media/icon.tga', 'rb'))
+    assert(icon:read(1), 'addon icon is empty')
+    icon:close()
+end)
+
+test('melee checkbox is independent of ranged checkbox', function()
+    local world, addon = setup(function(w) w.actions[67] = { 'spell', 40 } end)
+    tinted(world.main)
+    tinted(world.side)
+
+    addon.Config.Set('checkRangedAbilities', false)
+
+    native(world.main)
+    tinted(world.side)
+
+    addon.Config.Set('checkRangedAbilities', true)
+    local check = addon.SettingsPanel.controls.checkMeleeAbilities
+    equal(check.Text.text, 'Check melee abilities')
+    equal(check.parent, addon.SettingsPanel.sections[1])
+    check:SetChecked(false)
+    check.scripts.OnClick(check)
+
+    tinted(world.main)
+    native(world.side)
+    equal(world.env.AwesomeForeverToolkitCharacterDB.utilities.checkMeleeAbilities, false)
+end)
+
+test('manifest stores utility settings per character and graphics account-wide', function()
+    local file = assert(io.open('tests/utilities/manifest.txt'))
+    local manifest = file:read('*a')
+    file:close()
+
+    assert(manifest:find('## SavedVariablesPerCharacter: UtilsAssistForeverDB', 1, true))
+    assert(manifest:find('## SavedVariables: UtilsAssistForeverGraphicsDB', 1, true))
+    assert(manifest:find('## Title: Utils Assist Forever', 1, true))
+end)
+
+print(string.format('\n%d passed, %d failed', passed, failed))
+os.exit(failed == 0 and 0 or 1)
+
+test('slash config command opens registered native category', function()
+    local world = setup()
+
+    world.env.SlashCmdList.AWESOMEFOREVERTOOLKIT('utilities  config ')
+
+    equal(world.openCategory, 123)
+end)

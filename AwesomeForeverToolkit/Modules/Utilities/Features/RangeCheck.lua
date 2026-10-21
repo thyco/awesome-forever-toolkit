@@ -1,0 +1,59 @@
+local _, root = ...
+local addon = root.modules.Utilities
+local feature = { buttons = {}, colored = 0 }
+addon.RangeCheck = feature
+
+function feature:Enabled()
+    return addon.Config.Get("checkRangedAbilities") or addon.Config.Get("checkMeleeAbilities")
+end
+
+function feature:Refresh(discover, rebuild)
+    if rebuild then
+        addon.Range:Rebuild()
+    end
+
+    if discover then
+        self.buttons = addon.Buttons.All()
+        for _, button in ipairs(self.buttons) do
+            addon.IconTint.Prepare(button)
+        end
+    end
+
+    local diagnostics = self.diagnoseNext
+    self.diagnoseNext = false
+    addon.Range:BeginUpdate(diagnostics)
+    self.colored = 0
+    self.references = diagnostics and {} or nil
+    for _, button in ipairs(self.buttons) do
+        local outOfRange = false
+        if addon.Range.hasTarget and addon.Client.Boolean(button:IsVisible()) == true then
+            -- Live slots handle paging; displayed spell IDs handle macro changes.
+            local kind, id, subtype = addon.Client.ActionInfo(button.action)
+            local queued, source, suppress = addon.NextSwing:ForAction(button.action, addon.Range.unit,
+                kind, id, subtype)
+            if queued then
+                outOfRange = addon.Range:IsMeleeOutOfRange()
+                if diagnostics then
+                    self.references[#self.references + 1] = "Action slot " .. button.action
+                        .. ": " .. source .. " -> next-swing spell " .. queued .. " -> " .. addon.NextSwing.referenceLabel
+                end
+            elseif not suppress then
+                local spellID = addon.Client.ActionSpell(kind, id, subtype)
+                outOfRange = addon.Range:IsOutOfRange(spellID)
+            end
+        end
+
+        addon.IconTint.Set(button, outOfRange)
+        if outOfRange then
+            self.colored = self.colored + 1
+        end
+    end
+end
+
+function feature:Stop()
+    self.references = nil
+    addon.IconTint.Clear()
+    self.colored = 0
+end
+
+addon:RegisterFeature(feature)

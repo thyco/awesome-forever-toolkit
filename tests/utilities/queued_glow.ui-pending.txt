@@ -1,0 +1,40 @@
+
+test('Blizzard color picker updates the glow and cancel restores the prior color', function()
+    local world, addon = setup()
+    local swatch = addon.SettingsPanel.controls.queuedGlowColor
+    swatch.scripts.OnClick(swatch)
+    local picker = world.env.ColorPickerFrame
+    local original = picker.info
+
+    equal(original.r, 38 / 255)
+    equal(original.g, 217 / 255)
+    equal(original.b, 1)
+    equal(original.hasOpacity, false)
+    picker.r, picker.g, picker.b = 1, 0.25, 0.5
+    original.swatchFunc()
+
+    equal(addon.Config.Get('queuedGlowColor'), 'ffff4080')
+    equal(effect(world).textures[1].color[2], 64 / 255)
+
+    original.cancelFunc()
+
+    equal(addon.Config.Get('queuedGlowColor'), 'ff26d9ff')
+end)
+
+test('restricted color picker values leave the saved color unchanged', function()
+    local world, addon = setup()
+    local swatch = addon.SettingsPanel.controls.queuedGlowColor
+    swatch.scripts.OnClick(swatch)
+    world.env.ColorPickerFrame.GetColorRGB = function() return world.secret, 0, 0 end
+
+    world.env.ColorPickerFrame.info.swatchFunc()
+
+    equal(addon.Config.Get('queuedGlowColor'), 'ff26d9ff')
+end)
+
+test('queued glow has its own setting in the settings page', function()
+    local world, addon = setup()
+
+    assert(addon.SettingsPanel.controls.highlightQueuedAttacks)
+    equal(world.category.name, 'Utils Assist Forever')
+end)

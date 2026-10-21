@@ -1,0 +1,11 @@
+
+test('legacy options command opens the integrated settings page', function()
+    local world = setup()
+
+    world.env.SlashCmdList.AWESOMEFOREVERTOOLKIT('utilities o')
+
+    equal(world.openCategory, 123)
+end)
+
+print(string.format('\n%d passed, %d failed', passed, failed))
+os.exit(failed == 0 and 0 or 1)
