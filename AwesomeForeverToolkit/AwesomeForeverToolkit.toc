@@ -9,4 +9,6 @@
 
 Core/Addon.lua
 Core/Config.lua
+Services/Client.lua
+Services/Buttons.lua
 Core/Bootstrap.lua
