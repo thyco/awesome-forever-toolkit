@@ -27,7 +27,7 @@ function H.new()
     function world:loadManifest()
         for line in io.lines("AwesomeForeverToolkit/AwesomeForeverToolkit.toc") do
             if line:match("%.lua$") and not line:match("^Libs/") then
-                self:load({line:gsub("%.lua$", "")})
+                self:load({(line:gsub("%.lua$", ""))})
             end
         end
         return self.addon

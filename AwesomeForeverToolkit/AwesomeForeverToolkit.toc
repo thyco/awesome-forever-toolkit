@@ -30,4 +30,15 @@ Modules/Utilities/Features/CooldownGrey.lua
 Modules/Utilities/Features/GamepadOverlay.lua
 Modules/Utilities/Features/BarClickThrough.lua
 Modules/Utilities/Runtime.lua
+Modules/Warrior/Module.lua
+Modules/Warrior/Config.lua
+Modules/Warrior/Services/Stance.lua
+Modules/Warrior/Services/StanceIcon.lua
+Modules/Warrior/Services/ReactiveSpells.lua
+Modules/Warrior/Services/Timers.lua
+Modules/Warrior/Services/BattleShoutAura.lua
+Modules/Warrior/Services/BattleShoutIcon.lua
+Modules/Warrior/Features/BattleShoutReminder.lua
+Modules/Warrior/Features/ReactiveAbilities.lua
+Modules/Warrior/Runtime.lua
 Core/Bootstrap.lua
