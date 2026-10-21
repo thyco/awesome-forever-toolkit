@@ -1,0 +1,12 @@
+## Interface: 16001
+## Title: Awesome Forever Toolkit
+## Notes: Shared utilities and class assistance.
+## Author: collogt
+## Version: 0.1.0
+## SavedVariables: AwesomeForeverToolkitDB
+## SavedVariablesPerCharacter: AwesomeForeverToolkitCharacterDB
+## OptionalDeps: UtilsAssistForever, WarriorAssistForever, Blizzard_GamepadActionBars
+
+Core/Addon.lua
+Core/Config.lua
+Core/Bootstrap.lua
