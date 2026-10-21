@@ -60,3 +60,25 @@ do
 end
 
 print("integration: PASS")
+
+do
+    local world = H.new()
+    local button = world:button("ActionButton1", 1)
+    local root = world:loadManifest()
+    world:fire("PLAYER_LOGIN")
+    local queued = root.modules.Utilities.QueuedGlow
+    local entry = queued.Prepare(button)
+    queued.Set(button, true)
+    root.Glow.Set(button, "warrior:coexistence", true)
+
+    root.Glow.ClearOwner("warrior:coexistence")
+
+    assert(entry.effect:IsVisible(), "stopping proc glow must keep queued border")
+    assert(entry.frame:IsVisible())
+    root.Glow.Set(button, "warrior:coexistence", true)
+
+    queued.Clear()
+
+    assert(not entry.effect:IsVisible())
+    assert(world.glowActive[button], "stopping queued border must keep proc glow")
+end
