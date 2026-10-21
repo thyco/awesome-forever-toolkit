@@ -1,5 +1,6 @@
 ## Interface: 16001
 ## Title: Awesome Forever Toolkit
+## IconTexture: Interface\AddOns\AwesomeForeverToolkit\Media\Icon.tga
 ## Notes: Shared utilities and class assistance.
 ## Author: collogt
 ## Version: 0.1.0
@@ -47,4 +48,5 @@ UI/DisplayLocation.lua
 UI/Pages.lua
 Modules/Utilities/Pages.lua
 Modules/Warrior/Pages.lua
+UI/Minimap.lua
 Core/Bootstrap.lua
