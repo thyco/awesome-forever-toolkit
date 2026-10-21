@@ -70,6 +70,8 @@ root.Window:RegisterPage({
             for key, frame in pairs(frames) do frame:SetShown(key == value) end
             parent:SetHeight(frames[value]:GetHeight() + 70)
             root.Window.scroll:SetVerticalScroll(0)
+            local selector = context.controls["warrior.feature"]
+            if selector then selector.refresh() end
         end
         local setting = {GetValue = function() return selected end, SetValue = function(_, value) select(value) end}
         context.controls["warrior.feature"] = W.Dropdown(parent, "Feature", -10, setting, abilities)
