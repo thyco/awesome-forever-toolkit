@@ -15,6 +15,7 @@ SlashCmdList.AWESOMEFOREVERTOOLKIT = function(message)
     end
 
     local module = command == "warrior" and addon.modules.Warrior
+        or command == "hunter" and addon.modules.Hunter
         or command == "utilities" and addon.modules.Utilities
         or command == "gamepad" and addon.modules.Gamepad
     if module and module.active and module.Diagnostics then

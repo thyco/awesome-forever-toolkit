@@ -47,6 +47,24 @@ function H.new()
         function value:SetNormalTexture(texture) self.normalTexture = texture end
         function value:SetHighlightTexture(texture) self.highlightTexture = texture end
         function value:SetJustifyV(alignment) self.justifyV = alignment end
+        function value:SetBlendMode(mode) self.blendMode = mode end
+        function value:CreateAnimationGroup()
+            local group = { animations = {}, playing = false }
+            function group:SetLooping(looping) self.looping = looping end
+            function group:CreateAnimation(kind)
+                local animation = { kind = kind }
+                function animation:SetOrder(order) self.order = order end
+                function animation:SetDuration(duration) self.duration = duration end
+                function animation:SetFromAlpha(alpha) self.fromAlpha = alpha end
+                function animation:SetToAlpha(alpha) self.toAlpha = alpha end
+                self.animations[#self.animations + 1] = animation
+                return animation
+            end
+            function group:Play() self.playing = true end
+            function group:Stop() self.playing = false end
+            function group:IsPlaying() return self.playing end
+            return group
+        end
         function value:SetScale(scale) self.scale = scale end
         function value:SetHitRectInsets(...) self.hitRectInsets = {...} end
         function value:RegisterForClicks(...) self.clicks = {...} end

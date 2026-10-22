@@ -17,71 +17,8 @@ local function Label(parent, text, x, y, width, height, font)
     return label
 end
 
--- Blizzard menus enter the native gamepad focus stack from addon callbacks.
--- Keep these choices on ordinary addon-owned frames instead.
-local openChoices
-
 local function Dropdown(parent, x, y, width, options, get, set)
-    local dropdown = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
-    dropdown:SetPoint("TOPLEFT", x, y)
-    dropdown:SetSize(width, 26)
-
-    local popup = CreateFrame("Frame", nil, dropdown, "BackdropTemplate")
-    popup:SetPoint("TOPLEFT", dropdown, "BOTTOMLEFT", 0, -2)
-    popup:SetFrameStrata("DIALOG")
-    popup:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
-    popup:SetBackdropColor(0.08, 0.08, 0.1, 1)
-    popup:SetBackdropBorderColor(0.6, 0.5, 0.2, 1)
-    popup:EnableMouse(true)
-    popup:Hide()
-    dropdown.popup, dropdown.choices = popup, {}
-
-    local function Close()
-        popup:Hide()
-        if openChoices == popup then openChoices = nil end
-    end
-
-    dropdown:SetScript("OnHide", Close)
-    popup:RegisterEvent("GLOBAL_MOUSE_DOWN")
-    popup:SetScript("OnEvent", function()
-        if popup:IsShown() and not popup:IsMouseOver() and not dropdown:IsMouseOver() then Close() end
-    end)
-    dropdown:SetScript("OnClick", function()
-        if popup:IsShown() then Close(); return end
-        if addon.Runtime.IsLocked() or not dropdown:IsEnabled() then return end
-        if openChoices then openChoices:Hide() end
-
-        for _, choice in ipairs(dropdown.choices) do choice:Hide() end
-        for index, option in ipairs(options) do
-            local choice = dropdown.choices[index]
-            if not choice then
-                choice = CreateFrame("Button", nil, popup, "UIPanelButtonTemplate")
-                choice:SetPoint("TOPLEFT", 4, -4 - (index - 1) * 26)
-                choice:SetSize(width - 8, 24)
-                dropdown.choices[index] = choice
-            end
-            choice.value = option.value
-            choice:SetText((get() == option.value and "|cffffd100" or "|cffffffff") .. option.label .. "|r")
-            choice:SetScript("OnClick", function()
-                Close()
-                if not addon.Runtime.IsLocked() then set(option.value) end
-            end)
-            choice:Show()
-        end
-
-        popup:SetSize(width, 8 + #options * 26)
-        openChoices = popup
-        popup:Show()
-    end)
-    dropdown.refresh = function()
-        Close()
-        local value = get()
-        dropdown.selectedValue = value
-        for _, option in ipairs(options) do
-            if option.value == value then dropdown:SetText(option.label .. "  |TInterface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up:16:16|t"); break end
-        end
-    end
-    return dropdown
+    return root.Widgets.ChoiceButton(parent, x, y, width, options, get, set, addon.Runtime.IsLocked)
 end
 
 local function Slot(parent, x, y, size)

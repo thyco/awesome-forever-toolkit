@@ -6,7 +6,7 @@
 ## Version: 0.1.0
 ## SavedVariables: AwesomeForeverToolkitDB
 ## SavedVariablesPerCharacter: AwesomeForeverToolkitCharacterDB
-## OptionalDeps: UtilsAssistForever, WarriorAssistForever, Blizzard_GamepadActionBars
+## OptionalDeps: UtilsAssistForever, WarriorAssistForever, HunterAssistForever, Blizzard_GamepadActionBars
 
 Libs/LibStub/LibStub.lua
 Libs/LibCustomGlow-1.0/LibCustomGlow-1.0.lua
@@ -49,12 +49,28 @@ Modules/Warrior/Services/BattleShoutIcon.lua
 Modules/Warrior/Features/BattleShoutReminder.lua
 Modules/Warrior/Features/ReactiveAbilities.lua
 Modules/Warrior/Runtime.lua
+Modules/Hunter/Module.lua
+Modules/Hunter/Config.lua
+Modules/Hunter/Services/ReactiveSpells.lua
+Modules/Hunter/Services/CounterattackOverlay.lua
+Modules/Hunter/Features/ReactiveAbilities.lua
+Modules/Hunter/Services/AmmoInventory.lua
+Modules/Hunter/Services/AmmoIcon.lua
+Modules/Hunter/Features/Ammo.lua
+Modules/Hunter/Services/PetWarning.lua
+Modules/Hunter/Services/PetHappinessIcon.lua
+Modules/Hunter/Features/PetHappiness.lua
+Modules/Hunter/Services/PetHealthIcon.lua
+Modules/Hunter/Features/PetHealth.lua
+Modules/Hunter/Services/AspectIcon.lua
+Modules/Hunter/Features/AspectWarning.lua
 UI/Widgets.lua
 UI/Window.lua
 UI/DisplayLocation.lua
 UI/Pages.lua
 Modules/Utilities/Pages.lua
 Modules/Warrior/Pages.lua
+Modules/Hunter/Pages.lua
 Modules/Gamepad/Pages.lua
 UI/Minimap.lua
 Core/Bootstrap.lua

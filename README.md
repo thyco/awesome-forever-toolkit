@@ -1,12 +1,12 @@
 # Awesome Forever Toolkit
 
-One addon for shared WoW Forever utilities and class assistance. Version 0.1.0 targets interface **16001**. Includes Utilities, Warrior assistance and Gamepad bindings with shared button discovery, client helpers, visuals and configuration controls.
+One addon for shared WoW Forever utilities and class assistance. Version 0.1.0 targets interface **16001**. Includes Utilities, Warrior and Hunter assistance, and Gamepad bindings with shared button discovery, client helpers, visuals and configuration controls.
 
 ## Install
 
 1. Build with `python3 scripts/package.py`, or use the generated `dist/AwesomeForeverToolkit-0.1.0.zip`.
 2. Extract into `Interface/AddOns`, producing `AwesomeForeverToolkit/AwesomeForeverToolkit.toc`.
-3. Disable **Utils Assist Forever** and **Warrior Assist Forever**. If either is loaded, the toolkit suppresses the matching module for that session; disable the old addon and reload to activate its replacement.
+3. Disable **Utils Assist Forever**, **Warrior Assist Forever** and **Hunter Assist Forever**. If one is loaded, the toolkit suppresses the matching module for that session; disable the old addon and reload to activate its replacement.
 4. Enable **Awesome Forever Toolkit** and restart the client if it does not appear.
 5. Click the thumbs-up beside the minimap, type `/aft` or `/af`, or use the launcher under Settings → AddOns.
 
@@ -23,11 +23,13 @@ The movable standalone window has these pages:
 - **Graphics:** grass and ground-effect density with a reset to the client-reported default.
 - **Warrior → Reminders & glows:** select Battle Shout, Overpower, Revenge, Execute, Victory Rush or Shield Block; only the selected feature's controls are shown.
 - **Warrior → Stance indicator:** current stance icon, shield corner and positioning.
+- **Hunter → Hunter reminders:** ammunition thresholds, pet health/happiness, screen pulse and movement-aspect warnings.
+- **Hunter → Reactive abilities:** Mongoose Bite and Counterattack glows, independent standard/gamepad destinations, colors, previews and the optional Counterattack icon overlay.
 - **Your class → Gamepad bindings:** A/B/X/Y assignments and Base/form profiles. Available on every class, after the shared pages.
 
-Warrior pages appear only on Warriors with the module active. The last available page is remembered per character. Reminder location selectors save standard bar/button and native gamepad page/set/button separately; the current input mode determines which selection is used. Gamepad bindings use a separate page under your current class.
+Class assistance pages appear only on the matching class with its module active. The last available page is remembered per character. Reminder location selectors save standard bar/button and native gamepad page/set/button separately; the current input mode determines which selection is used. Gamepad bindings use a separate page under your current class.
 
-Changes to Warrior settings, including moving its icons, mark the footer **Apply & Reload**. X, Escape and the footer request that reload before hiding the window. A cancelled color edit still requires a reload if a change was applied during the session. Unchanged settings close normally. Page switching does not reload.
+Changes to Warrior or Hunter settings, including moving their icons, mark the footer **Apply & Reload**. X, Escape and the footer request that reload before hiding the window. A cancelled color edit still requires a reload if a change was applied during the session. Unchanged settings close normally. Page switching does not reload.
 
 Configuration cannot open in combat. Entering combat hides it and clears previews; pending reload status survives until reopening and closing outside combat. Utility and graphics controls retain their existing combat restrictions.
 
@@ -43,13 +45,19 @@ Utilities retain:
 
 Warrior retains Battle Shout tracking and reminders; Overpower, Revenge, Execute, Victory Rush and Shield Block glow rules; the stance icon and shield corner; native gamepad page/stance replacement handling; preview actions; and restricted-value protections. Defaults and trigger rules follow Warrior 0.9.6 and Utils 0.6.0.
 
-Hunter and Paladin assistance have not been migrated. Their existing addons may remain installed. Gamepad bindings are integrated; disable the standalone Gamepad Assist Forever when using the toolkit. There is no compatibility layer or old-settings migration for it.
+Hunter retains ammunition, pet health/happiness and Cheetah/Pack reminders. Mongoose Bite and Counterattack follow Revenge's opportunity/own-cooldown rules, preserving a confirmed opportunity through a GCD. A successful cast clears the glow immediately; a bounded guard prevents stale API results from immediately relighting it. An actual spell cooldown blocks the glow, and missing/restricted data does not invent an opportunity. The old indefinite consumed-proc latch is not carried over. Real-client event timing still needs validation.
+
+Choose each Hunter ability's standard bar/button and native gamepad page/set/button separately. Gamepad destinations start unselected. The active UI determines the destination; Preview uses that UI outside combat. Counterattack's optional overlay only changes the displayed icon and GCD swipe, never the underlying action, binding or tooltip.
+
+Paladin assistance has not been migrated; its existing addon may remain installed. Gamepad bindings are integrated; disable the standalone Gamepad Assist Forever when using the toolkit. There is no compatibility layer or old-settings migration for it.
 
 ## Commands
 
 - `/aft`, `/af`, `/aft config`: open or raise the window.
 - `/aft status`: module status, including any duplicate-addon guard.
 - `/aft warrior`: Warrior diagnostics.
+- `/aft hunter`: Hunter learned-spell, usability-signal, cooldown and glow diagnostics.
+- `/aft hunter config`: open Hunter reminders.
 - `/aft gamepad` or `/aft gamepad config`: open Gamepad bindings.
 - `/aft gamepad on|off|status|log`: activate saved bindings, disable overrides, or inspect diagnostics.
 - `/aft gamepad set A context|always <spell ID or spell link>` and `/aft gamepad set A native`: edit the Base profile; replace A with B, X or Y as needed.
@@ -58,7 +66,7 @@ Hunter and Paladin assistance have not been migrated. Their existing addons may 
 - `/aft utilities noclicky 1-8|all`: enable click-through.
 - `/aft utilities status`: print click-through state.
 
-The old `/uaf`, `/waf`, `/gaf` and `/bnc` aliases are not registered by this addon.
+The old `/uaf`, `/waf`, `/haf`, `/gaf` and `/bnc` aliases are not registered by this addon.
 
 ## Gamepad bindings
 
@@ -76,7 +84,7 @@ The overlay is visual only. Test with the physical controller; clicking it with 
 
 ## Saved settings
 
-`AwesomeForeverToolkitDB` stores account-wide Warrior and graphics preferences. `AwesomeForeverToolkitCharacterDB` stores utility preferences, UI state and gamepad assignments/activation per character. Module subtrees are validated independently.
+`AwesomeForeverToolkitDB` stores account-wide Warrior, Hunter and graphics preferences. `AwesomeForeverToolkitCharacterDB` stores utility preferences, UI state and gamepad assignments/activation per character. Module subtrees are validated independently.
 
 ## Development
 
@@ -92,4 +100,4 @@ The approved PNG and its generation prompt live under `artwork/`. `python3 scrip
 
 ## Attribution
 
-Feature code derives from the author's Warrior Assist Forever and Utils Assist Forever projects. Utils' click-through behavior derives from BarNoClicky by mostlyharmlessx; cooldown greying adapts GreyOnCooldown behavior. LibCustomGlow and LibStub are bundled with their original notices; see `AwesomeForeverToolkit/Libs/`. Source-library formatting is preserved.
+Feature code derives from the author's Warrior Assist Forever, Hunter Assist Forever and Utils Assist Forever projects. Utils' click-through behavior derives from BarNoClicky by mostlyharmlessx; cooldown greying adapts GreyOnCooldown behavior. LibCustomGlow and LibStub are bundled with their original notices; see `AwesomeForeverToolkit/Libs/`. Source-library formatting is preserved.

@@ -1,0 +1,175 @@
+local _, root = ...
+local addon = root.modules.Hunter
+
+local Warning = {}
+addon.PetWarning = Warning
+local lastSoundAt
+
+function Warning.Initialize()
+    if Warning.visualFrame then
+        return
+    end
+
+    local frame = CreateFrame("Frame", "AwesomeForeverToolkitHunterPetHealthWarning", UIParent)
+    frame:SetSize(640, 50)
+    frame:SetPoint("TOP", UIParent, "TOP", 0, -150)
+    frame:SetFrameStrata("HIGH")
+    frame:EnableMouse(false)
+
+    local text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+    text:SetPoint("CENTER", frame, "CENTER")
+    text:SetText("Pet health low!")
+    text:SetTextColor(1, 0.2, 0.2)
+    text:SetJustifyH("CENTER")
+
+    frame:Hide()
+    Warning.visualFrame = frame
+    Warning.visualText = text
+
+    local flash = CreateFrame("Frame", "AwesomeForeverToolkitHunterPetHealthFlash", UIParent)
+    flash:SetAllPoints(UIParent)
+    flash:SetFrameStrata("MEDIUM")
+    flash:EnableMouse(false)
+
+    local pulse = CreateFrame("Frame", nil, flash)
+    pulse:SetAllPoints(flash)
+    pulse:EnableMouse(false)
+    local tints = {}
+    for index = 1, 3 do
+        local tint = pulse:CreateTexture(nil, "BACKGROUND")
+        tint:SetAllPoints(pulse)
+        tint:SetTexture("Interface\\FullScreenTextures\\LowHealth")
+        tint:SetBlendMode("ADD")
+        tint:SetDesaturated(true)
+        tints[index] = tint
+    end
+
+    local animation = pulse:CreateAnimationGroup()
+    animation:SetLooping("REPEAT")
+    local brighten = animation:CreateAnimation("Alpha")
+    brighten:SetOrder(1)
+    brighten:SetFromAlpha(0.1)
+    brighten:SetToAlpha(1)
+    brighten:SetDuration(0.45)
+    local dim = animation:CreateAnimation("Alpha")
+    dim:SetOrder(2)
+    dim:SetFromAlpha(1)
+    dim:SetToAlpha(0.1)
+    dim:SetDuration(0.55)
+
+    flash:Hide()
+    Warning.flashFrame = flash
+    Warning.flashTint = tints[1]
+    Warning.flashTints = tints
+    Warning.flashAnimation = animation
+    Warning.ApplyFlashAppearance()
+end
+
+function Warning.ApplyFlashAppearance()
+    if not Warning.flashTints then
+        return
+    end
+
+    local color = addon.Config.Get("petFlashColor")
+    local intensity = addon.Config.Get("petFlashIntensity")
+    if Warning.flashColor == color and Warning.flashIntensity == intensity then
+        return
+    end
+
+    local red, green, blue = addon.Config.GetColor("petFlashColor")
+    local strength = intensity / 100
+    for index, tint in ipairs(Warning.flashTints) do
+        local alpha = math.max(0, math.min(1, strength - index + 1))
+        tint:SetVertexColor(red, green, blue, alpha)
+    end
+
+    Warning.flashColor = color
+    Warning.flashIntensity = intensity
+end
+
+function Warning.SetPreview(enabled)
+    if not Warning.flashFrame then
+        return false
+    end
+
+    if not enabled and not Warning.preview then
+        return false
+    end
+
+    Warning.preview = enabled == true
+    if Warning.preview or not addon.PetHealth.worldReady then
+        Warning.SetLowHealthFlash(false, nil, false)
+    else
+        addon.PetHealth:Refresh()
+    end
+
+    return Warning.preview
+end
+
+function Warning.SetLowHealthVisual(alpha, available)
+    local frame = Warning.visualFrame
+    if not frame then
+        return
+    end
+
+    if available then
+        frame:Show()
+        frame:SetAlpha(alpha)
+    else
+        frame:Hide()
+        frame:SetAlpha(1)
+    end
+end
+
+function Warning.SetLowHealthFlash(low, alpha, available)
+    local frame = Warning.flashFrame
+    if not frame then
+        return
+    end
+
+    local preview = Warning.preview == true
+    if not preview and (not addon.Config.Get("petFlashEnabled") or (not low and not available)) then
+        if Warning.flashAnimation:IsPlaying() then
+            Warning.flashAnimation:Stop()
+        end
+        frame:Hide()
+        frame:SetAlpha(1)
+        return
+    end
+
+    frame:SetAlpha(preview and 1 or (available and alpha or 1))
+    frame:Show()
+    if not Warning.flashAnimation:IsPlaying() then
+        Warning.flashAnimation:Play()
+    end
+end
+
+function Warning.Show(message)
+    local color = ChatTypeInfo and ChatTypeInfo.RAID_WARNING or { r = 1, g = 0.2, b = 0.2 }
+    local shown = false
+    if RaidNotice_AddMessage and RaidWarningFrame then
+        shown = pcall(RaidNotice_AddMessage, RaidWarningFrame, message, color)
+    end
+    if not shown then
+        print("Awesome Forever Toolkit: " .. message)
+    end
+
+    local now
+    if type(GetTime) == "function" then
+        local ok, value = pcall(GetTime)
+        if ok and addon.Client.Number(value) then
+            now = value
+        end
+    end
+    if now and lastSoundAt and now - lastSoundAt < 1 then
+        return
+    end
+
+    local sound = SOUNDKIT and SOUNDKIT.TELL_MESSAGE or 3081
+    if type(PlaySound) == "function" and addon.Client.Number(sound) then
+        local ok = pcall(PlaySound, sound)
+        if ok then
+            lastSoundAt = now
+        end
+    end
+end

@@ -20,3 +20,11 @@ The activation, configuration, profiles, overlay/router and visual suites in tes
 The secure router snippet, condition driver generation and spell macro generation are unchanged. Root integration covers fresh state, absent gamepad APIs, class page order and combat opening restrictions. Utility overlay tests now use the internal module provider, including hidden-frame preparation, range/cooldown tint, macro spell changes and cleanup.
 
 Real-client secure execution, controller delivery and visual rendering remain manual checks. No test depends on the source repository at runtime.
+
+## Hunter integration
+
+Hunter reminder tests derive from Hunter Assist Forever commit 0969d0a. The ammo, pet and aspect suites execute the migrated files and shared toolkit Client/Glow with isolated mocked client APIs. Native settings UI and legacy-setting migration assertions were replaced with shared configuration and preview-cleanup checks.
+
+Reactive tests cover the replacement evaluator and both destination modes, rather than assuming the old consumed-proc heuristics were correct. They exercise known opportunity, GCD, actual cooldown, restricted values, cast clearing and subsequent proc recovery. Full-manifest integration covers class gating, saved configuration, ordered cutoffs, addon-owned dropdown callbacks, preview cleanup and the old-Hunter duplicate guard.
+
+No test requires the original repository. In-game dodge/parry and cooldown event sequences remain an explicit client-validation step.

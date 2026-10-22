@@ -57,3 +57,13 @@ Automated tests simulate client APIs; they cannot establish native-client taint 
 - Empty slots should show a muted button letter and Blizzard default; no question-mark texture. Assigned icons should retain a visible button-letter label.
 - Switch to a form that inherits a Base spell or macro: the editor should show its actual icon, name and behavior with Inherited from Base. Change Base, return to the form, and verify the updated value. Also test inheriting an empty Base.
 - Drop onto each diamond button and the larger editor slot; click without a cursor to select without changing assignments. Verify long spell/macro names, missing macros, profile dropdown, tooltips and narrow-window scaling.
+
+## Hunter
+
+- Disable Hunter Assist Forever, install the toolkit, then reload on a Hunter. Confirm Hunter reminders, Reactive abilities and Gamepad bindings appear together after shared pages. Confirm other classes do not start Hunter features.
+- Check ammo cutoff colors/counts and one warning per low-ammo episode; check pet health/happiness, pulse preview, and Cheetah/Pack in combat. Move icons and verify positions survive Apply & Reload.
+- Configure both normal and gamepad destinations for each reactive ability. Preview in each input mode. Open destination choices with the native gamepad UI active and confirm no protected-action errors.
+- Trigger Mongoose Bite and learned Counterattack: a valid opportunity glows; an unrelated GCD does not erase it; casting clears it immediately; a real spell cooldown blocks it. A new opportunity after cooldown must glow again without a reload.
+- Check low mana, different learned ranks, missing/restricted cooldown data and a proc arriving during cooldown. Capture `/aft hunter` output if the result is wrong. Local mocks cannot establish actual client signal timing.
+- Switch gamepad pages, sets, input mode and native frame replacements. Only the selected visible destination should glow; the previous destination and Counterattack icon must clear. Check the overlay GCD swipe and confirm action/binding/tooltip are unchanged.
+- Close settings and enter combat with previews active: previews stop; unchanged settings close normally, changed Hunter settings request one reload before closing.

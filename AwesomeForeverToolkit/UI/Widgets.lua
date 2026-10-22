@@ -73,6 +73,109 @@ function Widgets.Dropdown(parent, label, y, setting, options)
     return dropdown
 end
 
+-- Blizzard menus enter the native gamepad focus stack from addon callbacks.
+-- Keep these choices on ordinary addon-owned frames instead.
+local openChoices
+
+function Widgets.ChoiceButton(parent, x, y, width, options, get, set, locked)
+    locked = locked or InCombatLockdown
+    local dropdown = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+    dropdown:SetPoint("TOPLEFT", x, y)
+    dropdown:SetSize(width, 26)
+
+    local popup = CreateFrame("Frame", nil, dropdown, "BackdropTemplate")
+    popup:SetPoint("TOPLEFT", dropdown, "BOTTOMLEFT", 0, -2)
+    popup:SetFrameStrata("DIALOG")
+    popup:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
+    popup:SetBackdropColor(0.08, 0.08, 0.1, 1)
+    popup:SetBackdropBorderColor(0.6, 0.5, 0.2, 1)
+    popup:EnableMouse(true)
+    popup:Hide()
+    dropdown.popup, dropdown.choices, dropdown.options = popup, {}, options
+
+    local function Close()
+        popup:Hide()
+        if openChoices == popup then openChoices = nil end
+    end
+
+    dropdown:SetScript("OnHide", Close)
+    popup:RegisterEvent("GLOBAL_MOUSE_DOWN")
+    popup:SetScript("OnEvent", function()
+        if popup:IsShown() and not popup:IsMouseOver() and not dropdown:IsMouseOver() then Close() end
+    end)
+    dropdown:SetScript("OnClick", function()
+        if popup:IsShown() then Close(); return end
+        if locked() or not dropdown:IsEnabled() then return end
+        if openChoices then openChoices:Hide() end
+
+        for _, choice in ipairs(dropdown.choices) do choice:Hide() end
+        for index, option in ipairs(options) do
+            local choice = dropdown.choices[index]
+            if not choice then
+                choice = CreateFrame("Button", nil, popup, "UIPanelButtonTemplate")
+                choice:SetPoint("TOPLEFT", 4, -4 - (index - 1) * 26)
+                choice:SetSize(width - 8, 24)
+                dropdown.choices[index] = choice
+            end
+            choice.value = option.value
+            choice:SetText((get() == option.value and "|cffffd100" or "|cffffffff") .. option.label .. "|r")
+            choice:SetScript("OnClick", function()
+                Close()
+                if not locked() then set(option.value) end
+            end)
+            choice:Show()
+        end
+
+        popup:SetSize(width, 8 + #options * 26)
+        openChoices = popup
+        popup:Show()
+    end)
+    dropdown.refresh = function()
+        Close()
+        local value = get()
+        dropdown.selectedValue = value
+        for _, option in ipairs(options) do
+            if option.value == value then dropdown:SetText(option.label .. "  |TInterface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up:16:16|t"); break end
+        end
+    end
+    return dropdown
+end
+
+function Widgets.ChoiceDropdown(parent, label, y, setting, options)
+    Widgets.Text(parent, label, 20, y - 7, "GameFontHighlight")
+    return Widgets.ChoiceButton(parent, 266, y, 210, options,
+        function() return setting:GetValue() end,
+        function(value) setting:SetValue(value) end)
+end
+
+function Widgets.Number(parent, label, y, setting, options)
+    Widgets.Text(parent, label, 20, y - 7, "GameFontHighlight")
+    local edit = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
+    edit:SetPoint("TOPLEFT", 266, y)
+    edit:SetSize(110, 26)
+    edit:SetAutoFocus(false)
+    edit:SetNumeric(true)
+    edit:SetMaxLetters(6)
+    edit.refresh = function() edit:SetText(tostring(setting:GetValue())) end
+
+    local function commit(self)
+        local value = tonumber(self:GetText())
+        if value == setting:GetValue() then return end
+
+        if options.validate(value) then
+            setting:SetValue(value)
+            options.feedback:SetText("")
+        else
+            options.feedback:SetText(options.message)
+        end
+        self.refresh()
+    end
+    edit:SetScript("OnEnterPressed", function(self) commit(self); self:ClearFocus() end)
+    edit:SetScript("OnEditFocusLost", commit)
+    edit:SetScript("OnEscapePressed", function(self) self.refresh(); self:ClearFocus() end)
+    return edit
+end
+
 function Widgets.Color(parent, label, y, setting)
     Widgets.Text(parent, label, 20, y - 5, "GameFontHighlight")
 
