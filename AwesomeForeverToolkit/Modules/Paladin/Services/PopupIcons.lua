@@ -71,23 +71,12 @@ function PopupIcons:SetPosition(x, y)
     self.frame:SetPoint('CENTER', UIParent, 'CENTER', self.x, self.y)
 end
 
-function PopupIcons:SetVisible(reminder, preview, flash)
+function PopupIcons:SetVisible(reminder, preview, glowEnabled)
     self.preview = preview == true and not InCombatLockdown()
     self.frame:EnableMouse(self.preview)
-    if reminder then
-        if not self.active then
-            self.flashStarted = not not flash
-        elseif not flash then
-            self.flashStarted = false
-        end
 
-        self.frame:Show()
-        addon.Glow.Set(self.frame, self.owner, true, { startAnim = self.flashStarted })
-    else
-        addon.Glow.Set(self.frame, self.owner, false)
-        self.frame:SetShown(not not preview)
-        self.flashStarted = false
-    end
-
+    local visible = reminder or self.preview
+    self.frame:SetShown(not not visible)
+    addon.Glow.Set(self.frame, self.owner, visible and glowEnabled == true)
     self.active = not not reminder
 end

@@ -81,14 +81,12 @@ function feature:Refresh()
         end
     end
 
-    local combat = UnitAffectingCombat('player')
-    local flash = addon.Client.Readable(combat) and not not combat
     local due = not self.preview and addon.Config.Get(self.settingKey)
         and addon.Client.IsKnown(self.spellID)
         and addon.Client.HasShieldEquipped()
         and self.timer:IsDue()
 
-    self.popup:SetVisible(due, self.preview, flash)
+    self.popup:SetVisible(due, self.preview, addon.Config.Get('righteousFuryGlowEnabled'))
 end
 
 function feature:SetPreview(show)
@@ -102,6 +100,6 @@ end
 
 function feature:Stop()
     if self.popup then
-        self.popup:SetVisible(false, self.preview, false)
+        self.popup:SetVisible(false, self.preview, addon.Config.Get('righteousFuryGlowEnabled'))
     end
 end

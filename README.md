@@ -60,7 +60,7 @@ Holy Strike/Judgement share one selected button and ignore the GCD when the clie
 
 Exorcism glows in combat when ready with a living attackable Demon or Undead target/mouseover, ignoring distance and mana. Its icon is grayscale when an attackable unit exists but cooldown or eligibility prevents the spell. This shares the toolkit's tint compositor, preserving range and cooldown effects when Paladin assistance is disabled.
 
-The seal reminder estimates a refresh from successful casts, at 25 seconds by default. It is visible in combat or with a living attackable target/mouseover; Command damage procs do not reset it. Righteous Fury shows a draggable 64px icon when missing or within five minutes of expiration, only with a shield equipped. Readable aura timing takes precedence over its cast-timer fallback. Both reminders continue observing casts while disabled. Spell-name discovery retains the standalone addon's English-client limitation.
+The seal reminder estimates a refresh from successful casts, at 25 seconds by default, with a green (#00FF00) glow. It is visible in combat or with a living attackable target/mouseover; Command damage procs do not reset it. Righteous Fury shows a draggable 64px icon when missing or within five minutes of expiration, only with a shield equipped. Its Blizzard-style icon glow defaults on and can be disabled independently; the positioning preview shows the same appearance as the reminder, like Hunter’s aspect icon. Readable aura timing takes precedence over its cast-timer fallback. Both reminders continue observing casts while disabled. Spell-name discovery retains the standalone addon's English-client limitation.
 
 ## Commands
 

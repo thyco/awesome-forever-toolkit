@@ -224,4 +224,30 @@ test('active destinations and previews refresh geometry after resizing', functio
     assert(refreshed[w.holy], 'active ability geometry is refreshed')
 end)
 
+test('Righteous Fury glow defaults on and toggles without hiding reminder or preview', function()
+    local w = H.new()
+    local feature = w.paladin.RighteousFuryReminder
+    local frame = feature.popup.frame
+    assert(w.paladin.Config.Get('righteousFuryGlowEnabled') == true)
+    assert(w.paladin.Config.Get('sealGlowColor') == 'ff00ff00')
+
+    w.shield = true
+    w:fire('PLAYER_EQUIPMENT_CHANGED')
+    assert(frame:IsShown() and w:glowing(frame))
+    w.paladin.Config.Set('righteousFuryGlowEnabled', false)
+    assert(frame:IsShown() and not w:glowing(frame))
+    w.paladin.Config.Set('righteousFuryGlowEnabled', true)
+    assert(frame:IsShown() and w:glowing(frame))
+
+    w.shield = false
+    w:fire('PLAYER_EQUIPMENT_CHANGED')
+    assert(not frame:IsShown() and not w:glowing(frame))
+    feature:SetPreview(true)
+    assert(frame:IsShown() and w:glowing(frame), 'preview matches Hunter aspect glow')
+    w.paladin.Config.Set('righteousFuryGlowEnabled', false)
+    assert(frame:IsShown() and not w:glowing(frame))
+    feature:SetPreview(false)
+    assert(not frame:IsShown() and not w:glowing(frame))
+end)
+
 print('Paladin features: ' .. passed .. ' passed')

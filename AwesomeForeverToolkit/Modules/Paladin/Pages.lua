@@ -52,6 +52,7 @@ root.Window:RegisterPage({
         layout:Heading('Righteous Fury')
         layout:Text('With a shield equipped, shows when missing or at most five minutes remain. Uses readable aura timing with a cast-timer fallback.')
         layout:Field('Checkbox', 'righteousFuryEnabled', 'Enable Righteous Fury reminder')
+        layout:Field('Checkbox', 'righteousFuryGlowEnabled', 'Glow around Righteous Fury icon')
         layout:Field('ChoiceDropdown', 'righteousFuryPopupSize', 'Icon size (px)', W.Options(32, 128, 8))
         layout:Button('righteousFuryPreview', 'Move / preview Righteous Fury icon', function()
             addon.RighteousFuryReminder:SetPreview(true)
