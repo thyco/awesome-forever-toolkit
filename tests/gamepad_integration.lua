@@ -52,3 +52,20 @@ for _, class in ipairs({"WARRIOR", "HUNTER", "PALADIN"}) do
     world.env.SlashCmdList.AWESOMEFOREVERTOOLKIT("gamepad")
     assert(not root.Window.canvas:IsVisible())
 end
+
+-- Enabling a fresh profile without native APIs must not fault the session.
+do
+    local world = H.new()
+    local root = world:loadManifest()
+    world:fire("PLAYER_LOGIN")
+    world.env.SlashCmdList.AWESOMEFOREVERTOOLKIT("gamepad")
+    local enabled = root.Window.controls["gamepad.enabled"]
+
+    enabled:SetChecked(true)
+    enabled.scripts.OnClick(enabled)
+
+    assert(not root.modules.Gamepad.Runtime.IsEnabled("A"))
+    assert(not enabled:GetChecked())
+    assert(not table.concat(world.messages, "\n"):find("ERROR:", 1, true), "missing layout is not a session fault")
+    assert(root.modules.Gamepad.Runtime.Configure("A", "native", nil), "configuration must remain usable")
+end

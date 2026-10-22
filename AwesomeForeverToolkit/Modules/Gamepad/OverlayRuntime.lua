@@ -304,7 +304,20 @@ local function Command(text)
         if Combat() then Log("Activation is only available outside combat."); return end
 
         if not next(Database()) then
-            local index = GamepadActionBarBindingUtil.GetGamepadStorageSlotIndexFromPageAndPageUnitSlotID(1, 13)
+            local storage = GamepadActionBarBindingUtil
+                and GamepadActionBarBindingUtil.GetGamepadStorageSlotIndexFromPageAndPageUnitSlotID
+            if not InputUtil or not InputUtil.IsGamepadUIEnabled or not InputUtil.IsGamepadUIEnabled()
+                or not storage or not GetActionInfo then
+                Log("Enable the Blizzard gamepad layout first.")
+                return
+            end
+
+            local index = storage(1, 13)
+            if type(index) ~= "number" then
+                Log("The native gamepad action slots are not ready yet.")
+                return
+            end
+
             local kind, id = GetActionInfo(index)
             if kind ~= "spell" then Log("Place a spell on page 1, LT+X first."); return end
             Database().A = { mode = "context", spellID = id }
