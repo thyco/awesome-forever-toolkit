@@ -11,7 +11,6 @@ function Icon:Initialize()
 
     local frame = CreateFrame("Frame", "AwesomeForeverToolkitHunterPetHealthIcon", UIParent)
     self.frame = frame
-    frame:SetSize(40, 40)
     frame:SetFrameStrata("MEDIUM")
     frame:SetMovable(true)
     frame:SetClampedToScreen(true)
@@ -49,6 +48,8 @@ function Icon:ApplySettings()
         return
     end
 
+    local size = addon.Config.Get("petHealthIconSize")
+    self.frame:SetSize(size, size)
     self.frame:ClearAllPoints()
     self.frame:SetPoint("CENTER", UIParent, "CENTER", addon.Config.Get("petX"), addon.Config.Get("petY"))
     self:Render()
@@ -68,7 +69,7 @@ function Icon:SetPreview(enabled)
         end
         self.frame:SetFrameStrata(enabled and "TOOLTIP" or "MEDIUM")
         self.frame:EnableMouse(enabled)
-        self:Render()
+        self:ApplySettings()
     end
 end
 

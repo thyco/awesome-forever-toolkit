@@ -49,6 +49,7 @@ root.Window:RegisterPage({
         layout:Heading("Ammunition")
         layout:Field("Checkbox", "ammoCheckEnabled", "Enable ammo check")
         layout:Field("Checkbox", "ammoShowCount", "Show ammunition count")
+        number("ammoIconSize", "Ammo icon size (px)", "Use 16 to 128 pixels, in steps of 4.")
         layout:Text("Keep thresholds ordered: hide > yellow > red > warning.")
         for _, item in ipairs({{"ammoHideAbove", "Hide above"}, {"ammoYellowAt", "Yellow at or below"},
             {"ammoRedAt", "Red at or below"}, {"ammoWarnBelow", "Warn below"}}) do
@@ -64,6 +65,7 @@ root.Window:RegisterPage({
         layout:Heading("Pet health")
         layout:Field("Checkbox", "petHealthEnabled", "Show low pet health icon")
         layout:Field("Checkbox", "petShowPercent", "Show health percentage")
+        number("petHealthIconSize", "Pet health icon size (px)", "Use 16 to 128 pixels, in steps of 4.")
         number("petHealthThreshold", "Health threshold (%)", "Use a whole percentage between 1 and 100.")
         layout:Field("Checkbox", "petFlashEnabled", "Flash screen in combat at low health")
         layout:Field("Color", "petFlashColor", "Flash color")
@@ -75,6 +77,7 @@ root.Window:RegisterPage({
 
         layout:Heading("Pet happiness")
         layout:Field("Checkbox", "petHappinessEnabled", "Show unhappy pet icon")
+        number("petHappinessIconSize", "Pet happiness icon size (px)", "Use 16 to 128 pixels, in steps of 4.")
         layout:Button("moveHappiness", "Move / preview happiness icon", function() addon.PetHappinessIcon:SetPreview(true) end)
 
         layout:Heading("Movement aspects")

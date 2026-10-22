@@ -11,7 +11,6 @@ function Icon:Initialize()
 
     local frame = CreateFrame("Frame", "AwesomeForeverToolkitHunterPetHappinessIcon", UIParent)
     self.frame = frame
-    frame:SetSize(40, 40)
     frame:SetFrameStrata("MEDIUM")
     frame:SetMovable(true)
     frame:SetClampedToScreen(true)
@@ -46,6 +45,8 @@ function Icon:ApplySettings()
         return
     end
 
+    local size = addon.Config.Get("petHappinessIconSize")
+    self.frame:SetSize(size, size)
     self.frame:ClearAllPoints()
     self.frame:SetPoint("CENTER", UIParent, "CENTER", addon.Config.Get("petHappinessX"), addon.Config.Get("petHappinessY"))
     self:Render()
@@ -64,7 +65,7 @@ function Icon:SetPreview(enabled)
         end
         self.frame:SetFrameStrata(enabled and "TOOLTIP" or "MEDIUM")
         self.frame:EnableMouse(enabled)
-        self:Render()
+        self:ApplySettings()
     end
 end
 

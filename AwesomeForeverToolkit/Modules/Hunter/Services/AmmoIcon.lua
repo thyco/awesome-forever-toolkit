@@ -16,7 +16,6 @@ function Icon:Initialize()
 
     local frame = CreateFrame("Frame", "AwesomeForeverToolkitHunterAmmoIcon", UIParent)
     self.frame = frame
-    frame:SetSize(40, 40)
     frame:SetFrameStrata("MEDIUM")
     frame:SetMovable(true)
     frame:SetClampedToScreen(true)
@@ -54,6 +53,8 @@ function Icon:ApplySettings()
         return
     end
 
+    local size = addon.Config.Get("ammoIconSize")
+    self.frame:SetSize(size, size)
     self.frame:ClearAllPoints()
     self.frame:SetPoint("CENTER", UIParent, "CENTER", addon.Config.Get("ammoX"), addon.Config.Get("ammoY"))
     self:Render()
@@ -72,7 +73,7 @@ function Icon:SetPreview(enabled)
         end
         self.frame:SetFrameStrata(enabled and "TOOLTIP" or "MEDIUM")
         self.frame:EnableMouse(enabled)
-        self:Render()
+        self:ApplySettings()
     end
 end
 

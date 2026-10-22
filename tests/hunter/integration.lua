@@ -32,6 +32,27 @@ assert(hunter.Config.Get("ammoWarnBelow") == 150)
 root.Window.controls["hunter.moveAmmo"].scripts.OnClick()
 assert(hunter.AmmoIcon.preview)
 
+assert(hunter.AmmoIcon.frame:GetWidth() == 36)
+assert(hunter.PetHealthIcon.frame:GetWidth() == 36)
+assert(hunter.PetHappinessIcon.frame:GetWidth() == 36)
+
+root.Window.settings["hunter.ammoIconSize"]:SetValue(44)
+root.Window.settings["hunter.petHealthIconSize"]:SetValue(48)
+root.Window.settings["hunter.petHappinessIconSize"]:SetValue(52)
+
+assert(hunter.AmmoIcon.frame:GetWidth() == 44)
+assert(hunter.PetHealthIcon.frame:GetWidth() == 48)
+assert(hunter.PetHappinessIcon.frame:GetWidth() == 52)
+assert(not hunter.Config.CanSet("ammoIconSize", 35))
+assert(not hunter.Config.CanSet("petHealthIconSize", 132))
+assert(hunter.Config.Get("counterattackGlowColor") == "ff00ff00")
+assert(hunter.Config.Get("counterattackNativeColor") == false)
+
+hunter.Config.Set("ammoCheckEnabled", false)
+root.Window.settings["hunter.ammoIconSize"]:SetValue(56)
+root.Window.controls["hunter.moveAmmo"].scripts.OnClick()
+assert(hunter.AmmoIcon.frame:GetWidth() == 56, "disabled reminder preview must use saved size")
+
 assert(root.Window:ShowPage("gamepad.bindings"))
 assert(not hunter.AmmoIcon.preview)
 

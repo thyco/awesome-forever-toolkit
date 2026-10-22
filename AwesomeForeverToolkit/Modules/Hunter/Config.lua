@@ -5,6 +5,7 @@ addon.Config = Config
 local defaults = {
     ammoCheckEnabled = true,
     ammoShowCount = false,
+    ammoIconSize = 36,
     ammoHideAbove = 800,
     ammoYellowAt = 600,
     ammoRedAt = 400,
@@ -18,16 +19,18 @@ local defaults = {
     counterattackOverlayEnabled = true,
     counterattackBar = 0,
     counterattackButton = 1,
-    counterattackNativeColor = true,
-    counterattackGlowColor = "ff00bfa5",
+    counterattackNativeColor = false,
+    counterattackGlowColor = "ff00ff00",
     aspectCheckEnabled = true,
     aspectGlowEnabled = true,
     aspectX = 0,
     aspectY = -270,
     petHappinessEnabled = true,
+    petHappinessIconSize = 36,
     petHappinessX = 100,
     petHappinessY = -180,
     petHealthEnabled = true,
+    petHealthIconSize = 36,
     petFlashEnabled = true,
     petFlashColor = "ffffa60d",
     petFlashIntensity = 150,
@@ -59,6 +62,10 @@ local function valid(key, value)
         if value ~= value or value == math.huge or value == -math.huge then
             return false
         end
+        if key == "ammoIconSize" or key == "petHealthIconSize" or key == "petHappinessIconSize" then
+            return value >= 16 and value <= 128 and value % 4 == 0
+        end
+
         if key:match("GamepadPage$") then
             return value >= 0 and value <= 3 and value == math.floor(value)
         elseif key:match("GamepadBar$") then
