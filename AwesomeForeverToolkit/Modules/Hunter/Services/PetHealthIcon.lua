@@ -19,6 +19,8 @@ function Icon:Initialize()
 
     self.texture = frame:CreateTexture(nil, "ARTWORK")
     self.texture:SetAllPoints(frame)
+    -- Remove the spell icon border so its artwork fills the configured size.
+    self.texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     self.texture:SetDesaturated(true)
     self.countText = frame:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
     self.countText:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
