@@ -16,7 +16,7 @@ root.Window:RegisterPage({
     build = function(parent, context)
         local layout = W.Layout(parent, context, 'paladin', addon.Config)
         layout:Heading('Holy Strike / Judgement')
-        layout:Text('One selected button glows in combat when either enabled attack is ready. Ignores mana and range; Judgement color takes priority.')
+        layout:Text('Judgement also glows outside combat with a living attackable target/mouseover. Optional Holy Strike is combat-only. Ignores mana and range; Judgement color takes priority.')
         layout:Field('Checkbox', 'cooldownGlowEnabled', 'Enable Holy Strike / Judgement glow')
         layout:Field('Checkbox', 'holyStrikeCheckEnabled', 'Also check Holy Strike')
         root.DisplayLocation.Create(layout, addon.Config, 'holyStrike', 'ChoiceDropdown')

@@ -49,7 +49,9 @@ function feature:Refresh(discover, cooldownEvent)
     self.activeStyle = style
     local ready = style ~= nil
     local combat = UnitAffectingCombat("player")
-    local showGlow = addon.Client.Readable(combat) and combat and ready or false
+    local inCombat = addon.Client.Readable(combat) and combat == true
+    local judgementContext = addon.Client.CanAttack("target") or addon.Client.CanAttack("mouseover")
+    local showGlow = ready and (inCombat or (judgementReady and judgementContext))
 
     if button then
         addon.Glow.Set(button, self.owner, addon:IsVisible(button) and showGlow)

@@ -56,7 +56,7 @@ Gamepad bindings are integrated; disable the standalone Gamepad Assist Forever w
 
 ## Paladin assistance
 
-Paladin preserves the standalone 0.9.1 rules and defaults. Holy Strike/Judgement share one selected button and glow in combat when either enabled attack is ready, ignoring the GCD when the client can identify it. Judgement's appearance takes priority; Holy Strike defaults to teal and Judgement to native. Standard destinations default to bar 3, buttons 3 (attacks), 4 (seal), and 5 (Exorcism). Gamepad destinations start unselected and use the active page/set, including toolkit override visuals.
+Holy Strike/Judgement share one selected button and ignore the GCD when the client can identify it. Judgement glows when ready in combat, or outside combat with a living attackable target/mouseover. Holy Strike remains combat-only and its check defaults to disabled. Judgement's appearance takes priority and defaults to green (#00FF00); Holy Strike defaults to Blizzard native. Existing saved preferences are retained. Standard destinations default to bar 3, buttons 3 (attacks), 4 (seal), and 5 (Exorcism). Gamepad destinations start unselected and use the active page/set, including toolkit override visuals.
 
 Exorcism glows in combat when ready with a living attackable Demon or Undead target/mouseover, ignoring distance and mana. Its icon is grayscale when an attackable unit exists but cooldown or eligibility prevents the spell. This shares the toolkit's tint compositor, preserving range and cooldown effects when Paladin assistance is disabled.
 

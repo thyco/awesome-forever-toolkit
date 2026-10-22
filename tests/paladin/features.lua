@@ -6,14 +6,66 @@ local function test(name, run)
     print('PASS ' .. name)
 end
 
-test('Holy Strike and Judgement keep priority and GCD semantics', function()
+test('Judgement outside combat requires a living attackable unit and readiness', function()
+    local w = H.new({holyStrikeCheckEnabled = true})
+    assert(w:glowing(w.holy), 'ready Judgement glows with an attackable target')
+
+    w.dead = true
+    w:fire('PLAYER_TARGET_CHANGED')
+    assert(not w:glowing(w.holy))
+    w.dead, w.attackable = false, false
+    w:fire('PLAYER_TARGET_CHANGED')
+    assert(not w:glowing(w.holy))
+    w.exists = false
+    w:fire('PLAYER_TARGET_CHANGED')
+    assert(not w:glowing(w.holy))
+
+    w.mouseover.exists, w.mouseover.attackable, w.mouseover.dead = true, true, false
+    w:fire('UPDATE_MOUSEOVER_UNIT')
+    assert(w:glowing(w.holy), 'living attackable mouseover also qualifies')
+    w.cooldowns[2] = {startTime = w.time, duration = 10}
+    w:fire('SPELL_UPDATE_COOLDOWN')
+    assert(not w:glowing(w.holy), 'ready Holy Strike cannot light it outside combat')
+
+    w.cooldowns[2] = {startTime = w.time, duration = 1.5}
+    w.cooldowns[61304] = {startTime = w.time, duration = 1.5}
+    w:fire('SPELL_UPDATE_COOLDOWN')
+    assert(w:glowing(w.holy), 'GCD is still ignored')
+    w.paladin.Config.Set('cooldownGlowEnabled', false)
+    assert(not w:glowing(w.holy))
+end)
+
+test('Holy Strike defaults off with native color while Judgement remains enabled', function()
     local w = H.new()
+    assert(w.paladin.Config.Get('cooldownGlowEnabled'))
+    assert(not w.paladin.Config.Get('holyStrikeCheckEnabled'))
+    assert(w.paladin.Config.Get('glowNativeColor'))
+
+    w.combat = true
+    w.cooldowns[2] = {startTime = w.time, duration = 10}
+    w:fire('SPELL_UPDATE_COOLDOWN')
+    assert(not w:glowing(w.holy))
+    w.paladin.Config.Set('holyStrikeCheckEnabled', true)
+    assert(w:glowing(w.holy))
+    assert(w:color(w.holy) == nil, 'enabled Holy Strike uses native appearance')
+end)
+
+test('existing Judgement appearance preferences remain intact', function()
+    local w = H.new({judgementNativeColor = true, judgementGlowColor = 'ffff0000'})
+    assert(w.paladin.Config.Get('judgementNativeColor') == true)
+    assert(w.paladin.Config.Get('judgementGlowColor') == 'ffff0000')
+end)
+
+test('Holy Strike and Judgement keep priority and GCD semantics', function()
+    local w = H.new({holyStrikeCheckEnabled = true, glowNativeColor = false})
+    w.exists = false
+    w.paladin:Refresh()
     assert(not w:glowing(w.holy))
 
     w.combat = true
     w:fire('PLAYER_REGEN_DISABLED')
     assert(w:glowing(w.holy))
-    assert(w:color(w.holy) == nil, 'Judgement defaults to native')
+    assert(w:color(w.holy)[1] == 0 and w:color(w.holy)[2] == 1 and w:color(w.holy)[3] == 0, 'Judgement defaults to green')
     w.cooldowns[2] = {startTime = 100, duration = 10}
     w:fire('SPELL_UPDATE_COOLDOWN')
     assert(w:glowing(w.holy))
@@ -137,6 +189,8 @@ end)
 
 test('previews time out and stop on combat without clearing live owners', function()
     local w = H.new()
+    w.exists = false
+    w.paladin:Refresh()
     assert(w.paladin:Preview('holyStrike'))
     assert(w:glowing(w.holy))
     w:tick(3.1)
