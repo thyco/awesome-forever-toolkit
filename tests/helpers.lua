@@ -63,7 +63,12 @@ function H.new()
         return category, layout
     end
     env.Settings.RegisterAddOnCategory = function(category) world.registeredCategory = category end
-    env.CreateSettingsButtonInitializer = function(_, _, callback) return {click = callback} end
+    env.CreateSettingsButtonInitializer = function(_, _, callback, tooltip, addSearchTags)
+        -- Blizzard requires an explicit search-tag choice, even for launcher buttons.
+        assert(addSearchTags ~= nil, "CreateSettingsButtonInitializer requires addSearchTags")
+
+        return {click = callback}
+    end
 
     local library = {}
     library.ProcGlow_Start = function(target, options)

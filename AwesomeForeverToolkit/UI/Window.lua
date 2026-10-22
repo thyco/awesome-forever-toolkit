@@ -166,7 +166,7 @@ function Window:Initialize()
         local category, layout = Settings.RegisterVerticalLayoutCategory("Awesome Forever Toolkit")
         self.category = category
         layout:AddInitializer(CreateSettingsButtonInitializer("Configuration", "Open configuration",
-            function() self:Open() end))
+            function() self:Open() end, nil, false))
         Settings.RegisterAddOnCategory(category)
     end
 

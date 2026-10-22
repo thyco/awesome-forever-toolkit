@@ -93,3 +93,16 @@ do
     root.Window:ShowPage("general")
     assert(not root.modules.Warrior.StanceIcon.preview)
 end
+
+-- The Blizzard Settings launcher must initialize successfully and open the standalone window.
+do
+    local world = H.new()
+    local root = world:loadManifest()
+    world:fire("PLAYER_LOGIN")
+    assert(not root.Window.canvas:IsVisible())
+
+    world.launcher.click()
+
+    assert(root.Window.canvas:IsVisible())
+    assert(root.Window.currentPage == "general")
+end
