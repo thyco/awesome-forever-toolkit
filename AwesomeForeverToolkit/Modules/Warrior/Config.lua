@@ -45,8 +45,8 @@ local defaults = {
     shieldBlockEnabled = true,
     shieldBlockBar = 0,
     shieldBlockButton = 1,
-    shieldBlockNativeColor = true,
-    shieldBlockGlowColor = "ffffd24a",
+    shieldBlockNativeColor = false,
+    shieldBlockGlowColor = "ff00ff00",
 }
 for _, kind in ipairs({ "overpower", "revenge", "execute", "victoryRush", "shieldBlock" }) do
     defaults[kind .. "GamepadPage"] = 1

@@ -734,7 +734,9 @@ do
     reactiveEvent(world, "PLAYER_REGEN_DISABLED")
 
     local entry = addon.Glow.Prepare(world.shieldBlockButton)
-    H.equal(world.glows[entry.frame].color, nil, "Shield Block defaults to native glow")
+    H.equal(world.glows[entry.frame].color[1], 0, "Shield Block default has no red")
+    H.equal(world.glows[entry.frame].color[2], 1, "Shield Block defaults to green")
+    H.equal(world.glows[entry.frame].color[3], 0, "Shield Block default has no blue")
 
     addon.Config.Set("shieldBlockNativeColor", false)
     addon.Config.Set("shieldBlockGlowColor", "ff0000ff")
