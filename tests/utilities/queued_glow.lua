@@ -466,5 +466,36 @@ test('override state changes and removal release custom queued glow', function()
     equal(visible(overlay), false)
 end)
 
+test('queued effect refreshes geometry after preparation and retains color and state', function()
+    local world, addon = setup()
+    local entry = addon.QueuedGlow.Prepare(world.main)
+    local original = entry.effect
+    local starts = world.glowStarts
+    local resize = entry.frame:GetScript('OnSizeChanged')
+    assert(resize, 'queued effect must follow host size changes')
+
+    entry.frame:SetSize(24, 24)
+    resize(entry.frame)
+
+    equal(world.glowStarts, starts + 1)
+    equal(entry.effect, original, 'reuse the prepared effect')
+    equal(entry.effect:IsVisible(), false, 'resizing must not activate a hidden effect')
+
+    addon.QueuedGlow.Set(world.main, true)
+    local before = { original.textures[1]:GetVertexColor() }
+    world.combat = true
+    entry.frame:SetSize(48, 48)
+    resize(entry.frame)
+
+    equal(world.glowStarts, starts + 2)
+    equal(entry.effect, original)
+    equal(entry.effect:IsVisible(), true)
+    local after = { original.textures[1]:GetVertexColor() }
+    for index = 1, 4 do equal(after[index], before[index]) end
+
+    resize(entry.frame)
+    equal(world.glowStarts, starts + 2, 'unchanged dimensions do not restart the effect')
+end)
+
 print(('Queued glow: %d passed, %d failed'):format(passed, failed))
 if failed > 0 then os.exit(1) end

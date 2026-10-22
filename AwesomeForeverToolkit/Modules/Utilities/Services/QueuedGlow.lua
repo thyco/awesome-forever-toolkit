@@ -51,6 +51,24 @@ function QueuedGlow.Prepare(button)
     local entry = { frame = frame, effect = effect, nativeColor = nativeColor, active = false }
     entries[button] = entry
     recolor(entry, selectedColor())
+
+    -- PixelGlow's outline follows its host, but its automatic segment length
+    -- is calculated only on Start. Overrides can acquire their size later.
+    frame:SetScript('OnSizeChanged', function()
+        local ok, width, height = pcall(frame.GetSize, frame)
+        if not ok or not addon.Client.Number(width) or not addon.Client.Number(height)
+            or width <= 0 or height <= 0 then
+            return
+        end
+        if entry.width == width and entry.height == height then return end
+
+        entry.width, entry.height = width, height
+        -- The key and segment count are unchanged, so the reserved effect and
+        -- textures are reused, including when the host resizes during combat.
+        library.PixelGlow_Start(frame, nil, 4, 0.4, nil, 2, 0, 0, true, glowKey)
+        recolor(entry, selectedColor())
+        if not entry.active then entry.effect:Hide() end
+    end)
     return entry
 end
 
