@@ -10,7 +10,7 @@ assert(root.Window.pages['paladin.abilities'], 'ability page is registered')
 assert(root.Window.pages['paladin.reminders'], 'reminder page is registered')
 local config = root.modules.Paladin.Config
 assert(config.Get('holyStrikeBar') == 3)
-assert(config.Get('sealReminderSeconds') == 26)
+assert(config.Get('sealReminderSeconds') == 25)
 assert(config.Get('holyStrikeGamepadPage') == 0)
 assert(world.env.AwesomeForeverToolkitDB.paladin)
 assert(not world.env.PaladinAssistForeverDB, 'no legacy settings migration')
