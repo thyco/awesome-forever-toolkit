@@ -68,11 +68,11 @@ Automated tests simulate client APIs; they cannot establish native-client taint 
 - Switch gamepad pages, sets, input mode and native frame replacements. Only the selected visible destination should glow; the previous destination and Counterattack icon must clear. Check the overlay GCD swipe and confirm action/binding/tooltip are unchanged.
 - Close settings and enter combat with previews active: previews stop; unchanged settings close normally, changed Hunter settings request one reload before closing.
 
-## Round Face glows and queued gamepad overrides
+## Gamepad glows and queued overrides
 
-- Compare class proc previews on Face buttons and square buttons. Face glows should have a soft, pulsing circular halo; D-pad buttons should retain square effects even when their template includes a CircleMask. Check default and custom colors, UI scale, and expanded bars.
+- Compare class proc previews on Face buttons and square buttons. Both Face and D-pad buttons should use the same square animated effects as standard action bars. Check default and custom colors, UI scale, and expanded bars.
 - Override a Face button with Raptor Strike, Heroic Strike, Cleave or Maul. With custom queued highlights disabled, queue the attack using the controller and confirm the checked indicator appears, then clears when consumed or canceled.
-- Enable custom queued highlights and repeat with default and custom colors. The custom ring should be round and follow the override, without highlighting the original hidden action.
+- Enable custom queued highlights and repeat with default and custom colors. The custom square highlight should follow the override, without highlighting the original hidden action.
 - Repeat with a supported conditional macro and a macro containing multiple next-swing commands, including when only the second command is queued. An unrelated tooltip spell should not prevent the queued indicator.
 - Change Base/form assignments, disable overrides, and switch between standard and gamepad layouts. Confirm stale indicators disappear, including during combat transitions, with no protected-action errors.
 

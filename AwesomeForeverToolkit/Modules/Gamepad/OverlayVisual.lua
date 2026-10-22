@@ -10,7 +10,6 @@ function Visual.Create(native)
     frame:SetFrameStrata(native:GetFrameStrata())
     frame:SetFrameLevel(native:GetFrameLevel() + 5)
     frame:EnableMouse(false)
-    frame.aftRound = true
 
     frame.background = frame:CreateTexture(nil, "BACKGROUND")
     frame.background:SetAllPoints()

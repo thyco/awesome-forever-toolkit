@@ -38,7 +38,7 @@ Configuration cannot open in combat. Entering combat hides it and clears preview
 Utilities retain:
 - Explicit out-of-range tinting, including native Blizzard gamepad ability bars.
 - Queued next-swing borders for supported spells/macros, including gamepad overrides.
-- Circular proc and custom queued-attack rings on round Face buttons; square buttons retain their existing effects.
+- LibCustomGlow square proc and queued-attack effects on all buttons, including gamepad Face and D-pad buttons.
 - Real-cooldown and unusable-action greying, optional resource shortages and pet actions.
 - Click-through on any of eight standard bars; hold Shift outside combat to interact.
 - Account-wide ground-effect density control, leaving it untouched until explicitly configured.
@@ -81,7 +81,7 @@ Open **Your class → Gamepad bindings**, alongside your spellbook or `/macro`. 
 
 Spells use the existing target/mouseover rules; macros keep their own targeting and castsequence rules. Macro names must be unique across account and character macros. After renaming a macro, assign it again. Items and flyouts are unsupported. Configuration is locked during combat; macro/form data updates are deferred until combat ends.
 
-Override icons show the normal checked indicator while their spell is queued, even with custom queued highlights disabled. Custom highlights track the displayed spell or applicable supported macro commands. Round buttons use softly pulsing halos with the selected color (or the default glow color).
+Override icons show the normal checked indicator while their spell is queued, even with custom queued highlights disabled. Custom highlights track the displayed spell or applicable supported macro commands. All buttons use the library’s square effects with the selected color (or the default glow color).
 
 The overlay is visual only. Test with the physical controller; clicking it with a mouse still reaches the native button. When assigning A permanently, bind jump elsewhere. Controller Rebound must be disabled because it claims the same buttons. Starting with no assignments via `/aft gamepad on` retains the original quick-start behavior: it copies the spell from page 1, LT+X to A in Context mode.
 

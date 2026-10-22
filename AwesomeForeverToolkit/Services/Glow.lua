@@ -50,20 +50,6 @@ local function update(entry, refreshGeometry)
         color = style.color
     end
 
-    if entry.round then
-        if not entry.active or not sameColor(entry.color, color) then
-            entry.round:SetColor(color)
-        end
-
-        entry.round:SetActive(wanted)
-        if wanted then entry.frame:Show() else entry.frame:Hide() end
-
-        entry.active = wanted
-        entry.color = color
-        entry.startAnim = startAnim
-        return
-    end
-
     if wanted then
         local animationChanged = entry.startAnim ~= startAnim
         if entry.active and animationChanged and not startAnim then
@@ -123,12 +109,6 @@ end
 
 function Glow.RefreshGeometry(button)
     local entry = entries[button]
-    if entry and entry.round then
-        entry.round:RefreshGeometry()
-        entry.frame:SetFrameLevel(button:GetFrameLevel() + 6)
-        return
-    end
-
     if entry and entry.active then
         local ok, width, height = pcall(function() return entry.frame:GetSize() end)
         if not ok or not addon.Client.Number(width) or not addon.Client.Number(height)
@@ -159,13 +139,6 @@ function Glow.Prepare(button)
     frame:EnableMouse(false)
 
     frame:Hide()
-
-    if addon.RoundGlow and addon.RoundGlow.IsRound(button) then
-        local round = addon.RoundGlow.Create(frame, button)
-        local entry = { frame = frame, effect = round.frame, round = round, owners = {}, active = false }
-        entries[button] = entry
-        return entry
-    end
 
     -- ProcGlow_Start allocates the effect, textures, and animation groups lazily.
     -- Keep that effect attached for this overlay's lifetime: releasing it would
