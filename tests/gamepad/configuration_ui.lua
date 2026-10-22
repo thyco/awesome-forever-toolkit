@@ -30,17 +30,29 @@ local function fixture()
     world.env.C_Spell.GetSpellInfo = function(id) return id == 133 and {name = "Charge", iconID = 123} or nil end
 
     root.Window:Open()
+    local createFrame = world.env.CreateFrame
+    world.env.CreateFrame = function(kind, name, parent, template)
+        assert(kind ~= "DropdownButton" and template ~= "WowStyle1DropdownTemplate",
+            "Gamepad choices must not open Blizzard menus and their protected focus stack")
+        return createFrame(kind, name, parent, template)
+    end
     root.Window:ShowPage("gamepad.bindings")
+    world.env.CreateFrame = createFrame
     return world, root, gamepad, state, root.Window.controls
 end
 
 local function choose(dropdown, value)
-    local choices = {}
-    dropdown.menuGenerator(dropdown, {CreateRadio = function(_, _, selected, callback, candidate)
-        choices[candidate] = callback
-    end})
-    assert(choices[value], "dropdown option missing")
-    choices[value](value)
+    dropdown.scripts.OnClick()
+    assert(dropdown.popup:IsShown(), "choice list should open")
+
+    for _, choice in ipairs(dropdown.choices) do
+        if choice.value == value then
+            choice.scripts.OnClick()
+            assert(not dropdown.popup:IsShown(), "selection should close the list")
+            return
+        end
+    end
+    error("dropdown option missing")
 end
 
 -- Empty buttons show their physical letter and native behavior, not a missing texture.
@@ -194,5 +206,55 @@ do
     assert(controls["gamepad.profile"].selectedValue == 0)
     assert(controls["gamepad.editor"].origin.text == "Base assignment")
     assert(controls["gamepad.editor"].summary.text == "Blizzard default")
+end
+-- Choice lists dismiss on another list, an outside click, hiding, and combat.
+do
+    local world, _, gamepad, state, controls = fixture()
+    local profile = controls["gamepad.profile"]
+    local behavior = controls["gamepad.behavior"]
+    profile.IsMouseOver = function() return false end
+    profile.popup.IsMouseOver = function() return false end
+
+    profile.scripts.OnClick()
+    behavior.scripts.OnClick()
+
+    assert(not profile.popup:IsShown())
+    assert(behavior.popup:IsShown())
+    assert(next(state.configs) == nil)
+
+    profile.scripts.OnClick()
+    profile.popup.scripts.OnEvent()
+
+    assert(not profile.popup:IsShown())
+
+    profile.scripts.OnClick()
+    profile:Hide()
+
+    assert(not profile.popup:IsShown())
+
+    profile:Show()
+    profile.scripts.OnClick()
+    world.combat = true
+    gamepad.RefreshConfiguration()
+    profile.choices[2].scripts.OnClick()
+    profile.scripts.OnClick()
+
+    assert(not profile.popup:IsShown())
+    assert(profile.selectedValue == 0)
+    assert(next(state.configs) == nil)
+end
+
+-- Reopening a profile menu removes forms that no longer exist.
+do
+    local _, _, gamepad, state, controls = fixture()
+    local profile = controls["gamepad.profile"]
+    profile.scripts.OnClick()
+    state.forms = {}
+
+    gamepad.RefreshConfiguration()
+    profile.scripts.OnClick()
+
+    assert(profile.choices[1]:IsShown())
+    assert(not profile.choices[2]:IsShown())
 end
 print("gamepad focused editor: PASS")
