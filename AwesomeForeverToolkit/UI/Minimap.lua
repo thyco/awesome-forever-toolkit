@@ -26,13 +26,29 @@ function MinimapButton:Initialize()
 
     local button = CreateFrame("Button", nil, Minimap)
     self.button = button
-    button:SetSize(34, 34)
+    button:SetSize(31, 31)
     button:SetFrameStrata("MEDIUM")
     button:SetFrameLevel(Minimap:GetFrameLevel() + 5)
     button:RegisterForClicks("LeftButtonUp")
     button:RegisterForDrag("LeftButton")
-    button:SetNormalTexture("Interface\\AddOns\\AwesomeForeverToolkit\\Media\\Icon.tga")
     button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+
+    local background = button:CreateTexture(nil, "BACKGROUND")
+    background:SetSize(20, 20)
+    background:SetPoint("TOPLEFT", 7, -5)
+    background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+
+    local icon = button:CreateTexture(nil, "ARTWORK")
+    icon:SetSize(20, 20)
+    icon:SetPoint("TOPLEFT", 7, -5)
+    icon:SetTexture("Interface\\AddOns\\AwesomeForeverToolkit\\Media\\Icon.tga")
+
+    -- This Blizzard texture includes padding around the visible gold ring.
+    local border = button:CreateTexture(nil, "OVERLAY")
+    border:SetSize(53, 53)
+    border:SetPoint("TOPLEFT")
+    border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+
     button:SetScript("OnClick", function() addon.Window:Open() end)
     button:SetScript("OnEnter", function()
         GameTooltip:SetOwner(button, "ANCHOR_LEFT")
