@@ -53,8 +53,8 @@ root.Window:RegisterPage({
                 if item.value == "victoryRush" then
                     layout:Field("Checkbox", "victoryRushCombatOnly", "Only show in combat")
                 end
-                layout:Button(item.value .. "Preview", "Preview gamepad glow (3s)", function()
-                    local ok, reason = addon.ReactiveAbilities:PreviewGamepad(item.value)
+                layout:Button(item.value .. "Preview", "Preview glow (3s)", function()
+                    local ok, reason = addon.ReactiveAbilities:Preview(item.value)
                     if not ok then print("Awesome Forever Toolkit: " .. tostring(reason)) end
                 end)
             end

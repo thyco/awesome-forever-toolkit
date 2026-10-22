@@ -220,3 +220,41 @@ H.equal(reloadedAddon.Config.Get("shieldBlockGamepadButton"), 5, "gamepad select
 H.equal(reloadedAddon.Config.Get("shieldBlockButton"), 5, "keyboard selection also survives reload")
 
 print("gamepad: PASS")
+
+-- A normal action-bar preview must not need a real ability opportunity.
+do
+    local world, addon = setup()
+    local button = world.keyboard[5]
+    assert(not world.glowActive[button])
+
+    assert(addon.ReactiveAbilities:Preview("shieldBlock"))
+
+    assert(world.glowActive[button])
+    world:tick(3.1)
+    assert(not world.glowActive[button], "normal action-bar preview expires")
+
+    assert(addon.ReactiveAbilities:Preview("shieldBlock"))
+    addon:ClearPreviews()
+    assert(not world.glowActive[button], "closing settings clears normal preview")
+
+    assert(addon.ReactiveAbilities:Preview("shieldBlock"))
+    world.combat = true
+    world:tick(0.1)
+    assert(not world.glowActive[button], "combat clears normal preview")
+    assert(not addon.ReactiveAbilities:Preview("shieldBlock"))
+
+    world.combat = false
+    assert(addon.ReactiveAbilities:Preview("shieldBlock"))
+    world.style, world.root.visible = 1, true
+    world:tick(0.1)
+    assert(not world.glowActive[button], "switching UI clears the old preview")
+    assert(addon.ReactiveAbilities.preview == nil)
+
+    assert(addon.ReactiveAbilities:Preview("shieldBlock"))
+    assert(world.glowActive[world.bars.topBar.actionButtons[1]], "shared preview supports gamepad")
+    addon:ClearPreviews()
+
+    world.style, world.root.visible = 0, false
+    addon.Config.Set("shieldBlockBar", 0)
+    assert(not addon.ReactiveAbilities:Preview("shieldBlock"), "unselected destination cannot preview")
+end

@@ -106,3 +106,18 @@ do
     assert(root.Window.canvas:IsVisible())
     assert(root.Window.currentPage == "general")
 end
+
+-- The settings preview button uses the selected normal action-bar destination.
+do
+    local world = H.new()
+    local button = world:button("ActionButton1", 1)
+    local root = world:loadManifest()
+    world:fire("PLAYER_LOGIN")
+    root.modules.Warrior.Config.Set("shieldBlockBar", 1)
+    root.Window:Open()
+    root.Window:ShowPage("warrior.reminders")
+
+    root.Window.controls["warrior.shieldBlockPreview"].scripts.OnClick()
+
+    assert(world.glowActive[button], "settings must start a normal action-bar preview")
+end

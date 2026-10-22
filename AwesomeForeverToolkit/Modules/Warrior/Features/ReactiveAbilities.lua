@@ -102,29 +102,39 @@ end
 
 function ReactiveAbilities:ClearPreview()
     if self.preview then
-        addon.Glow.ClearOwner("warrior:gamepad-preview")
+        addon.Glow.ClearOwner("warrior:preview")
         self.preview = nil
     end
 end
 
-function ReactiveAbilities:PreviewGamepad(kind)
+function ReactiveAbilities:Preview(kind, requestedMode)
     if not self.running or not definitions[kind] then return false, "Warrior reminders are not active." end
     if InCombatLockdown() or addon.Client.InCombat() then
         return false, "Preview is available outside combat."
     end
-    if addon.Buttons.Mode() ~= "gamepad" then return false, "Switch to the gamepad UI first." end
+    local uiMode = addon.Buttons.Mode()
+    if requestedMode and uiMode ~= requestedMode then return false, "Switch to the gamepad UI first." end
+    if uiMode ~= "keyboard" and uiMode ~= "gamepad" then
+        return false, "The active action-bar UI is unavailable."
+    end
 
-    local button = selected(kind, definitions[kind], "gamepad")
+    local button = selected(kind, definitions[kind], uiMode)
     if not button or not visible(button) then
-        return false, "Select a gamepad destination, then show its page and set."
+        return false, uiMode == "gamepad"
+            and "Select a gamepad destination, then show its page and set."
+            or "Select a standard action bar and button, then show that bar."
     end
 
     self:ClearPreview()
     addon.Glow.Prepare(button)
-    self.preview = { kind = kind, button = button, expires = GetTime() + 3 }
+    self.preview = { kind = kind, button = button, uiMode = uiMode, expires = GetTime() + 3 }
     self:Refresh()
 
     return true
+end
+
+function ReactiveAbilities:PreviewGamepad(kind)
+    return self:Preview(kind, "gamepad")
 end
 
 function ReactiveAbilities:Initialize()
@@ -179,7 +189,7 @@ function ReactiveAbilities:Refresh()
     local canPrepare = not InCombatLockdown()
 
     local preview = self.preview
-    if preview and (not canPrepare or GetTime() >= preview.expires or uiMode ~= "gamepad"
+    if preview and (not canPrepare or GetTime() >= preview.expires or uiMode ~= preview.uiMode
         or selected(preview.kind, definitions[preview.kind], uiMode) ~= preview.button
         or not visible(preview.button)) then
         self:ClearPreview()
@@ -251,8 +261,8 @@ function ReactiveAbilities:Refresh()
         local colors = definitions[preview.kind].colors
         local style = colors[stance] or colors.battle or colors.defensive
         local color = not addon.Config.Get(style.native) and addon.Config.GetColor(style.custom) or nil
-        addon.Glow.ConfigureOwner("warrior:gamepad-preview", { color = color, priority = 100 })
-        addon.Glow.Set(preview.button, "warrior:gamepad-preview", true)
+        addon.Glow.ConfigureOwner("warrior:preview", { color = color, priority = 100 })
+        addon.Glow.Set(preview.button, "warrior:preview", true)
         addon.Glow.RefreshGeometry(preview.button)
     end
 
