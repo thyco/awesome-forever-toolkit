@@ -6,7 +6,7 @@
 ## Version: 0.1.0
 ## SavedVariables: AwesomeForeverToolkitDB
 ## SavedVariablesPerCharacter: AwesomeForeverToolkitCharacterDB
-## OptionalDeps: UtilsAssistForever, WarriorAssistForever, Blizzard_GamepadActionBars
+## OptionalDeps: UtilsAssistForever, WarriorAssistForever, GamepadAssistForever, Blizzard_GamepadActionBars
 
 Libs/LibStub/LibStub.lua
 Libs/LibCustomGlow-1.0/LibCustomGlow-1.0.lua
@@ -16,6 +16,13 @@ Core/Config.lua
 Services/Client.lua
 Services/Buttons.lua
 Services/Glow.lua
+Modules/Gamepad/Module.lua
+Modules/Gamepad/Config.lua
+Modules/Gamepad/OverlayLogic.lua
+Modules/Gamepad/ActionModel.lua
+Modules/Gamepad/OverlayVisual.lua
+Modules/Gamepad/OverlayRuntime.lua
+Modules/Gamepad/ConfigurationActions.lua
 Modules/Utilities/Module.lua
 Modules/Utilities/Config.lua
 Modules/Utilities/Services/Graphics.lua
