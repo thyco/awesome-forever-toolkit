@@ -134,8 +134,14 @@ function Window:Initialize()
         for _, entry in pairs(self.cache) do entry.frame:SetWidth(math.max(1, width)) end
     end)
     self.navigation = {}
-    local rank = {general = 1, utilities = 2, graphics = 3, ["warrior.reminders"] = 4, ["warrior.stance"] = 5}
-    table.sort(self.order, function(a, b) return (rank[a.id] or 99) < (rank[b.id] or 99) end)
+    local rank = {general = 1, utilities = 2, graphics = 3, ["warrior.reminders"] = 4, ["warrior.stance"] = 5, ["gamepad.bindings"] = 6}
+    table.sort(self.order, function(a, b)
+        if (a.parent ~= nil) ~= (b.parent ~= nil) then return a.parent == nil end
+
+        local aRank, bRank = rank[a.id] or 99, rank[b.id] or 99
+        if aRank == bRank then return a.id < b.id end
+        return aRank < bRank
+    end)
     local y, parent = -64, nil
     for _, page in ipairs(self.order) do
         if not page.available or page.available() then

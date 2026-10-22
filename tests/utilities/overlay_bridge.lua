@@ -12,9 +12,6 @@ local function setup(withProvider)
     w.overlay = w:button('TestOverlay', nil)
     w.entries = {{button = w.overlay, spellID = 10}}
     w.env.C_Spell.IsSpellUsable = function() return true, false end
-    if withProvider then
-        w.env.GamepadAssistForeverVisuals = {version = 1, GetEntries = function() return w.entries end}
-    end
 
     local manifest = assert(io.open('tests/utilities/manifest.txt'))
     for line in manifest:lines() do
@@ -23,6 +20,11 @@ local function setup(withProvider)
         end
     end
     manifest:close()
+    w.root.modules.Gamepad = {active = true}
+    if withProvider then
+        w.root.modules.Gamepad.Visuals = {version = 1, GetEntries = function() return w.entries end}
+    end
+
     w:fire('PLAYER_LOGIN')
     return w, w.addon
 end
@@ -85,7 +87,7 @@ end)
 test('provider removal restores previous appearance', function()
     local w = setup(true)
     equal(w.overlay.icon.color[2], 0.25)
-    w.env.GamepadAssistForeverVisuals = nil
+    w.root.modules.Gamepad.Visuals = nil
 
     w:tick(1)
 
@@ -129,7 +131,7 @@ end)
 
 test('provider appearing after login is discovered without a dependency', function()
     local w = setup(false)
-    w.env.GamepadAssistForeverVisuals = {version = 1, GetEntries = function() return w.entries end}
+    w.root.modules.Gamepad.Visuals = {version = 1, GetEntries = function() return w.entries end}
 
     w:tick(1)
 
@@ -149,7 +151,7 @@ end)
 test('a new overlay waits for combat end before installing icon hooks', function()
     local w = setup(false)
     w.combat = true
-    w.env.GamepadAssistForeverVisuals = {version = 1, GetEntries = function() return w.entries end}
+    w.root.modules.Gamepad.Visuals = {version = 1, GetEntries = function() return w.entries end}
 
     w:tick(1)
 
@@ -163,7 +165,7 @@ test('hidden context overlay is prepared before its first combat appearance', fu
     local w = setup(false)
     w.overlay:Hide()
     local visibleEntries = {}
-    w.env.GamepadAssistForeverVisuals = {
+    w.root.modules.Gamepad.Visuals = {
         version = 1,
         GetFrames = function() return {w.overlay} end,
         GetEntries = function() return visibleEntries end,

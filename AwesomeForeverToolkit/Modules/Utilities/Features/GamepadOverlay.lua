@@ -14,7 +14,8 @@ local function clear(button)
 end
 
 local function entries()
-    local provider = GamepadAssistForeverVisuals
+    local gamepad = root.modules.Gamepad
+    local provider = gamepad and gamepad.active and gamepad.Visuals
     if type(provider) ~= "table" or provider.version ~= 1 or type(provider.GetEntries) ~= "function" then
         return {}, {}
     end

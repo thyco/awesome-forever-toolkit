@@ -1,5 +1,5 @@
 local _, root = ...
-local addon = {legacy = "GamepadAssistForever"}
+local addon = {}
 root.RegisterModule("Gamepad", addon)
 
 function addon:Start()

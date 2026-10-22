@@ -58,14 +58,14 @@ local function Macro(name)
         for index = range[1], range[2] do
             local macroName, icon = GetMacroInfo(index)
             if macroName == name then
-                if found then return nil, "Geef deze macro een unieke naam (ook tussen account en personage)." end
+                if found then return nil, "Give this macro a unique name across account and character macros." end
                 found = { kind = "macro", macroName = name, name = name, iconID = icon, macroIndex = index }
             end
         end
     end
     if found then return found end
 
-    return nil, "Macro ontbreekt of is hernoemd; sleep hem opnieuw naar het vak.", "missing-macro"
+    return nil, "Macro is missing or renamed; drop it onto the button again.", "missing-macro"
 end
 
 function M.Resolve(config)
@@ -73,7 +73,7 @@ function M.Resolve(config)
 
     local info = config.spellID and C_Spell.GetSpellInfo(config.spellID)
     local body = info and addon.Overlay.BuildMacro(info.name)
-    if not body then return nil, "Kies een geldige spell of macro." end
+    if not body then return nil, "Choose a valid spell or macro." end
 
     return { kind = "spell", spellID = config.spellID, name = info.name, iconID = info.iconID, macrotext = body }
 end
@@ -81,7 +81,7 @@ end
 function M.FromCursor(kind, cursorID, _, spellID)
     if kind == "macro" then
         local name = GetMacroInfo(cursorID)
-        if not name then return nil, "Ongeldige macro." end
+        if not name then return nil, "Invalid macro." end
 
         local action, message = Macro(name)
         if not action then return nil, message end
@@ -89,7 +89,7 @@ function M.FromCursor(kind, cursorID, _, spellID)
     elseif kind == "spell" and spellID and C_Spell.GetSpellInfo(spellID) then
         return { kind = "spell", spellID = spellID }
     end
-    return nil, "Sleep een spell uit je spellbook of een macro uit /macro naar dit vak."
+    return nil, "Drop a spell from your spellbook or a macro from /macro onto this button."
 end
 
 function M.Driver(config, forms)

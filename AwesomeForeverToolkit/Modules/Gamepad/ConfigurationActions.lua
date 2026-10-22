@@ -5,7 +5,7 @@ addon.ConfigurationActions = Actions
 
 function Actions.Drop(face, stanceID)
     if addon.Runtime.IsLocked() then
-        return false, "Wijzigen kan alleen buiten combat."
+        return false, "Changes are only available outside combat."
     end
 
     local action, message = addon.ActionModel.FromCursor(GetCursorInfo())
@@ -21,12 +21,12 @@ end
 
 function Actions.SetMode(face, mode, stanceID)
     if addon.Runtime.IsLocked() then
-        return false, "Wijzigen kan alleen buiten combat."
+        return false, "Changes are only available outside combat."
     end
 
     local config = addon.Runtime.GetConfig(face, stanceID)
     if mode ~= "native" and not config.spellID and not config.macroName then
-        return false, "Sleep eerst een spell of macro naar het vak van deze knop."
+        return false, "Drop a spell or macro onto this button first."
     end
 
     return addon.Runtime.Configure(face, mode, config, stanceID)
@@ -34,7 +34,7 @@ end
 
 function Actions.Clear(face, stanceID)
     if addon.Runtime.IsLocked() then
-        return false, "Wijzigen kan alleen buiten combat."
+        return false, "Changes are only available outside combat."
     end
 
     return addon.Runtime.Configure(face, "native", nil, stanceID, stanceID ~= nil)

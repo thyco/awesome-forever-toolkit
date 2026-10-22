@@ -73,7 +73,7 @@ local function Stop(face, forgetPreference)
 
     if Combat() then
         pendingStop = true
-        return false, "Stop uitgesteld tot na combat; /reload stopt onmiddellijk."
+        return false, "Stopping after combat; /reload stops immediately."
     end
 
     for _, current in ipairs(faces) do
@@ -86,42 +86,42 @@ local function Stop(face, forgetPreference)
         end
     end
     pendingStop = false
-    return true, "Override uit; native bediening hersteld."
+    return true, "Override disabled; native controls restored."
 end
 
 local function Arm(face, config)
-    if Combat() then return false, "Instellen kan alleen buiten combat." end
-    if faulted then return false, "Er is een fout opgetreden. Gebruik eerst /reload." end
+    if Combat() then return false, "Bindings can only be changed outside combat." end
+    if faulted then return false, "An error occurred. Use /reload first." end
     if not O.Routes[face] or type(config) ~= "table" or not O.BuildDriver(config.mode) then
-        return false, "Ongeldige knop of modus."
+        return false, "Invalid button or mode."
     end
     local actions, driver, reason = M.Prepare(config)
     if not actions then return false, driver, reason end
     if not next(actions) then return Stop(face) end
 
     if C_AddOns and C_AddOns.IsAddOnLoaded("ControllerRebound") then
-        return false, "Schakel Controller Rebound uit en gebruik /reload; beide addons zouden dezelfde knoppen claimen."
+        return false, "Disable Controller Rebound and /reload; both addons would claim the same buttons."
     end
 
     local unit = Unit()
     local bars = unit and unit.actionBars
     if not bars or not InputUtil or not InputUtil.IsGamepadUIEnabled() then
-        return false, "Activeer eerst de Blizzard-controllerlayout."
+        return false, "Enable the Blizzard gamepad layout first."
     end
 
     local native = NativeButton(bars.topBar, face)
-    if not native or not native.SpecialActionIcon then return false, "Native face-button ontbreekt." end
+    if not native or not native.SpecialActionIcon then return false, "Native face button is missing." end
 
     local macros = {}
     for layer, name in pairs(barNames) do
         macros[layer] = NativeMacro(NativeButton(bars[name], face))
-        if not macros[layer] then return false, "Native laag ontbreekt of naam te lang: " .. layer end
+        if not macros[layer] then return false, "Native layer is missing or its name is too long: " .. layer end
     end
 
     local indices = {}
     for key, binding in pairs({ lt = "PADLTRIGGER", rt = "PADRTRIGGER", lb = "PADLSHOULDER", rb = "PADRSHOULDER" }) do
         local index = C_GamePad.ButtonBindingToIndex(binding)
-        if type(index) ~= "number" or index < 0 then return false, "Gamepad-index ontbreekt: " .. binding end
+        if type(index) ~= "number" or index < 0 then return false, "Gamepad index is missing: " .. binding end
         indices[key] = index + 1
     end
 
@@ -160,15 +160,15 @@ local function Arm(face, config)
     visual:Hide()
     active[face] = { actions = actions, native = native }
     RegisterAttributeDriver(router, "gaf-state", driver)
-    if faulted or not active[face] then return false, "Activeren geblokkeerd; gebruik /reload." end
+    if faulted or not active[face] then return false, "Activation blocked; use /reload." end
 
     SetOverrideBindingClick(router, true, O.Routes[face].key, router:GetName(), "LeftButton")
     if faulted or not active[face] then
         ClearOverrideBindings(router)
-        return false, "Binding geblokkeerd; gebruik /reload."
+        return false, "Binding blocked; use /reload."
     end
 
-    return true, face .. " actief: basis en stance-profielen toegepast."
+    return true, face .. " active: Base and form profiles applied."
 end
 
 local function HasOverride(config)
@@ -193,12 +193,12 @@ addon.Runtime = {
 }
 
 function addon.Runtime.Configure(face, mode, action, stanceID, inherit)
-    if Combat() then return false, "Instellen kan alleen buiten combat." end
+    if Combat() then return false, "Bindings can only be changed outside combat." end
     if not O.Routes[face] or not O.BuildDriver(mode) then
-        return false, "Ongeldige knop of modus."
+        return false, "Invalid button or mode."
     end
     if stanceID and (type(stanceID) ~= "number" or stanceID <= 0) then
-        return false, "Ongeldige stance."
+        return false, "Invalid form."
     end
 
     local profile = type(action) == "table" and M.Copy(action) or { spellID = action }
@@ -215,8 +215,8 @@ function addon.Runtime.Configure(face, mode, action, stanceID, inherit)
         faulted = true
         pendingStop = true
         pcall(Stop)
-        Log("Instellen mislukt: " .. tostring(ok) .. ". Gebruik /reload.")
-        return false, "Instellen mislukt; gebruik /reload. Zie de chat."
+        Log("Configuration failed: " .. tostring(ok) .. ". Use /reload.")
+        return false, "Configuration failed; use /reload. See chat for details."
     end
 
     if ok then
@@ -274,11 +274,11 @@ addon.Visuals = {
 
 local function Status()
     local version, build = GetBuildInfo()
-    Log("build=" .. version .. "/" .. build .. " fout=" .. tostring(faulted))
+    Log("build=" .. version .. "/" .. build .. " faulted=" .. tostring(faulted))
     for _, face in ipairs(faces) do
         local cfg = Database()[face]
         local router = routers[face]
-        Log(face .. " modus=" .. tostring(cfg and cfg.mode or "native") .. " ingeschakeld=" .. tostring(Enabled()[face] == true) .. " actief=" .. tostring(active[face] ~= nil)
+        Log(face .. " mode=" .. tostring(cfg and cfg.mode or "native") .. " enabled=" .. tostring(Enabled()[face] == true) .. " active=" .. tostring(active[face] ~= nil)
             .. " state=" .. tostring(router and router:GetAttribute("gaf-state")))
     end
     Log("hard=" .. tostring(UnitExists("target")) .. " mouseover=" .. tostring(UnitExists("mouseover")))
@@ -290,10 +290,10 @@ local function Command(text)
         local face, mode, spell = rest:match("^(%S+)%s+(%S+)%s*(.*)$")
         face = face and face:upper()
         if not O.Routes[face] or not O.BuildDriver(mode) then
-            Log("/aft gamepad set A context <spell-ID of spell-link> | /aft gamepad set A always <spell> | /aft gamepad set A native")
+            Log("/aft gamepad set A context <spell ID or spell link> | /aft gamepad set A always <spell> | /aft gamepad set A native")
             return
         end
-        if Combat() then Log("Instellen kan alleen buiten combat."); return end
+        if Combat() then Log("Bindings can only be changed outside combat."); return end
 
         local id = tonumber(spell:match("|Hspell:(%d+)")) or tonumber(spell)
         if mode == "native" then id = addon.Runtime.GetConfig(face) end
@@ -301,12 +301,12 @@ local function Command(text)
         local ok, message = addon.Runtime.Configure(face, mode, id)
         Log(message)
     elseif command == "on" then
-        if Combat() then Log("Activeren kan alleen buiten combat."); return end
+        if Combat() then Log("Activation is only available outside combat."); return end
 
         if not next(Database()) then
             local index = GamepadActionBarBindingUtil.GetGamepadStorageSlotIndexFromPageAndPageUnitSlotID(1, 13)
             local kind, id = GetActionInfo(index)
-            if kind ~= "spell" then Log("Plaats eerst een gewone spell op pagina 1, LT+X."); return end
+            if kind ~= "spell" then Log("Place a spell on page 1, LT+X first."); return end
             Database().A = { mode = "context", spellID = id }
         end
         for _, face in ipairs(faces) do
@@ -324,11 +324,11 @@ local function Command(text)
         addon.OpenConfiguration()
     elseif command == "status" then
         Status()
-        Log("/aft gamepad config | on | off | set A context/always <spell-ID of spell-link> | set A native | log")
+        Log("/aft gamepad config | on | off | set A context/always <spell ID or spell link> | set A native | log")
     elseif command == "log" then
         for _, line in ipairs(history) do print("AFT gamepad " .. line) end
     else
-        Log("Gebruik /aft gamepad voor hulp.")
+        Log("Use /aft gamepad for help.")
     end
 end
 
@@ -337,7 +337,7 @@ addon.Runtime.RunCommand = function(text)
     if not ok then
         faulted = true
         pendingStop = true
-        Log("FOUT: " .. tostring(err) .. ". Stop met testen en gebruik /reload.")
+        Log("ERROR: " .. tostring(err) .. ". Use /reload before continuing.")
         if not Combat() then pcall(Stop) end
     end
     if addon.RefreshConfiguration then addon.RefreshConfiguration() end
@@ -394,7 +394,7 @@ local function RestoreBindings()
     pendingRestore = false
     for _, face in ipairs(faces) do
         if enabled[face] and Database()[face] then
-            ApplySavedBinding(face, " niet automatisch geactiveerd: ")
+            ApplySavedBinding(face, " was not automatically activated: ")
         end
     end
     if addon.RefreshConfiguration then addon.RefreshConfiguration() end
@@ -421,13 +421,13 @@ function addon.Runtime.Start()
         elseif event == "PLAYER_REGEN_ENABLED" then
             if pendingStop then
                 local ok, _, message = pcall(Stop)
-                Log(ok and message or "Stop mislukt; gebruik /reload.")
+                Log(ok and message or "Stopping failed; use /reload.")
             end
             if pendingRefresh then RefreshBindings() end
         elseif next(active) then
             faulted = true
             pendingStop = true
-            Log(event .. ": " .. tostring(blamedAddon) .. " / " .. tostring(action) .. ". Gebruik /reload.")
+            Log(event .. ": " .. tostring(blamedAddon) .. " / " .. tostring(action) .. ". Use /reload.")
             if not Combat() then pcall(Stop) end
         end
 
@@ -451,7 +451,7 @@ function addon.Runtime.Start()
         if not ok and not faulted then
             faulted = true
             pendingStop = true
-            Log("Overlay-update mislukt: " .. tostring(err) .. ". Gebruik /reload.")
+            Log("Overlay update failed: " .. tostring(err) .. ". Use /reload.")
             if not Combat() then pcall(Stop) end
         end
     end)

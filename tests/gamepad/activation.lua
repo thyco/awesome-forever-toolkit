@@ -242,7 +242,7 @@ test('startup macro data can arrive late without a false warning', function()
         update()
     end)
 
-    assert(not messages:find('Macro ontbreekt', 1, true), 'startup must wait for macro data')
+    assert(not messages:find('Macro is missing', 1, true), 'startup must wait for macro data')
     assert(not runtime.IsActive('A') and runtime.IsEnabled('A'))
     GetNumMacros = function() return 1, 0 end
     GetMacroInfo = function() return 'Attack', 20 end
@@ -258,7 +258,7 @@ test('truly missing startup macro is reported after bounded retries', function()
         for i = 1, 6 do update() end
     end)
 
-    assert(messages:find('Macro ontbreekt', 1, true), 'genuine errors must remain visible')
+    assert(messages:find('Macro is missing', 1, true), 'genuine errors must remain visible')
     assert(not runtime.IsActive('A') and runtime.IsEnabled('A'))
 end)
 
@@ -288,7 +288,7 @@ test('basis macro and three stance macros recover together after startup', funct
 
     local messages = capture(login)
 
-    assert(not messages:find('Macro ontbreekt', 1, true))
+    assert(not messages:find('Macro is missing', 1, true))
     GetNumMacros = function() return 4, 0 end
     GetMacroInfo = function(index) return ({'Attack', 'AStance', 'BStance', 'YStance'})[index], 20 end
     update()
@@ -308,7 +308,7 @@ test('macro removed after startup still reports immediately', function()
 
     local messages = capture(function() world.event('UPDATE_MACROS') end)
 
-    assert(messages:find('Macro ontbreekt', 1, true))
+    assert(messages:find('Macro is missing', 1, true))
     assert(not runtime.IsActive('A') and runtime.IsEnabled('A'))
 end)
 
