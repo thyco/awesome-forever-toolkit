@@ -11,7 +11,9 @@ root.Window:RegisterPage({
         for _, item in ipairs({{"mongoose", "Mongoose Bite"}, {"counterattack", "Counterattack"}}) do
             local kind, label = item[1], item[2]
             layout:Heading(label)
-            layout:Text("Combat opportunity; stays visible through the GCD, but respects the spell's own cooldown.")
+            layout:Text(kind == "mongoose"
+                and "Combat opportunity; ignores cooldowns like Overpower."
+                or "Combat opportunity; ignores the GCD but respects its own cooldown, like Revenge.")
             layout:Field("Checkbox", kind .. "GlowEnabled", "Enable " .. label .. " glow")
             root.DisplayLocation.Create(layout, addon.Config, kind, "ChoiceDropdown")
             layout:Field("Checkbox", kind .. "NativeColor", "Use Blizzard native glow")

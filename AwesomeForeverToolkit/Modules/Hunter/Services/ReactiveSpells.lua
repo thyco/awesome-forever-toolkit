@@ -238,8 +238,9 @@ function ReactiveSpells.Evaluate(kind)
         local signal, cooldown = signalFor(id), cooldownFor(id)
         local opportunity = signal == "usable" or signal == "low-power"
         local cached = ReactiveSpells.procUsable[id]
+        local cooldownAllows = kind == "mongoose" or cooldown == "ready"
 
-        if deadline or cooldown ~= "ready" or signal == "unknown" then
+        if deadline or not cooldownAllows or signal == "unknown" then
             ReactiveSpells.procUsable[id] = nil
             opportunity = false
         elseif opportunity then

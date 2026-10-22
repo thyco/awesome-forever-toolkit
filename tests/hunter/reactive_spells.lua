@@ -11,10 +11,10 @@ world.cooldowns[61304] = { isActive = true, startTime = 100, duration = 1.5 }
 H.equal(spells.Evaluate("mongoose").ready, true, "matching GCD does not block")
 
 world.cooldowns[1495] = { isActive = true, startTime = 99, duration = 5 }
-H.equal(spells.Evaluate("mongoose").ready, false, "own cooldown blocks")
+H.equal(spells.Evaluate("mongoose").ready, true, "Mongoose opportunity ignores its own cooldown like Overpower")
 
 world.cooldowns[1495] = { isActive = true, startTime = world.secret, duration = world.secret }
-H.equal(spells.Evaluate("mongoose").ready, false, "unknown cooldown stays dark")
+H.equal(spells.Evaluate("mongoose").ready, true, "unknown cooldown does not suppress a known Mongoose opportunity")
 
 world.cooldowns[1495] = { isActive = false }
 world.cooldowns[61304] = nil
@@ -50,7 +50,7 @@ world.env.C_Spell.GetSpellCooldownDuration = function()
     return { HasSecretValues = function() return false end, IsZero = function() return false end,
         HasExpired = function() return false end }
 end
-H.equal(spells.Evaluate("mongoose").ready, false, "own cooldown overrides cached GCD evidence")
+H.equal(spells.Evaluate("mongoose").ready, true, "Mongoose opportunity also ignores a readable own duration object")
 
 world.env.C_Spell.GetSpellCooldownDuration = nil
 world.cooldowns[1495] = { isActive = false }
@@ -70,14 +70,22 @@ local ownWorld = H.new()
 local ownSpells = ownWorld:loadReactive("Services/ReactiveSpells").ReactiveSpells
 ownSpells.Rebuild()
 ownWorld.cooldowns[61304] = { isActive = true, startTime = 100, duration = 1.5 }
-ownWorld.cooldowns[1495] = { isActive = true, isOnGCD = true, startTime = 100, duration = 5 }
+ownWorld.cooldowns[19306] = { isActive = true, isOnGCD = true, startTime = 100, duration = 5 }
 ownSpells.ObserveCooldownEvent()
-H.equal(ownSpells.Evaluate("mongoose").ready, false, "raw own cooldown outranks event GCD flag")
+H.equal(ownSpells.Evaluate("counterattack").ready, false, "raw own cooldown outranks event GCD flag")
 
 ownWorld.env.C_Spell.GetSpellCooldownDuration = function()
     return { HasSecretValues = function() return true end }
 end
 ownSpells.ObserveCooldownEvent()
-H.equal(ownSpells.Evaluate("mongoose").ready, false, "raw own cooldown outranks event even with secret duration object")
+H.equal(ownSpells.Evaluate("counterattack").ready, false, "raw own cooldown outranks event even with secret duration object")
+
+ownWorld.cooldowns[19306] = { isActive = true, startTime = ownWorld.secret, duration = ownWorld.secret }
+local learnedCounterattack = ownSpells.Evaluate("counterattack")
+H.equal(learnedCounterattack.ready, false, "Counterattack still needs known cooldown readiness")
+
+ownWorld.cooldowns[19306] = { isActive = true, startTime = 100, duration = 1.5 }
+ownWorld.env.C_Spell.GetSpellCooldownDuration = nil
+H.equal(ownSpells.Evaluate("counterattack").ready, true, "Counterattack still allows a matching GCD")
 
 print("hunter reactive spells passed")
