@@ -1,0 +1,145 @@
+local _, root = ...
+local addon = root.modules.Paladin
+local Config = {}
+addon.Config = Config
+
+local defaults = {
+    cooldownGlowEnabled = true,
+    holyStrikeBar = 3,
+    holyStrikeButton = 3,
+    holyStrikeCheckEnabled = true,
+    judgementNativeColor = true,
+    judgementGlowColor = "ffff0000",
+    glowNativeColor = false,
+    glowColor = "ff00bfa5",
+    exorcismGlowEnabled = true,
+    exorcismBar = 3,
+    exorcismButton = 5,
+    exorcismNativeColor = true,
+    exorcismGlowColor = "ffffd24a",
+    sealGlowEnabled = true,
+    sealReminderSeconds = 26,
+    sealBar = 3,
+    sealButton = 4,
+    sealGlowColor = "ffff0000",
+    righteousFuryEnabled = true,
+    righteousFuryPopupSize = 64,
+    righteousFuryPopupX = 0,
+    righteousFuryPopupY = -160,
+}
+for _, kind in ipairs({"holyStrike", "exorcism", "seal"}) do
+    defaults[kind .. "GamepadPage"] = 0
+    defaults[kind .. "GamepadBar"] = 1
+    defaults[kind .. "GamepadButton"] = 1
+end
+local values
+local listeners = {}
+
+local function validValue(key, value)
+    if not root.Client.Readable(value) or type(value) ~= type(defaults[key]) then
+        return false
+    end
+
+    if key == "glowColor" or key == "judgementGlowColor" or key == "exorcismGlowColor" or key == "sealGlowColor" then
+        return #value == 8 and value:match("^%x+$") ~= nil
+    end
+
+    if type(value) == "number" and not root.Client.Number(value) then return false end
+
+    if key:match("GamepadPage$") then
+        return value >= 0 and value <= 3 and value == math.floor(value)
+    elseif key:match("GamepadBar$") then
+        return value >= 1 and value <= 4 and value == math.floor(value)
+    elseif key:match("GamepadButton$") then
+        return value >= 1 and value <= 8 and value == math.floor(value)
+    end
+
+    if key == "sealReminderSeconds" then
+        return value >= 1 and value <= 30 and value == math.floor(value)
+    end
+
+    if key == "righteousFuryPopupSize" then
+        return value >= 32 and value <= 128 and value % 8 == 0
+    end
+
+    if key == "righteousFuryPopupX" or key == "righteousFuryPopupY" then
+        return value >= -4096 and value <= 4096 and value == math.floor(value)
+    end
+
+    if key == "sealBar" or key == "holyStrikeBar" or key == "exorcismBar" then
+        return value >= 0 and value <= 8 and value == math.floor(value)
+    elseif key == "sealButton" or key == "holyStrikeButton" or key == "exorcismButton" then
+        return value >= 1 and value <= 12 and value == math.floor(value)
+    end
+
+    return true
+end
+
+local function normalize(key, value)
+    if key == "glowColor" or key == "judgementGlowColor" or key == "exorcismGlowColor" or key == "sealGlowColor" then
+        -- The native RGB picker can return a zero alpha byte. Glow opacity is
+        -- always opaque; only RGB is configurable.
+        return "ff" .. value:sub(3):lower()
+    end
+
+    return value
+end
+
+function Config.Initialize()
+    if values then return end
+
+    values = root.Config.GetSection("account", "paladin")
+
+    for key, default in pairs(defaults) do
+        if not validValue(key, values[key]) then
+            values[key] = default
+        else
+            values[key] = normalize(key, values[key])
+        end
+    end
+end
+
+function Config.GetDefault(key)
+    return defaults[key]
+end
+
+function Config.GetColor(key)
+    local hex = Config.Get(key)
+    return {
+        tonumber(hex:sub(3, 4), 16) / 255,
+        tonumber(hex:sub(5, 6), 16) / 255,
+        tonumber(hex:sub(7, 8), 16) / 255,
+        1,
+    }
+end
+
+function Config.Get(key)
+    if values and values[key] ~= nil then
+        return values[key]
+    end
+
+    return defaults[key]
+end
+
+function Config.Set(key, value)
+    assert(defaults[key] ~= nil, "Unknown configuration key: " .. key)
+    assert(validValue(key, value), "Invalid configuration value: " .. key)
+    value = normalize(key, value)
+
+    if not values then
+        Config.Initialize()
+    end
+
+    if values[key] == value then
+        return
+    end
+
+    values[key] = value
+    for _, listener in ipairs(listeners) do
+        listener(key, value)
+    end
+end
+
+function Config.Subscribe(listener)
+    listeners[#listeners + 1] = listener
+end

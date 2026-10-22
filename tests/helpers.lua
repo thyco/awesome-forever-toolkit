@@ -71,6 +71,7 @@ function H.new()
 
         return value
     end
+    env.UIParent.GetHeight = function() return 1080 end
     env.Minimap = env.CreateFrame("Frame")
     env.Minimap:SetSize(140, 140)
     env.ColorPickerFrame = {

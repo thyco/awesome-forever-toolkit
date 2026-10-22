@@ -134,7 +134,7 @@ function Window:Initialize()
         for _, entry in pairs(self.cache) do entry.frame:SetWidth(math.max(1, width)) end
     end)
     self.navigation = {}
-    local rank = {general = 1, utilities = 2, graphics = 3, ["warrior.reminders"] = 4, ["warrior.stance"] = 5, ["hunter.reminders"] = 4, ["hunter.reactive"] = 5, ["gamepad.bindings"] = 6}
+    local rank = {general = 1, utilities = 2, graphics = 3, ["warrior.reminders"] = 4, ["warrior.stance"] = 5, ["hunter.reminders"] = 4, ["hunter.reactive"] = 5, ["paladin.reminders"] = 4, ["paladin.abilities"] = 5, ["gamepad.bindings"] = 6}
     table.sort(self.order, function(a, b)
         if (a.parent ~= nil) ~= (b.parent ~= nil) then return a.parent == nil end
 
@@ -167,6 +167,10 @@ function Window:Initialize()
     local hunter = addon.modules.Hunter
     if hunter and hunter.active then
         hunter.Config.Subscribe(function() self:MarkReloadRequired() end)
+    end
+    local paladin = addon.modules.Paladin
+    if paladin and paladin.active then
+        paladin.Config.Subscribe(function() self:MarkReloadRequired() end)
     end
     local utilities = addon.modules.Utilities
     if utilities and utilities.active then utilities.Config.Subscribe(function() self:Refresh() end) end

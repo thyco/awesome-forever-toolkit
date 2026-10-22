@@ -23,10 +23,10 @@ local function apply(record)
     if record.rangeActive then
         record.icon:SetDesaturated(true)
         record.icon:SetVertexColor(1, 0.25, 0.25, color[4])
-    elseif record.cooldownActive then
+    elseif record.cooldownActive or next(record.owners) then
         record.icon:SetVertexColor(color[1], color[2], color[3], color[4])
         if record.icon.SetDesaturation then
-            record.icon:SetDesaturation(record.cooldownAmount)
+            record.icon:SetDesaturation(next(record.owners) and 1 or record.cooldownAmount)
         else
             record.icon:SetDesaturated(true)
         end
@@ -53,14 +53,14 @@ function IconTint.Prepare(button)
         return false
     end
 
-    local record = { icon = icon, rangeActive = false, cooldownActive = false, writing = false }
+    local record = { icon = icon, rangeActive = false, cooldownActive = false, owners = {}, writing = false }
     snapshot(record)
     records[button] = record
 
     -- Observe native writes instead of replacing Blizzard handlers. Keep the
     -- latest native appearance so mana/lock shading is restored accurately.
     hooksecurefunc(icon, "SetVertexColor", function(_, r, g, b, a)
-        if record.writing or not (record.rangeActive or record.cooldownActive) then
+        if record.writing or not (record.rangeActive or record.cooldownActive or next(record.owners)) then
             return
         end
 
@@ -70,7 +70,7 @@ function IconTint.Prepare(button)
 
     local function watchDesaturation(method)
         hooksecurefunc(icon, method, function(_, value)
-            if record.writing or not (record.rangeActive or record.cooldownActive) then
+            if record.writing or not (record.rangeActive or record.cooldownActive or next(record.owners)) then
                 return
             end
 
@@ -94,7 +94,7 @@ local function setLayer(button, layer, active)
         return
     end
 
-    if active and not (record.rangeActive or record.cooldownActive) then
+    if active and not (record.rangeActive or record.cooldownActive or next(record.owners)) then
         snapshot(record)
     end
 
@@ -127,7 +127,7 @@ function IconTint.SetCooldown(button, active)
         return
     end
 
-    if enabled and not (record.rangeActive or record.cooldownActive) then
+    if enabled and not (record.rangeActive or record.cooldownActive or next(record.owners)) then
         snapshot(record)
     end
 
@@ -146,4 +146,21 @@ function IconTint.ClearCooldown()
     for button in pairs(records) do
         IconTint.SetCooldown(button, false)
     end
+end
+
+-- Class-specific desaturation shares the same compositor as range/cooldown
+-- tinting, so clearing one owner never restores over another active effect.
+function IconTint.SetOwner(button, owner, active)
+    local record = records[button]
+    if not record or (record.owners[owner] == true) == (active == true) then return end
+
+    if active and not (record.rangeActive or record.cooldownActive or next(record.owners)) then
+        snapshot(record)
+    end
+    record.owners[owner] = active and true or nil
+    apply(record)
+end
+
+function IconTint.ClearOwner(owner)
+    for button in pairs(records) do IconTint.SetOwner(button, owner, false) end
 end

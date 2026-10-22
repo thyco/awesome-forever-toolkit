@@ -6,7 +6,7 @@
 ## Version: 0.1.0
 ## SavedVariables: AwesomeForeverToolkitDB
 ## SavedVariablesPerCharacter: AwesomeForeverToolkitCharacterDB
-## OptionalDeps: UtilsAssistForever, WarriorAssistForever, HunterAssistForever, Blizzard_GamepadActionBars
+## OptionalDeps: UtilsAssistForever, WarriorAssistForever, HunterAssistForever, PaladinAssistForever, Blizzard_GamepadActionBars
 
 Libs/LibStub/LibStub.lua
 Libs/LibCustomGlow-1.0/LibCustomGlow-1.0.lua
@@ -64,6 +64,18 @@ Modules/Hunter/Services/PetHealthIcon.lua
 Modules/Hunter/Features/PetHealth.lua
 Modules/Hunter/Services/AspectIcon.lua
 Modules/Hunter/Features/AspectWarning.lua
+Modules/Paladin/Module.lua
+Modules/Paladin/Config.lua
+Modules/Paladin/Services/Client.lua
+Modules/Paladin/Services/Cooldowns.lua
+Modules/Paladin/Services/Timers.lua
+Modules/Paladin/Services/PopupIcons.lua
+Modules/Paladin/Services/ButtonDesaturation.lua
+Modules/Paladin/Features/HolyStrikeGlow.lua
+Modules/Paladin/Features/ExorcismGlow.lua
+Modules/Paladin/Features/SealReminder.lua
+Modules/Paladin/Features/RighteousFuryReminder.lua
+Modules/Paladin/Runtime.lua
 UI/Widgets.lua
 UI/Window.lua
 UI/DisplayLocation.lua
@@ -71,6 +83,7 @@ UI/Pages.lua
 Modules/Utilities/Pages.lua
 Modules/Warrior/Pages.lua
 Modules/Hunter/Pages.lua
+Modules/Paladin/Pages.lua
 Modules/Gamepad/Pages.lua
 UI/Minimap.lua
 Core/Bootstrap.lua

@@ -1,12 +1,12 @@
 # Awesome Forever Toolkit
 
-One addon for shared WoW Forever utilities and class assistance. Version 0.1.0 targets interface **16001**. Includes Utilities, Warrior and Hunter assistance, and Gamepad bindings with shared button discovery, client helpers, visuals and configuration controls.
+One addon for shared WoW Forever utilities and class assistance. Version 0.1.0 targets interface **16001**. Includes Utilities, Warrior, Hunter and Paladin assistance, and Gamepad bindings with shared button discovery, client helpers, visuals and configuration controls.
 
 ## Install
 
 1. Build with `python3 scripts/package.py`, or use the generated `dist/AwesomeForeverToolkit-0.1.0.zip`.
 2. Extract into `Interface/AddOns`, producing `AwesomeForeverToolkit/AwesomeForeverToolkit.toc`.
-3. Disable **Utils Assist Forever**, **Warrior Assist Forever** and **Hunter Assist Forever**. If one is loaded, the toolkit suppresses the matching module for that session; disable the old addon and reload to activate its replacement.
+3. Disable **Utils Assist Forever**, **Warrior Assist Forever**, **Hunter Assist Forever** and **Paladin Assist Forever**. If one is loaded, the toolkit suppresses the matching module for that session; disable the old addon and reload to activate its replacement.
 4. Enable **Awesome Forever Toolkit** and restart the client if it does not appear.
 5. Click the thumbs-up beside the minimap, type `/aft` or `/af`, or use the launcher under Settings → AddOns.
 
@@ -25,11 +25,13 @@ The movable standalone window has these pages:
 - **Warrior → Stance indicator:** current stance icon, shield corner and positioning.
 - **Hunter → Hunter reminders:** ammunition thresholds, pet health/happiness, screen pulse and movement-aspect warnings.
 - **Hunter → Reactive abilities:** Mongoose Bite and Counterattack glows, independent standard/gamepad destinations, colors, previews and the optional Counterattack icon overlay.
+- **Paladin → Paladin reminders:** seal refresh timer and the Righteous Fury shield reminder icon.
+- **Paladin → Ability glows:** Holy Strike/Judgement and Exorcism, with standard/gamepad destinations, colors and previews.
 - **Your class → Gamepad bindings:** A/B/X/Y assignments and Base/form profiles. Available on every class, after the shared pages.
 
 Class assistance pages appear only on the matching class with its module active. The last available page is remembered per character. Reminder location selectors save standard bar/button and native gamepad page/set/button separately; the current input mode determines which selection is used. Gamepad bindings use a separate page under your current class.
 
-Changes to Warrior or Hunter settings, including moving their icons, mark the footer **Apply & Reload**. X, Escape and the footer request that reload before hiding the window. A cancelled color edit still requires a reload if a change was applied during the session. Unchanged settings close normally. Page switching does not reload.
+Changes to Warrior, Hunter or Paladin settings, including moving their icons, mark the footer **Apply & Reload**. X, Escape and the footer request that reload before hiding the window. A cancelled color edit still requires a reload if a change was applied during the session. Unchanged settings close normally. Page switching does not reload.
 
 Configuration cannot open in combat. Entering combat hides it and clears previews; pending reload status survives until reopening and closing outside combat. Utility and graphics controls retain their existing combat restrictions.
 
@@ -50,7 +52,15 @@ Hunter retains ammunition, pet health/happiness and Cheetah/Pack reminders. Mong
 
 Choose each Hunter ability's standard bar/button and native gamepad page/set/button separately. Gamepad destinations start unselected. The active UI determines the destination; Preview uses that UI outside combat. Counterattack's optional overlay only changes the displayed icon and GCD swipe, never the underlying action, binding or tooltip.
 
-Paladin assistance has not been migrated; its existing addon may remain installed. Gamepad bindings are integrated; disable the standalone Gamepad Assist Forever when using the toolkit. There is no compatibility layer or old-settings migration for it.
+Gamepad bindings are integrated; disable the standalone Gamepad Assist Forever when using the toolkit. There is no compatibility layer or old-settings migration for it.
+
+## Paladin assistance
+
+Paladin preserves the standalone 0.9.1 rules and defaults. Holy Strike/Judgement share one selected button and glow in combat when either enabled attack is ready, ignoring the GCD when the client can identify it. Judgement's appearance takes priority; Holy Strike defaults to teal and Judgement to native. Standard destinations default to bar 3, buttons 3 (attacks), 4 (seal), and 5 (Exorcism). Gamepad destinations start unselected and use the active page/set, including toolkit override visuals.
+
+Exorcism glows in combat when ready with a living attackable Demon or Undead target/mouseover, ignoring distance and mana. Its icon is grayscale when an attackable unit exists but cooldown or eligibility prevents the spell. This shares the toolkit's tint compositor, preserving range and cooldown effects when Paladin assistance is disabled.
+
+The seal reminder estimates a refresh from successful casts, at 26 seconds by default. It is visible in combat or with a living attackable target/mouseover; Command damage procs do not reset it. Righteous Fury shows a draggable 64px icon when missing or within five minutes of expiration, only with a shield equipped. Readable aura timing takes precedence over its cast-timer fallback. Both reminders continue observing casts while disabled. Spell-name discovery retains the standalone addon's English-client limitation.
 
 ## Commands
 
@@ -59,6 +69,7 @@ Paladin assistance has not been migrated; its existing addon may remain installe
 - `/aft warrior`: Warrior diagnostics.
 - `/aft hunter`: Hunter learned-spell, usability-signal, cooldown and glow diagnostics.
 - `/aft hunter config`: open Hunter reminders.
+- `/aft paladin` reports Paladin destinations and timers; `/aft paladin config` opens its ability settings.
 - `/aft gamepad` or `/aft gamepad config`: open Gamepad bindings.
 - `/aft gamepad on|off|status|log`: activate saved bindings, disable overrides, or inspect diagnostics.
 - `/aft gamepad set A context|always <spell ID or spell link>` and `/aft gamepad set A native`: edit the Base profile; replace A with B, X or Y as needed.
@@ -87,7 +98,7 @@ The overlay is visual only. Test with the physical controller; clicking it with 
 
 ## Saved settings
 
-`AwesomeForeverToolkitDB` stores account-wide Warrior, Hunter and graphics preferences. `AwesomeForeverToolkitCharacterDB` stores utility preferences, UI state and gamepad assignments/activation per character. Module subtrees are validated independently.
+`AwesomeForeverToolkitDB` stores account-wide Warrior, Hunter, Paladin and graphics preferences. `AwesomeForeverToolkitCharacterDB` stores utility preferences, UI state and gamepad assignments/activation per character. Module subtrees are validated independently.
 
 ## Development
 

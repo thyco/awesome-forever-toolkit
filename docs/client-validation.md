@@ -77,3 +77,13 @@ Automated tests simulate client APIs; they cannot establish native-client taint 
 - Change Base/form assignments, disable overrides, and switch between standard and gamepad layouts. Confirm stale indicators disappear, including during combat transitions, with no protected-action errors.
 
 These checks require the live client; local regression tests cannot confirm rendering, controller input, or client taint behavior.
+
+## Paladin migration
+
+- Disable Paladin Assist Forever, reload on a Paladin, and open both Paladin pages. Verify class pages appear last, gamepad bindings stay under Paladin, and edits request Apply & Reload. Other classes should not run Paladin features.
+- Put the Holy Strike/Judgement macro at its selected destination. In combat verify Judgement takes color priority, Holy Strike can be excluded, the GCD alone does not hide readiness, and a real spell cooldown does.
+- Test Exorcism against living Demon/Undead target and mouseover, other creature types, corpses, friendly units and no target. Check glow conditions and grayscale cleanup with utility cooldown and range coloring also enabled.
+- Cast a seal while disabled, re-enable, and verify the configured delay is measured from that cast. Command damage procs must not reset it. Check combat and attackable target/mouseover visibility, reload and death.
+- With a shield equipped, verify Righteous Fury aura recovery after reload, a successful cast, restricted aura fallback, five-minute reminder threshold, and shield removal. Preview/drag/resize the icon and verify position survives reload. Closing settings or entering combat ends previews.
+- Select standard and gamepad destinations separately for all three button reminders. Change page, set, stance and toolkit overrides; confirm glows/grayscale move cleanly, including while buttons expand. Preview the current destination. All effects remain square.
+- Watch for protected-action errors when editing dropdowns, changing layouts and entering combat. Local tests cannot establish client taint behavior.
