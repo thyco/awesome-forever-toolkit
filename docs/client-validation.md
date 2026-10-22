@@ -43,10 +43,17 @@ Automated tests simulate client APIs; they cannot establish native-client taint 
 
 - Disable standalone Gamepad Assist Forever and Controller Rebound. Start with fresh toolkit gamepad settings and confirm native controls remain unchanged until configured.
 - Open `/aft gamepad`, the minimap launcher and the class page. Confirm one editor in the shared window, including on Hunter/Paladin, and no extra Blizzard settings category or window.
-- Drop spells and macros onto all four buttons; switch Native/Context/Always, Clear and enable/disable. Reject items/flyouts without losing the cursor or saved assignment. Verify narrow-window scaling and tooltip alignment.
-- Test Base and two stance/form profiles, including inheritance, explicit Native, and Base reset; confirm changing the edited profile does not switch stance.
+- Drop spells and macros onto all four buttons; select buttons in the diamond, switch Blizzard default/Contextual/Always, Clear assignment and enable/disable. Reject items/flyouts without losing the cursor or saved assignment. Verify narrow-window scaling and tooltip alignment.
+- Test Base and two stance/form profiles, including resolved inherited names/icons/behavior, explicit Blizzard default, and Use Base assignment; confirm changing the edited profile does not switch stance.
 - Reload while enabled, while disabled, and while the gamepad layout is unavailable. Confirm choices restore once layout/macros become ready. Test missing/renamed macros and form-list updates.
 - With the physical controller, test combat, enemy target, no target, hostile mouseover without target, friendly/dead selected target, and soft target alone. Confirm macros retain their own target rules.
 - Test LT, RT, LT+RT, LB, RB, LB+RB, stance and possess layers, and holding/releasing buttons across a context transition. Native behavior must remain intact.
 - Test menu/dialog interactions and normal jump when Context is inactive. Check icons/cooldowns/utility colors at multiple UI scales and after layout changes.
 - Enter combat with the editor open; it hides without changing secure bindings. Verify deferred macro/form refresh and `/aft gamepad off` after combat. Check for taint and blocked/forbidden action reports.
+
+## Focused gamepad editor visual check
+
+- Confirm the Y/X/B/A diamond matches the physical controller, with a gold outline on the selected button and a single editor to its right.
+- Empty slots should show a muted button letter and Blizzard default; no question-mark texture. Assigned icons should retain a visible button-letter label.
+- Switch to a form that inherits a Base spell or macro: the editor should show its actual icon, name and behavior with Inherited from Base. Change Base, return to the form, and verify the updated value. Also test inheriting an empty Base.
+- Drop onto each diamond button and the larger editor slot; click without a cursor to select without changing assignments. Verify long spell/macro names, missing macros, profile dropdown, tooltips and narrow-window scaling.

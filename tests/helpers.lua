@@ -46,6 +46,7 @@ function H.new()
         function value:SetAlpha(alpha) self.alpha = alpha end
         function value:SetNormalTexture(texture) self.normalTexture = texture end
         function value:SetHighlightTexture(texture) self.highlightTexture = texture end
+        function value:SetJustifyV(alignment) self.justifyV = alignment end
         function value:SetScale(scale) self.scale = scale end
         function value:SetHitRectInsets(...) self.hitRectInsets = {...} end
         function value:RegisterForClicks(...) self.clicks = {...} end

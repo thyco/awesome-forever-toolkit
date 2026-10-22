@@ -62,12 +62,12 @@ The old `/uaf`, `/waf`, `/gaf` and `/bnc` aliases are not registered by this add
 
 ## Gamepad bindings
 
-Open **Your class → Gamepad bindings**, alongside your spellbook or `/macro`. Drop a spell or macro onto A, B, X or Y. A new drop chooses **Context**, unless that button already uses **Always**.
+Open **Your class → Gamepad bindings**, alongside your spellbook or `/macro`. Select A, B, X or Y in the controller diamond to edit it, or drop a spell/macro directly onto a button. The focused editor also accepts drops. A new drop chooses **Contextual**, unless that button already uses **Always**. Empty buttons show a muted letter and **Blizzard default** instead of a question mark.
 
-- **Native** restores Blizzard behavior while remembering the assignment. **Clear** removes the Base assignment.
-- **Context** uses the assignment in combat or with a living hostile target. Hostile mouseover is considered only without a selected target; a friendly or dead selected target prevents that fallback.
+- **Blizzard default** restores native behavior while remembering the assignment. **Clear assignment** removes the Base assignment.
+- **Contextual** uses the assignment in combat or with a living hostile target. Hostile mouseover is considered only without a selected target; a friendly or dead selected target prevents that fallback.
 - **Always** uses it without requiring combat or a target. Triggers, shoulder modifiers, native stance and possess layers still take priority.
-- **Profile** cycles Base and known stance/form profiles for editing; it does not switch your current form. A form without its own choice inherits Base. **Native** explicitly restores Blizzard behavior for that form; **Base** removes the form override and restores inheritance.
+- The **Profile dropdown** selects Base or a known stance/form for editing; it does not switch your current form. An inherited profile displays the resolved Base icon, name and behavior with **Inherited from Base**. **Blizzard default** explicitly restores native behavior for that form; **Use Base assignment** removes the form override and restores inheritance.
 - **Enable overrides** controls saved activation. Assignments and activation survive reload. Temporary unavailable macros or layout do not erase the preference.
 
 Spells use the existing target/mouseover rules; macros keep their own targeting and castsequence rules. Macro names must be unique across account and character macros. After renaming a macro, assign it again. Items and flyouts are unsupported. Configuration is locked during combat; macro/form data updates are deferred until combat ends.
