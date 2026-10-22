@@ -25,8 +25,8 @@ Integrate Gamepad Assist Forever 0.7.0's active overlay implementation into Awes
 
 ## Tasks
 
-- [x] 1. Runtime and storage. Add integration tests for fresh settings, duplicate guard, missing layout, and class-independent activation. Run them RED. Port the active model/visual/runtime files, introduce module/config adapters, add TOC entries and command dispatch. Port active upstream behavioral suites, replacing only namespace/storage/lifecycle setup and obsolete migration expectation. Run gamepad and full suites; commit.
-- [x] 2. Shared editor and visual bridge. Test page placement and actual editor callbacks, command opening, combat gating and provider selection. Run RED. Adapt the existing editor to a 600px content frame, use English labels, expose one page for the player's class. Connect internal descriptors to Utilities while preserving external fallback. Run gamepad and full suites; commit.
+- [x] 1. Runtime and storage. Add integration tests for fresh settings, missing layout, and class-independent activation. Run them RED. Port the active model/visual/runtime files, introduce module/config adapters, add TOC entries and command dispatch. Port active upstream behavioral suites, replacing only namespace/storage/lifecycle setup and obsolete migration expectation. Run gamepad and full suites; commit.
+- [x] 2. Shared editor and visual bridge. Test page placement and actual editor callbacks, command opening, combat gating and provider selection. Run RED. Adapt the existing editor to a 600px content frame, use English labels, expose one page for the player's class. Connect internal descriptors to Utilities without external fallback. Run gamepad and full suites; commit.
 - [ ] 3. Package and review. Update README, client checklist and provenance. Verify all Lua, all tests, reproducible ZIP, and unchanged upstream secure snippet/driver logic. Obtain independent review; fix substantive findings with failing regressions, rerun full checks and commit. Leave the current branch ready to push.
 
 ## Execution notes
