@@ -20,9 +20,9 @@ The movable standalone window has these pages:
 
 - **General:** show/hide the minimap button. Drag that button around the minimap to reposition it.
 - **Action bars:** range checks, queued attack highlights, cooldown/unusable greying and click-through.
+- **Graphics:** grass and ground-effect density with a reset to the client-reported default.
 - **Warrior → Reminders & glows:** select Battle Shout, Overpower, Revenge, Execute, Victory Rush or Shield Block; only the selected feature's controls are shown.
 - **Warrior → Stance indicator:** current stance icon, shield corner and positioning.
-- **Graphics:** grass and ground-effect density with a reset to the client-reported default.
 
 Warrior pages appear only on Warriors with the module active. The last available page is remembered per character. Reminder location selectors save standard bar/button and native gamepad page/set/button separately; the current input mode determines which selection is used. Gamepad spell/macro binding overrides are a later phase and have no empty settings page.
 

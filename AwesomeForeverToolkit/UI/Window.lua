@@ -134,7 +134,7 @@ function Window:Initialize()
         for _, entry in pairs(self.cache) do entry.frame:SetWidth(math.max(1, width)) end
     end)
     self.navigation = {}
-    local rank = {general = 1, utilities = 2, ["warrior.reminders"] = 3, ["warrior.stance"] = 4, graphics = 5}
+    local rank = {general = 1, utilities = 2, graphics = 3, ["warrior.reminders"] = 4, ["warrior.stance"] = 5}
     table.sort(self.order, function(a, b) return (rank[a.id] or 99) < (rank[b.id] or 99) end)
     local y, parent = -64, nil
     for _, page in ipairs(self.order) do
