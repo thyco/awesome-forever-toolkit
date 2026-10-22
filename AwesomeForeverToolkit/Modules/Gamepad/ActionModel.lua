@@ -56,10 +56,10 @@ local function Macro(name)
     local found
     for _, range in ipairs({ {1, account}, {(MAX_ACCOUNT_MACROS or 120) + 1, (MAX_ACCOUNT_MACROS or 120) + character} }) do
         for index = range[1], range[2] do
-            local macroName, icon = GetMacroInfo(index)
+            local macroName, icon, body = GetMacroInfo(index)
             if macroName == name then
                 if found then return nil, "Give this macro a unique name across account and character macros." end
-                found = { kind = "macro", macroName = name, name = name, iconID = icon, macroIndex = index }
+                found = { kind = "macro", macroName = name, name = name, iconID = icon, macroIndex = index, macroBody = body }
             end
         end
     end
@@ -132,4 +132,55 @@ function M.Prepare(config)
         end
     end
     return actions, M.Driver(config, forms)
+end
+
+-- Mirror the checked state for our visual, not the original action slot. A
+-- supported macro body is authoritative over a possibly unrelated #showtooltip.
+function M.IsCurrent(action, displayedSpellID)
+    local api = C_Spell and C_Spell.IsCurrentSpell or IsCurrentSpell
+    local function read(fn, ...)
+        if type(fn) ~= "function" then return nil end
+        local ok, value = pcall(fn, ...)
+        if ok and (not issecretvalue or not issecretvalue(value)) then return value end
+    end
+    local function current(spell)
+        if not spell then return false end
+        local value = read(api, spell)
+        return value == true or value == 1
+    end
+
+    if action.macroName and type(action.macroBody) == "string" then
+        local casts = {["/cast"] = true, ["/spell"] = true, ["/use"] = true}
+        local ignored = {["/startattack"] = true, ["/stopcasting"] = true}
+        for _, group in ipairs({"CAST", "USE", "STARTATTACK", "STOPCASTING"}) do
+            local commands = (group == "CAST" or group == "USE") and casts or ignored
+            for index = 1, 20 do
+                local alias = _G["SLASH_" .. group .. index]
+                if type(alias) == "string" then commands[alias:lower()] = true end
+            end
+        end
+
+        local checked = false
+        for line in action.macroBody:gmatch("[^\r\n]+") do
+            local command, args = line:match("^%s*(%S+)%s*(.-)%s*$")
+            if command and command:sub(1, 1) ~= "#" then
+                command = command:lower()
+                if casts[command] then
+                    local spell = args
+                    if args:find("[", 1, true) or args:find(";", 1, true) then
+                        spell = read(SecureCmdOptionParse, args)
+                    end
+                    if type(spell) == "string" then
+                        spell = spell:match("^%s*(.-)%s*$"):gsub("^!", "")
+                        checked = current(spell) or checked
+                    end
+                elseif not ignored[command] then
+                    return current(displayedSpellID)
+                end
+            end
+        end
+        return checked
+    end
+
+    return current(displayedSpellID)
 end

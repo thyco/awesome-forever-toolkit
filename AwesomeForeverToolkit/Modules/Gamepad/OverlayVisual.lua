@@ -10,6 +10,7 @@ function Visual.Create(native)
     frame:SetFrameStrata(native:GetFrameStrata())
     frame:SetFrameLevel(native:GetFrameLevel() + 5)
     frame:EnableMouse(false)
+    frame.aftRound = true
 
     frame.background = frame:CreateTexture(nil, "BACKGROUND")
     frame.background:SetAllPoints()
@@ -23,6 +24,15 @@ function Visual.Create(native)
     frame.mask:SetTexture(CIRCLE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
     frame.background:AddMaskTexture(frame.mask)
     frame.icon:AddMaskTexture(frame.mask)
+
+    -- The override covers Blizzard's original checked texture. Mirror current
+    -- spell state on our own masked texture; never alter the native button.
+    frame.checked = frame:CreateTexture(nil, "OVERLAY")
+    frame.checked:SetAllPoints()
+    frame.checked:SetTexture("Interface\\Buttons\\CheckButtonHilight")
+    frame.checked:SetBlendMode("ADD")
+    frame.checked:AddMaskTexture(frame.mask)
+    frame.checked:Hide()
 
     frame.cooldown = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
     frame.cooldown:SetAllPoints()

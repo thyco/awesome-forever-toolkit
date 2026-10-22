@@ -84,3 +84,18 @@ function NextSwing:ForAction(slot, unit, kind, id, subtype)
         return id, kind == 'macro' and 'displayed macro spell' or 'direct spell'
     end
 end
+
+function NextSwing:ForOverlay(entry, accept)
+    local spellID = entry.spellID
+    if entry.macroName then
+        local queued, inspected = addon.Macros:NextSwingByName(entry.macroName, nil, self.names, accept)
+        if queued then return queued end
+        if inspected then return nil end
+
+        spellID = Client.Read(GetMacroSpell, entry.macroName)
+    end
+
+    if Client.Number(spellID) and self.ids[spellID] and (not accept or accept(spellID)) then
+        return spellID
+    end
+end

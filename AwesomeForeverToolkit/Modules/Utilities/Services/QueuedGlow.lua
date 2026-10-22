@@ -24,6 +24,11 @@ local function selectedColor()
 end
 
 local function recolor(entry, color)
+    if entry.round then
+        entry.round:SetColor(color or entry.nativeColor)
+        return
+    end
+
     color = color or entry.nativeColor
     for _, texture in ipairs(entry.effect.textures or {}) do
         texture:SetVertexColor(color[1], color[2], color[3], color[4])
@@ -31,7 +36,8 @@ local function recolor(entry, color)
 end
 
 function QueuedGlow.Prepare(button)
-    if entries[button] or not library or InCombatLockdown() then
+    local isRound = root.RoundGlow and root.RoundGlow.IsRound(button)
+    if entries[button] or (not library and not isRound) or InCombatLockdown() then
         return entries[button]
     end
 
@@ -40,6 +46,15 @@ function QueuedGlow.Prepare(button)
     frame:SetFrameLevel(button:GetFrameLevel() + 6)
     frame:EnableMouse(false)
     frame:Hide()
+
+    if isRound then
+        local round = root.RoundGlow.Create(frame, button)
+        local entry = { frame = frame, effect = round.frame, round = round,
+            nativeColor = { 0.95, 0.95, 0.32, 1 }, active = false }
+        entries[button] = entry
+        recolor(entry, selectedColor())
+        return entry
+    end
 
     -- Reserve the effect before combat. Hidden effects have no active animation.
     library.PixelGlow_Start(frame, nil, 4, 0.4, nil, 2, 0, 0, true, glowKey)
@@ -67,11 +82,16 @@ function QueuedGlow.Set(button, active)
         entry = QueuedGlow.Prepare(button)
     end
 
+    if entry and entry.round and active then
+        entry.round:RefreshGeometry()
+    end
+
     if not entry or entry.active == active then
         return
     end
 
     entry.active = active
+    if entry.round then entry.round:SetActive(active) end
     if active then
         entry.frame:Show()
         entry.effect:Show()

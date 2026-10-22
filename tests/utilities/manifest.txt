@@ -2,6 +2,7 @@ Core/Addon.lua
 Core/Config.lua
 Services/Client.lua
 Services/Buttons.lua
+Services/RoundGlow.lua
 Modules/Utilities/Module.lua
 Modules/Utilities/Config.lua
 Modules/Utilities/Services/Graphics.lua

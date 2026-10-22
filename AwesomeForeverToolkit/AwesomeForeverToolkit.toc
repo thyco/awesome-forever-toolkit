@@ -15,6 +15,7 @@ Core/Addon.lua
 Core/Config.lua
 Services/Client.lua
 Services/Buttons.lua
+Services/RoundGlow.lua
 Services/Glow.lua
 Modules/Gamepad/Module.lua
 Modules/Gamepad/Config.lua

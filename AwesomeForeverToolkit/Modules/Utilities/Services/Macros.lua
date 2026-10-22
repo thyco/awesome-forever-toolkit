@@ -97,7 +97,7 @@ function Macros:NextSwing(slot, unit, names)
     return self:NextSwingByName(name, unit, names)
 end
 
-function Macros:NextSwingByName(name, unit, names)
+function Macros:NextSwingByName(name, unit, names, accept)
     local lines = Client.String(name) and self.byName[name]
     if not lines then
         return nil
@@ -121,7 +121,7 @@ function Macros:NextSwingByName(name, unit, names)
             and (target == nil or unit == nil or target == unit) then
             selected = trim(selected):gsub('^!', '')
             local id = names[trim(selected)]
-            if id then
+            if id and (not accept or accept(id)) then
                 return id, true
             end
         end

@@ -35,7 +35,7 @@ local function loadRuntime()
             GetAttribute = function(self, key) return self.attrs[key] end,
             GetFrameStrata = function() return 'MEDIUM' end,
             GetFrameLevel = function() return 1 end,
-            CreateTexture = function() return widget() end,
+            CreateTexture = function(self) return widget(nil, self) end,
             CreateMaskTexture = function() return widget() end,
             RegisterEvent = function(self, event) if event == 'PLAYER_LOGIN' then eventFrame = self end end,
             SetScript = function(self, event, fn) self[event] = fn end,
@@ -407,6 +407,7 @@ test('visual provider exposes current stance action without Utils and clears on 
     GamepadSharedUtility.InputBindingManager.IsOnlyCoreBindingSetActive = function() return true end
     world.addon.OverlayVisual.Sync = function() return true end
     C_Spell.GetSpellCooldownDuration = function() return nil end
+    C_Spell.IsCurrentSpell = function(id) return id == 133 end
     local router = world.frames.AFTGamepadRouterA
     router:SetAttribute('gaf-state', 'override')
 
@@ -414,11 +415,14 @@ test('visual provider exposes current stance action without Utils and clears on 
 
     local entries = world.addon.Visuals.GetEntries()
     assert(#entries == 1 and entries[1].spellID == 133)
+    assert(entries[1].button.checked:IsShown(), 'override must show current spell without Utilities')
+    assert(entries[1].nativeButton == unit.actionBars.topBar.Right.ActionButton4)
     entries[1].spellID = 999
     assert(world.addon.Visuals.GetEntries()[1].spellID == 133, 'descriptors must not mutate config')
     router:SetAttribute('gaf-state', 'form2457')
     update()
     assert(world.addon.Visuals.GetEntries()[1].spellID == 456)
+    assert(not entries[1].button.checked:IsShown(), 'new stance action must clear prior checked state')
     runtime.RunCommand('off')
     assert(#world.addon.Visuals.GetEntries() == 0)
 end)

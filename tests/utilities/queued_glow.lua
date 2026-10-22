@@ -372,5 +372,99 @@ test('idle polls do not rescan queued button state', function()
     equal(reads, initialReads)
 end)
 
+local function overrideProvider(world, entry)
+    world.overlay = world:button('OverrideVisual', nil)
+    world.entries = {entry}
+    entry.button = world.overlay
+    entry.nativeButton = world.main
+    world.root.modules.Gamepad = {active = true, Visuals = {
+        version = 1,
+        GetFrames = function() return {world.overlay} end,
+        GetEntries = function() return world.entries end,
+    }}
+    world.current = {}
+    world.env.C_Spell.IsCurrentSpell = function(id) return world.current[id] or false end
+    world.addon:Refresh(true, true)
+    return {main = world.overlay}
+end
+
+test('override queued attack follows the override spell instead of native checked state', function()
+    local world, addon = setup()
+    local overlay = overrideProvider(world, {spellID = 78})
+    world.current[78] = true
+
+    world:tick(0.1)
+
+    equal(visible(overlay), true)
+    equal(visible(world), false)
+    equal(addon.QueuedAttackGlow.active, 1)
+
+    world.current[78] = false
+    world:tick(0.1)
+
+    equal(visible(overlay), false, 'swing consumption clears without waiting for an action-bar event')
+end)
+
+test('override macro body identifies queued strike even with a different tooltip spell', function()
+    local world = setup(function(w)
+        w.macros = {[1] = {'Swing', '#showtooltip Hamstring\n/cast [combat] Heroic Strike; Shoot Bow'}}
+    end)
+    local overlay = overrideProvider(world, {macroName = 'Swing'})
+    world.env.GetMacroSpell = function() return 1715 end
+    world.current[78] = true
+    world.combat = true
+
+    world:tick(0.1)
+
+    equal(visible(overlay), true)
+
+    world.combat = false
+    world.env.GetMacroSpell = function() return 78 end
+    world:tick(0.1)
+
+    equal(visible(overlay), false, 'inactive macro branch beats tooltip fallback')
+end)
+
+test('override macro checks every applicable next-swing command', function()
+    local world = setup(function(w)
+        w.spells[845] = {name = 'Cleave', spellID = 845}
+        w.learned[#w.learned + 1] = 845
+        w.macros = {[1] = {'Two swings', '/cast Heroic Strike\n/cast Cleave'}}
+    end)
+    local overlay = overrideProvider(world, {macroName = 'Two swings'})
+    world.current[845] = true
+
+    world:tick(0.1)
+
+    equal(visible(overlay), true, 'queued second command must not be masked by the first')
+
+    world.current[845] = false
+    world:tick(0.1)
+    equal(visible(overlay), false)
+end)
+
+test('override state changes and removal release custom queued glow', function()
+    local world, addon = setup()
+    local overlay = overrideProvider(world, {spellID = 78})
+    world.current[78] = true
+    world:tick(0.1)
+    equal(visible(overlay), true)
+
+    world.current[78] = world.secret
+    world:tick(0.1)
+    equal(visible(overlay), false, 'restricted queue state must not be inspected')
+
+    world.current[78] = true
+    world:tick(0.1)
+    world.entries = {}
+    world:tick(0.1)
+    equal(visible(overlay), false)
+
+    world.entries = {{button = world.overlay, spellID = 78}}
+    world:tick(0.1)
+    addon.Config.Set('highlightQueuedAttacks', false)
+    equal(visible(overlay), false)
+end)
+
 print(('Queued glow: %d passed, %d failed'):format(passed, failed))
 if failed > 0 then os.exit(1) end

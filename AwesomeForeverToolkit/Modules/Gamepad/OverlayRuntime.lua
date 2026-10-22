@@ -239,10 +239,13 @@ local function RefreshVisuals()
         local show = gameplay and config.native:IsShown() and action ~= nil
         if show then show = addon.OverlayVisual.Sync(visual, config.native) end
         visual:SetShown(show == true)
+        visual.checked:Hide()
         if show then
             visual.icon:SetTexture(action.iconID)
             local spellID = action.spellID
             if action.macroName and GetMacroSpell then spellID = GetMacroSpell(action.macroName) end
+            visual.checked:SetShown(M.IsCurrent(action, spellID))
+
             local duration = spellID and C_Spell.GetSpellCooldownDuration(spellID)
             if duration then visual.cooldown:SetCooldownFromDurationObject(duration)
             else visual.cooldown:Clear() end
@@ -265,7 +268,8 @@ addon.Visuals = {
             local visual = visuals[face]
             local action = config.actions[routers[face]:GetAttribute("gaf-state")]
             if visual and visual:IsShown() and action then
-                entries[#entries + 1] = {button = visual, spellID = action.spellID, macroName = action.macroName}
+                entries[#entries + 1] = {button = visual, nativeButton = config.native,
+                    spellID = action.spellID, macroName = action.macroName}
             end
         end
         return entries
