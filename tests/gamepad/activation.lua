@@ -194,7 +194,7 @@ test('blocked action suspends session without permanently disabling saved choice
     local runtime, _, _, world = loadRuntime()
     assert(runtime.Configure('A', 'always', 133))
 
-    world.event('ADDON_ACTION_BLOCKED', 'GamepadAssistForever', 'TestAction')
+    world.event('ADDON_ACTION_BLOCKED', 'AwesomeForeverToolkit', 'TestAction')
 
     assert(not runtime.IsActive('A'))
     assert(AwesomeForeverToolkitCharacterDB.gamepad.enabled.A == true)
@@ -224,6 +224,43 @@ local function capture(fn)
     assert(ok, err)
     return table.concat(lines, "\n")
 end
+
+local function unrelatedError(event)
+    AwesomeForeverToolkitCharacterDB.gamepad.bindings = {}
+    AwesomeForeverToolkitCharacterDB.gamepad.enabled = {}
+    local runtime, _, _, world = loadRuntime()
+    assert(runtime.Configure('A', 'always', 133))
+
+    local messages = capture(function() world.event(event, 'AnotherAddon', 'TestAction') end)
+
+    assert(messages == '', 'unrelated addon errors must not be echoed in chat')
+    assert(runtime.IsActive('A'), 'unrelated addon errors must not stop overrides')
+    assert(runtime.Configure('B', 'always', 133), 'unrelated addon errors must not fault the session')
+end
+
+test('another addon blocked action leaves gamepad running silently', function()
+    unrelatedError('ADDON_ACTION_BLOCKED')
+end)
+
+test('another addon forbidden action leaves gamepad running silently', function()
+    unrelatedError('ADDON_ACTION_FORBIDDEN')
+end)
+
+test('our forbidden action reports and suspends the session', function()
+    AwesomeForeverToolkitCharacterDB.gamepad.bindings = {}
+    AwesomeForeverToolkitCharacterDB.gamepad.enabled = {}
+    local runtime, _, _, world = loadRuntime()
+    assert(runtime.Configure('A', 'always', 133))
+
+    local messages = capture(function()
+        world.event('ADDON_ACTION_FORBIDDEN', 'AwesomeForeverToolkit', 'TestAction')
+    end)
+
+    assert(messages:find('ADDON_ACTION_FORBIDDEN', 1, true))
+    assert(not runtime.IsActive('A'))
+    assert(runtime.IsEnabled('A'), 'saved activation must survive a session fault')
+    assert(not runtime.Configure('B', 'always', 133))
+end)
 
 local function missingMacroRuntime()
     AwesomeForeverToolkitCharacterDB.gamepad.bindings = {A = {mode = 'always', kind = 'macro', macroName = 'Attack'}}

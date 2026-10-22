@@ -1,4 +1,4 @@
-local _, root = ...
+local addonName, root = ...
 local addon = root.modules.Gamepad
 local O = addon.Overlay
 local M = addon.ActionModel
@@ -437,7 +437,8 @@ function addon.Runtime.Start()
                 Log(ok and message or "Stopping failed; use /reload.")
             end
             if pendingRefresh then RefreshBindings() end
-        elseif next(active) then
+        elseif (event == "ADDON_ACTION_BLOCKED" or event == "ADDON_ACTION_FORBIDDEN")
+            and blamedAddon == addonName and next(active) then
             faulted = true
             pendingStop = true
             Log(event .. ": " .. tostring(blamedAddon) .. " / " .. tostring(action) .. ". Use /reload.")
