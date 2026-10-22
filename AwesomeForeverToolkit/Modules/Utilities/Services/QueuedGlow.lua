@@ -42,7 +42,7 @@ function QueuedGlow.Prepare(button)
     frame:Hide()
 
     -- Reserve the effect before combat. Hidden effects have no active animation.
-    library.PixelGlow_Start(frame, nil, 4, 0.4, nil, 2, 0, 0, true, glowKey)
+    library.PixelGlow_Start(frame, nil, 8, 0.4, nil, 2, 0, 0, true, glowKey)
     local effect = frame['_PixelGlow' .. glowKey]
     effect:Hide()
 
@@ -65,7 +65,7 @@ function QueuedGlow.Prepare(button)
         entry.width, entry.height = width, height
         -- The key and segment count are unchanged, so the reserved effect and
         -- textures are reused, including when the host resizes during combat.
-        library.PixelGlow_Start(frame, nil, 4, 0.4, nil, 2, 0, 0, true, glowKey)
+        library.PixelGlow_Start(frame, nil, 8, 0.4, nil, 2, 0, 0, true, glowKey)
         recolor(entry, selectedColor())
         if not entry.active then entry.effect:Hide() end
     end)

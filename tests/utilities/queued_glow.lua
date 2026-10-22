@@ -46,7 +46,7 @@ local function setup(configure)
     world.glowStarts = 0
     local library = {}
     function library.PixelGlow_Start(frame, color, count, frequency, length, thickness, x, y, border, key)
-        equal(count, 4)
+        equal(count, 8)
         equal(border, true)
         world.glowStarts = world.glowStarts + 1
         world.glowStartColor = color and { color[1], color[2], color[3], color[4] } or nil
