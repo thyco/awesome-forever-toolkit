@@ -262,6 +262,47 @@ test('our forbidden action reports and suspends the session', function()
     assert(not runtime.Configure('B', 'always', 133))
 end)
 
+test('normal action bars defer automatic gamepad refresh silently', function()
+    AwesomeForeverToolkitCharacterDB.gamepad.bindings = {A = {mode = 'always', spellID = 133}}
+    AwesomeForeverToolkitCharacterDB.gamepad.enabled = {A = true}
+    local runtime, login, update, world = loadRuntime()
+    InputUtil.IsGamepadUIEnabled = function() return false end
+
+    local messages = capture(function()
+        login()
+        world.event('PLAYER_ENTERING_WORLD')
+        world.event('SPELLS_CHANGED')
+        world.event('UPDATE_MACROS')
+        update()
+    end)
+
+    assert(messages == '', 'normal UI startup is not an activation error')
+    assert(not runtime.IsActive('A') and runtime.IsEnabled('A'))
+
+    InputUtil.IsGamepadUIEnabled = function() return true end
+    update()
+
+    assert(runtime.IsActive('A'), 'saved bindings should restore when the layout is available')
+end)
+
+test('switching to normal action bars suspends bindings without chat', function()
+    AwesomeForeverToolkitCharacterDB.gamepad.bindings = {}
+    AwesomeForeverToolkitCharacterDB.gamepad.enabled = {}
+    local runtime, _, update, world = loadRuntime()
+    assert(runtime.Configure('A', 'always', 133))
+    InputUtil.IsGamepadUIEnabled = function() return false end
+
+    local messages = capture(function() world.event('INPUT_DEVICE_INTERFACE_TRANSITION') end)
+
+    assert(messages == '')
+    assert(not runtime.IsActive('A') and runtime.IsEnabled('A'))
+
+    InputUtil.IsGamepadUIEnabled = function() return true end
+    update()
+
+    assert(runtime.IsActive('A'))
+end)
+
 local function missingMacroRuntime()
     AwesomeForeverToolkitCharacterDB.gamepad.bindings = {A = {mode = 'always', kind = 'macro', macroName = 'Attack'}}
     AwesomeForeverToolkitCharacterDB.gamepad.enabled = {A = true}

@@ -371,18 +371,6 @@ local function ApplySavedBinding(face, prefix)
     Log(face .. prefix .. tostring(executed and message or ok))
 end
 
-local function RefreshBindings()
-    if faulted then return end
-    if Combat() then pendingRefresh = true; return end
-    pendingRefresh = false
-
-    for _, face in ipairs(faces) do
-        if Enabled()[face] and Database()[face] then
-            ApplySavedBinding(face, ": ")
-        end
-    end
-end
-
 local function NativeReady()
     local unit = Unit()
     if not unit or not unit.actionBars or not InputUtil or not InputUtil.IsGamepadUIEnabled() then return false end
@@ -397,6 +385,26 @@ local function NativeReady()
         end
     end
     return true
+end
+
+local function RefreshBindings()
+    if faulted then return end
+    if Combat() then pendingRefresh = true; return end
+    pendingRefresh = false
+
+    if not NativeReady() then
+        Stop()
+        for _, face in ipairs(faces) do
+            if Enabled()[face] and Database()[face] then pendingRestore = true end
+        end
+        return
+    end
+
+    for _, face in ipairs(faces) do
+        if Enabled()[face] and Database()[face] then
+            ApplySavedBinding(face, ": ")
+        end
+    end
 end
 
 local function RestoreBindings()
@@ -420,7 +428,7 @@ function addon.Runtime.Start()
     pendingRestore = true
     local events = CreateFrame("Frame")
     addon.Runtime.frame = events
-    for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_REGEN_ENABLED", "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN", "UPDATE_MACROS", "UPDATE_SHAPESHIFT_FORMS", "SPELLS_CHANGED", "PLAYER_ENTERING_WORLD" }) do
+    for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_REGEN_ENABLED", "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN", "UPDATE_MACROS", "UPDATE_SHAPESHIFT_FORMS", "SPELLS_CHANGED", "PLAYER_ENTERING_WORLD", "INPUT_DEVICE_INTERFACE_TRANSITION" }) do
         events:RegisterEvent(event)
     end
     events:SetScript("OnEvent", function(_, event, blamedAddon, action)
@@ -429,7 +437,8 @@ function addon.Runtime.Start()
             pendingRestore = true
             RestoreBindings()
         elseif event == "UPDATE_MACROS" or event == "UPDATE_SHAPESHIFT_FORMS"
-            or event == "SPELLS_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
+            or event == "SPELLS_CHANGED" or event == "PLAYER_ENTERING_WORLD"
+            or event == "INPUT_DEVICE_INTERFACE_TRANSITION" then
             RefreshBindings()
         elseif event == "PLAYER_REGEN_ENABLED" then
             if pendingStop then
