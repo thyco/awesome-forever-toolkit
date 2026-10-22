@@ -3,18 +3,34 @@ local RoundGlow = {}
 root.RoundGlow = RoundGlow
 
 local nativeColor = { 1, 0.82, 0.25, 1 }
-local segments = 48
 local methods = {}
 
+local function field(object, key)
+    if not root.Client.Readable(object) or type(object) ~= 'table' then return nil end
+
+    local ok, value = pcall(function() return object[key] end)
+    if ok and root.Client.Readable(value) then return value end
+end
+
 function RoundGlow.IsRound(button)
-    return button.CircleMask ~= nil or button.aftRound == true
+    if field(button, 'aftRound') == true then return true end
+
+    -- Both native shapes can inherit CircleMask. The bar position, rather than
+    -- the existence of that texture, identifies Face buttons (slots 5 through 8).
+    local bars = field(field(GamepadMainActionBarFrame, 'PageUnit'), 'actionBars')
+    for _, key in ipairs({ 'topBar', 'leftBar', 'rightBar', 'bottomBar', 'stanceBar', 'possessBar' }) do
+        local buttons = field(field(bars, key), 'actionButtons')
+        for index = 5, 8 do
+            if field(buttons, index) == button then return true end
+        end
+    end
+
+    return false
 end
 
 function methods:SetColor(color)
     color = color or nativeColor
-    for _, line in ipairs(self.lines) do
-        line:SetColorTexture(color[1], color[2], color[3], (color[4] or 1) * line.glowAlpha)
-    end
+    self.texture:SetVertexColor(color[1], color[2], color[3], color[4] or 1)
 end
 
 function methods:RefreshGeometry()
@@ -26,15 +42,11 @@ function methods:RefreshGeometry()
 
     if width == self.width and height == self.height then return end
     self.width, self.height = width, height
-    local radius = math.min(width, height) / 2
 
-    for index, line in ipairs(self.lines) do
-        local segment = (index - 1) % segments
-        local angle = segment * math.pi * 2 / segments
-        local nextAngle = (segment + 1) * math.pi * 2 / segments
-        line:SetStartPoint('CENTER', self.frame, math.cos(angle) * radius, math.sin(angle) * radius)
-        line:SetEndPoint('CENTER', self.frame, math.cos(nextAngle) * radius, math.sin(nextAngle) * radius)
-    end
+    -- The texture's luminous radius is 80 in a 256px canvas. Keep it square,
+    -- including when the native region is rectangular, and center on the icon.
+    local size = math.min(width, height) * 256 / 160
+    self.texture:SetSize(size, size)
 end
 
 function methods:SetActive(active)
@@ -56,17 +68,17 @@ function RoundGlow.Create(parent, button)
     frame:EnableMouse(false)
     frame:Hide()
 
-    local renderer = setmetatable({ frame = frame, region = region, lines = {} }, { __index = methods })
-    -- A soft outer band and narrow core form a ring without square proc artwork.
-    -- All regions are reserved before combat; only addon-owned lines are changed.
-    for layer = 1, 2 do
-        for _ = 1, segments do
-            local line = frame:CreateLine(nil, 'OVERLAY')
-            line:SetThickness(layer == 1 and 5 or 2)
-            line.glowAlpha = layer == 1 and 0.22 or 1
-            renderer.lines[#renderer.lines + 1] = line
-        end
-    end
+    local texture = frame:CreateTexture(nil, 'OVERLAY')
+    texture:SetTexture("Interface\\AddOns\\AwesomeForeverToolkit\\Media\\RoundGlow.tga")
+    texture:SetBlendMode('ADD')
+    texture:SetPoint('CENTER', frame, 'CENTER', 0, 0)
+
+    local renderer = setmetatable({ frame = frame, region = region, texture = texture }, { __index = methods })
+    local elapsed = 0
+    frame:SetScript('OnUpdate', function(self, delta)
+        elapsed = (elapsed + delta) % 1.4
+        self:SetAlpha(0.8 + 0.2 * math.sin(elapsed * math.pi * 2 / 1.4))
+    end)
 
     renderer:SetColor()
     renderer:RefreshGeometry()

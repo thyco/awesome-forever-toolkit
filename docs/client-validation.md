@@ -70,7 +70,7 @@ Automated tests simulate client APIs; they cannot establish native-client taint 
 
 ## Round Face glows and queued gamepad overrides
 
-- Compare class proc previews on Face buttons and square buttons. Face glows should follow the circle; square effects should retain their existing shape. Check default and custom colors, UI scale, and expanded bars.
+- Compare class proc previews on Face buttons and square buttons. Face glows should have a soft, pulsing circular halo; D-pad buttons should retain square effects even when their template includes a CircleMask. Check default and custom colors, UI scale, and expanded bars.
 - Override a Face button with Raptor Strike, Heroic Strike, Cleave or Maul. With custom queued highlights disabled, queue the attack using the controller and confirm the checked indicator appears, then clears when consumed or canceled.
 - Enable custom queued highlights and repeat with default and custom colors. The custom ring should be round and follow the override, without highlighting the original hidden action.
 - Repeat with a supported conditional macro and a macro containing multiple next-swing commands, including when only the second command is queued. An unrelated tooltip spell should not prevent the queued indicator.

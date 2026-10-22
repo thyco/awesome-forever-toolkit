@@ -81,7 +81,7 @@ Open **Your class → Gamepad bindings**, alongside your spellbook or `/macro`. 
 
 Spells use the existing target/mouseover rules; macros keep their own targeting and castsequence rules. Macro names must be unique across account and character macros. After renaming a macro, assign it again. Items and flyouts are unsupported. Configuration is locked during combat; macro/form data updates are deferred until combat ends.
 
-Override icons show the normal checked indicator while their spell is queued, even with custom queued highlights disabled. Custom highlights track the displayed spell or applicable supported macro commands. Round buttons use static luminous rings with the selected color (or the default glow color).
+Override icons show the normal checked indicator while their spell is queued, even with custom queued highlights disabled. Custom highlights track the displayed spell or applicable supported macro commands. Round buttons use softly pulsing halos with the selected color (or the default glow color).
 
 The overlay is visual only. Test with the physical controller; clicking it with a mouse still reaches the native button. When assigning A permanently, bind jump elsewhere. Controller Rebound must be disabled because it claims the same buttons. Starting with no assignments via `/aft gamepad on` retains the original quick-start behavior: it copies the spell from page 1, LT+X to A in Context mode.
 

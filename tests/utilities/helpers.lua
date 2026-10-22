@@ -157,6 +157,9 @@ function Helpers.new()
         function value:UnregisterAllEvents() self.events = {} end
         function value:CreateFontString() return frame('FontString', nil, self) end
         function value:CreateTexture() return frame('Texture', nil, self) end
+        function value:SetBlendMode(blend) self.blend = blend end
+        function value:GetSize() return self.width or 36, self.height or 36 end
+        function value:SetAlpha(alpha) self.alpha = alpha end
         function value:SetTexture(texture) self.texture = texture; self.textureWrites = self.textureWrites + 1 end
         function value:SetColorTexture(r, g, b, a) self.color = { r, g, b, a or 1 } end
         function value:GetTexture() return self.texture end
