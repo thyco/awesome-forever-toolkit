@@ -660,7 +660,9 @@ do
     world.stanceID = 19
     world.overlay[7384] = true
     reactiveEvent(world, "UPDATE_SHAPESHIFT_FORM")
-    H.equal(world.glows[entry.frame].color, nil, "Berserker remains native by default")
+    H.equal(world.glows[entry.frame].color[1], 1, "Berserker defaults to red")
+    H.equal(world.glows[entry.frame].color[2], 0, "Berserker default has no green")
+    H.equal(world.glows[entry.frame].color[3], 0, "Berserker default has no blue")
 
     addon.Config.Set("overpowerBerserkerNativeColor", false)
     addon.Config.Set("overpowerBerserkerGlowColor", "ffff0000")
