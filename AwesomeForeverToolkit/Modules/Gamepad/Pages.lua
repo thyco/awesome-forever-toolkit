@@ -78,7 +78,7 @@ local function Dropdown(parent, x, y, width, options, get, set)
         local value = get()
         dropdown.selectedValue = value
         for _, option in ipairs(options) do
-            if option.value == value then dropdown:SetText(option.label .. "  ▾"); break end
+            if option.value == value then dropdown:SetText(option.label .. "  |TInterface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up:16:16|t"); break end
         end
     end
     return dropdown
