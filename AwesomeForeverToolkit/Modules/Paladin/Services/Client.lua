@@ -122,7 +122,18 @@ function Client.CurrentAura()
         return 'absent'
     end
 
-    local texture = read(GetShapeshiftFormInfo, form)
+    if type(GetShapeshiftFormInfo) ~= 'function' then
+        return 'unknown'
+    end
+
+    local ok, _, _, _, spellID = pcall(GetShapeshiftFormInfo, form)
+    if not ok or not number(spellID) then
+        return 'unknown'
+    end
+
+    -- The stance texture can be generic active-aura artwork. Resolve the
+    -- selected spell's own icon instead, including its current rank.
+    local texture = Client.SpellIcon(spellID)
     if root.Client.Number(texture) or root.Client.String(texture) then
         return 'present', texture
     end

@@ -9,11 +9,14 @@ end
 local function newWorld(settings)
     local w = H.new(settings)
     w.form = 0
-    w.formTexture = 135890
+    w.formSpellID = 465
+    w.env.C_Spell.GetSpellTexture = function(id)
+        return ({[465] = 135893, [7294] = 135873})[id]
+    end
     w.env.GetShapeshiftForm = function() return w.form end
     w.env.GetShapeshiftFormInfo = function(index)
         assert(index == w.form)
-        return w.formTexture, true, true, 465
+        return 135890, true, true, w.formSpellID
     end
     w:fire('UPDATE_SHAPESHIFT_FORM')
     return w
@@ -42,13 +45,13 @@ test('changing and cancelling own aura restores color and warning immediately', 
 
     w.form = 1
     w:fire('UPDATE_SHAPESHIFT_FORM')
-    assert(popup.texture.texture == 135890)
+    assert(popup.texture.texture == 135893, 'use the aura spell icon, not the stance active artwork')
     assert(popup.texture.desaturation == 0)
     assert(not w:glowing(popup.frame))
 
-    w.form, w.formTexture = 2, 135893
+    w.form, w.formSpellID = 2, 7294
     w:fire('UPDATE_SHAPESHIFT_FORMS')
-    assert(popup.texture.texture == 135893)
+    assert(popup.texture.texture == 135873)
 
     w.form = 0
     w.aura = { expirationTime = w.time + 1800 }
@@ -72,7 +75,24 @@ test('unreadable aura state hides the indicator instead of claiming an aura is m
     assert(not popup.frame:IsShown() and not w:glowing(popup.frame))
 
     w.env.GetShapeshiftForm = function() return 1 end
-    w.env.GetShapeshiftFormInfo = function() return w.secret, true, true, 465 end
+    w.env.GetShapeshiftFormInfo = function() return 135890, true, true, w.secret end
+    w:fire('UPDATE_SHAPESHIFT_FORM')
+    assert(not popup.frame:IsShown() and not w:glowing(popup.frame))
+end)
+
+test('active artwork is ignored even when secret and spell lookup failures stay unknown', function()
+    local w = newWorld()
+    local popup = w.paladin.AuraIcon.popup
+    local secret = {}
+    w.env.issecretvalue = function(value) return value == secret end
+    w.form = 1
+    w.env.GetShapeshiftFormInfo = function() return secret, true, true, 465 end
+
+    w:fire('UPDATE_SHAPESHIFT_FORM')
+    assert(popup.frame:IsShown() and popup.texture.texture == 135893)
+    assert(not w:glowing(popup.frame))
+
+    w.env.C_Spell.GetSpellTexture = function() error('unavailable') end
     w:fire('UPDATE_SHAPESHIFT_FORM')
     assert(not popup.frame:IsShown() and not w:glowing(popup.frame))
 end)
