@@ -4,6 +4,11 @@ local Config = {}
 addon.Config = Config
 
 local defaults = {
+    blessingReminderEnabled = true,
+    blessingHideIcon = false,
+    blessingIconSize = 36,
+    blessingIconX = 60,
+    blessingIconY = -240,
     auraIconEnabled = true,
     auraIconSize = 36,
     auraIconX = 0,
@@ -63,7 +68,7 @@ local function validValue(key, value)
         return value >= 1 and value <= 30 and value == math.floor(value)
     end
 
-    if key == "auraIconSize" then
+    if key == "auraIconSize" or key == "blessingIconSize" then
         return value >= 16 and value <= 128 and value % 4 == 0
     end
 
@@ -72,7 +77,8 @@ local function validValue(key, value)
     end
 
     if key == "righteousFuryPopupX" or key == "righteousFuryPopupY"
-        or key == "auraIconX" or key == "auraIconY" then
+        or key == "auraIconX" or key == "auraIconY"
+        or key == "blessingIconX" or key == "blessingIconY" then
         return value >= -4096 and value <= 4096 and value == math.floor(value)
     end
 

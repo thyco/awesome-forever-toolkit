@@ -79,6 +79,7 @@ function addon:ClearPreviews()
     self.preview = nil
     self.RighteousFuryReminder:SetPreview(false)
     self.AuraIcon:SetPreview(false)
+    self.BlessingReminder:SetPreview(false)
 end
 
 function addon:Preview(kind)
@@ -116,6 +117,11 @@ function addon:Stop()
 end
 
 function addon:Diagnostics(command)
+    if command == 'buffs' then
+        self.BlessingReminder:Diagnostics()
+        return
+    end
+
     if command == 'config' then
         root.Window:Open()
         root.Window:ShowPage('paladin.abilities')
