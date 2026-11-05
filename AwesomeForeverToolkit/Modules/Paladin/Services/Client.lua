@@ -109,3 +109,23 @@ end
 function Client.HasGlowContext()
     return root.Client.InCombat() or Client.CanAttack('target') or Client.CanAttack('mouseover')
 end
+
+-- Paladin auras use the stance bar. Read the player's selected aura, not
+-- received buffs, which may include auras supplied by another Paladin.
+function Client.CurrentAura()
+    local form = number(read(GetShapeshiftForm))
+    if not form or form < 0 or form ~= math.floor(form) then
+        return 'unknown'
+    end
+
+    if form == 0 then
+        return 'absent'
+    end
+
+    local texture = read(GetShapeshiftFormInfo, form)
+    if root.Client.Number(texture) or root.Client.String(texture) then
+        return 'present', texture
+    end
+
+    return 'unknown'
+end

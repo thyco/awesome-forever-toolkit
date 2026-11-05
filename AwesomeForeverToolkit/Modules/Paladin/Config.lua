@@ -4,6 +4,10 @@ local Config = {}
 addon.Config = Config
 
 local defaults = {
+    auraIconEnabled = true,
+    auraIconSize = 36,
+    auraIconX = 0,
+    auraIconY = -240,
     cooldownGlowEnabled = true,
     holyStrikeBar = 3,
     holyStrikeButton = 3,
@@ -59,11 +63,16 @@ local function validValue(key, value)
         return value >= 1 and value <= 30 and value == math.floor(value)
     end
 
+    if key == "auraIconSize" then
+        return value >= 16 and value <= 128 and value % 4 == 0
+    end
+
     if key == "righteousFuryPopupSize" then
         return value >= 32 and value <= 128 and value % 8 == 0
     end
 
-    if key == "righteousFuryPopupX" or key == "righteousFuryPopupY" then
+    if key == "righteousFuryPopupX" or key == "righteousFuryPopupY"
+        or key == "auraIconX" or key == "auraIconY" then
         return value >= -4096 and value <= 4096 and value == math.floor(value)
     end
 

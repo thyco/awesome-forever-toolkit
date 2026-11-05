@@ -78,6 +78,7 @@ function addon:ClearPreviews()
     self.Glow.ClearOwner('paladin:preview')
     self.preview = nil
     self.RighteousFuryReminder:SetPreview(false)
+    self.AuraIcon:SetPreview(false)
 end
 
 function addon:Preview(kind)

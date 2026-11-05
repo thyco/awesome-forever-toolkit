@@ -25,7 +25,7 @@ The movable standalone window has these pages:
 - **Warrior → Stance indicator:** current stance icon, shield corner and positioning.
 - **Hunter → Hunter reminders:** ammunition thresholds, pet health/happiness, screen pulse and movement-aspect warnings.
 - **Hunter → Reactive abilities:** Mongoose Bite and Counterattack glows, independent standard/gamepad destinations, colors, previews and the optional Counterattack icon overlay.
-- **Paladin → Paladin reminders:** seal refresh timer and the Righteous Fury shield reminder icon.
+- **Paladin → Paladin reminders:** current aura icon, seal refresh timer and the Righteous Fury shield reminder icon.
 - **Paladin → Ability glows:** Holy Strike/Judgement and Exorcism, with standard/gamepad destinations, colors and previews.
 - **Your class → Gamepad bindings:** A/B/X/Y assignments and Base/form profiles. Available on every class, after the shared pages.
 
@@ -59,6 +59,8 @@ Gamepad bindings are integrated; disable the standalone Gamepad Assist Forever w
 Holy Strike/Judgement share one selected button and ignore the GCD when the client can identify it. Judgement glows when ready in combat, or outside combat with a living attackable target/mouseover. Holy Strike remains combat-only and its check defaults to disabled. Judgement's appearance takes priority and defaults to green (#00FF00); Holy Strike defaults to Blizzard native. Existing saved preferences are retained. Standard destinations default to bar 3, buttons 3 (attacks), 4 (seal), and 5 (Exorcism). Gamepad destinations start unselected and use the active page/set, including toolkit override visuals.
 
 Exorcism glows in combat when ready with a living attackable Demon or Undead target/mouseover, ignoring distance and mana. Its icon is grayscale when an attackable unit exists but cooldown or eligibility prevents the spell. This shares the toolkit's tint compositor, preserving range and cooldown effects when Paladin assistance is disabled.
+
+The current aura indicator shows your own selected Paladin aura, at 36px by default. With no aura selected, it shows Devotion Aura in cooldown-style grayscale with an animated red glow. It has no shield overlay and works independently of the action-bar layout. Enable, resize and move it under **Paladin → Paladin reminders**. Unreadable aura state hides the indicator instead of reporting a missing aura.
 
 The seal reminder estimates a refresh from successful casts, at 25 seconds by default, with a green (#00FF00) glow. It is visible in combat or with a living attackable target/mouseover; Command damage procs do not reset it. Righteous Fury shows a draggable 64px icon when missing or within five minutes of expiration, only with a shield equipped. Its Blizzard-style icon glow defaults on and can be disabled independently; the positioning preview shows the same appearance as the reminder, like Hunter’s aspect icon. Readable aura timing takes precedence over its cast-timer fallback. Both reminders continue observing casts while disabled. Spell-name discovery retains the standalone addon's English-client limitation.
 

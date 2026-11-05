@@ -41,6 +41,14 @@ root.Window:RegisterPage({
     id = 'paladin.reminders', label = 'Paladin reminders', parent = className, available = available,
     build = function(parent, context)
         local layout = W.Layout(parent, context, 'paladin', addon.Config)
+        layout:Heading('Current aura')
+        layout:Text('Shows your active aura. When no aura is selected, shows a grayscale Devotion Aura icon with a red glow.')
+        layout:Field('Checkbox', 'auraIconEnabled', 'Show current aura icon')
+        layout:Field('ChoiceDropdown', 'auraIconSize', 'Aura icon size (px)', W.Options(16, 128, 4))
+        layout:Button('auraIconPreview', 'Move / preview aura icon', function()
+            addon.AuraIcon:SetPreview(true)
+        end)
+
         layout:Heading('Seal refresh')
         layout:Text('Estimates seal duration from successful casts. Shows in combat or with a living attackable target/mouseover. After reload, a refresh is due until a seal cast is observed.')
         layout:Field('Checkbox', 'sealGlowEnabled', 'Enable seal reminder')
