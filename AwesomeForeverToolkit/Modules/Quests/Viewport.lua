@@ -2,6 +2,7 @@ local _, root = ...
 local addon = root.modules.Quests
 local Client = root.Client
 local unpack = unpack or table.unpack
+local LEFT_GUTTER = 32
 local Viewport = {rows = setmetatable({}, {__mode = 'k'}), offset = 0, maximum = 0}
 addon.QuestViewport = Viewport
 
@@ -58,6 +59,21 @@ function Viewport:Scroll(offset)
     self.updating = false
 end
 
+function Viewport:AnchorFrame(omitBottom)
+    self.frame:ClearAllPoints()
+    for _, original in ipairs(self.original.points) do
+        if not omitBottom or not original[1]:find('BOTTOM', 1, true) then
+            local point = {unpack(original)}
+            if point[1]:find('LEFT', 1, true) then
+                point[4] = (point[4] or 0) - LEFT_GUTTER
+            elseif not point[1]:find('RIGHT', 1, true) then
+                point[4] = (point[4] or 0) - LEFT_GUTTER / 2
+            end
+            self.frame:SetPoint(unpack(point))
+        end
+    end
+end
+
 function Viewport:Attach(tracker)
     if InCombatLockdown() then return false end
     local contents = tracker.ContentsFrame
@@ -73,9 +89,8 @@ function Viewport:Attach(tracker)
     local frame = self.frame or CreateFrame('ScrollFrame', nil, tracker)
     self.frame = frame
     frame:SetParent(tracker)
-    frame:ClearAllPoints()
-    frame:SetSize(self.original.width, self.original.height)
-    for _, point in ipairs(self.original.points) do frame:SetPoint(unpack(point)) end
+    frame:SetSize(self.original.width + LEFT_GUTTER, self.original.height)
+    self:AnchorFrame(false)
     frame:EnableMouseWheel(true)
     frame:SetScript('OnMouseWheel', function(_, delta) self:Scroll(self.offset - delta * 30) end)
     frame:SetScript('OnSizeChanged', function() addon:RequestRefresh() end)
@@ -96,10 +111,15 @@ function Viewport:Attach(tracker)
         if not self.updating then self:Scroll(value) end
     end)
 
-    contents:SetParent(frame)
+    local canvas = self.canvas or CreateFrame('Frame', nil, frame)
+    self.canvas = canvas
+    canvas:SetSize(self.original.width + LEFT_GUTTER, self.original.height)
+    canvas:ClearAllPoints()
+    canvas:SetPoint('TOPLEFT', frame, 'TOPLEFT', 0, 0)
+    contents:SetParent(canvas)
     contents:ClearAllPoints()
-    contents:SetPoint('TOPLEFT', frame, 'TOPLEFT', 0, 0)
-    frame:SetScrollChild(contents)
+    contents:SetPoint('TOPLEFT', canvas, 'TOPLEFT', LEFT_GUTTER, 0)
+    frame:SetScrollChild(canvas)
     self.attached = true
     self.offset = 0
     frame:Show()
@@ -139,17 +159,13 @@ function Viewport:FitAvailableArea()
     local available = self:AvailableHeight()
     if available then
         if not self.extended then
-            self.frame:ClearAllPoints()
-            for _, point in ipairs(self.original.points) do
-                if not point[1]:find('BOTTOM', 1, true) then self.frame:SetPoint(unpack(point)) end
-            end
+            self:AnchorFrame(true)
             self.extended = true
         end
         if self.frame:GetHeight() ~= available then self.frame:SetHeight(available) end
     elseif self.extended then
         -- Unknown native geometry: return to the module's own rectangle instead of overlapping it.
-        self.frame:ClearAllPoints()
-        for _, point in ipairs(self.original.points) do self.frame:SetPoint(unpack(point)) end
+        self:AnchorFrame(false)
         self.extended = nil
     end
 end
@@ -158,8 +174,11 @@ function Viewport:Resize(height)
     if InCombatLockdown() or not self.attached then return end
     self:FitAvailableArea()
     local visibleHeight = Client.Number(self.frame:GetHeight()) or 0
-    self.contents:SetWidth(self.frame:GetWidth())
-    self.contents:SetHeight(math.max(visibleHeight, height))
+    local width = self.frame:GetWidth()
+    local contentHeight = math.max(visibleHeight, height)
+    self.canvas:SetSize(width, contentHeight)
+    self.contents:SetWidth(math.max(1, width - LEFT_GUTTER))
+    self.contents:SetHeight(contentHeight)
     self.maximum = math.max(0, height - visibleHeight)
     self.slider:SetMinMaxValues(0, self.maximum)
     self.slider:SetShown(self.maximum > 0)

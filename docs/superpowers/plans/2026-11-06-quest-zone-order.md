@@ -1,31 +1,121 @@
-# Quest level ordering and zone groups
+# Client validation checklist
 
-Approved behavior: native Blizzard tracker only; each quest-log zone has its own heading, current zone first, other zones in quest-log order. Level ascending default, descending and native order options. Grouping may be disabled. Per-character settings. Continue on codex/native-quest-tracker; commit, do not push.
+Automated tests simulate client APIs; they cannot establish native-client taint safety. Run these checks on the targeted WoW Forever client before treating 0.1.0 as validated in game.
 
-Architecture: independent metadata/order builder; reorder existing watched quests through native RemoveQuestWatch/AddQuestWatch calls outside combat, immediately re-add each removed quest and verify membership/order. Detect insertion end rather than assuming it. Do not override native methods, change native layout fields, or invoke native layout. Add compact addon-owned zone labels only in measured native gaps; hide a label if insufficient space instead of overlapping rows. Native tracker still decides which quests fit. No copied third-party implementation.
+## Installation and first login
 
-1. Add tests/quests/order.lua with a native watch-list fixture. Test current zone first, multiple distinct zone headings, level direction, stable ties, missing metadata, both insertion directions, no-op sorting, watch membership, rejected re-add recovery, combat deferral, and retry suppression.
-2. Implement Modules/Quests/Order.lua for metadata/order and native watch transaction. Persist a failed re-add for recovery on next login; suspend further sorting on failure. Build metadata from quest-log headers, identify current zone via current map/parent names and zone text. Default order restoration uses native SortQuestWatches.
-3. Implement Modules/Quests/Groups.lua for addon-owned compact headings. No block creation, reparenting, native state writes or geometry changes. Test measured gap/hidden/collapsed/combat cases.
-4. Wire defaults, settings, events, diagnostics and manifest. Coalesce watch changes; sort only on relevant events/config changes, not every layout hook. Add docs for native API side effects, compact headings and client tests.
-5. Run focused tests (red then green), full suite, Lua syntax/package, independent review; resolve findings, commit all files and leave live client validation pending.
+- Disable old Utils Assist Forever and Warrior Assist Forever, install the single AwesomeForeverToolkit folder, then log in.
+- Confirm the thumbs-up minimap button and fresh defaults. Open through the button, /aft, /af and the AddOns launcher.
+- On a Warrior, confirm Warrior pages. On another class, confirm utilities work and no Warrior runtime/pages activate.
+- If testing coexistence, enable an old addon and reload: the corresponding toolkit module must remain inactive and /aft status must explain why.
 
-Review focus: native callbacks can occur synchronously while sorting; never recurse. Missing metadata must leave watch membership intact. API failures must not silently untrack a quest. Repeated native sorting must not cause a sorting loop. Headings must fit existing gaps, including UI scale and collapsed trackers. Client combat taint and gamepad performance still require in-game testing.
+## Configuration lifecycle
 
-## Implementation record
+- Open/close without changes using X, Escape and Close; no reload.
+- Change a Warrior setting, then close through each route: one reload, saved value restored.
+- Change a color, cancel it, then close: original color restored and reload still required.
+- Move Battle Shout/stance icons; close and verify saved position after reload.
+- Change pages and feature selections: visible controls/title follow selection; previews clear without reload.
+- Enter combat while configuration is open: window hides, previews clear and no reload occurs. Reopen after combat and close to apply the pending reload.
+- Confirm normal keyboard interaction and Escape do not inadvertently close the underlying Blizzard settings panel.
+- Inspect for ADDON_ACTION_BLOCKED, ADDON_ACTION_FORBIDDEN and taint errors during all these transitions.
 
-Implemented the three native ordering choices, independent zone groups/current-zone priority, compact headings, gamepad-safe ChoiceDropdown controls, event coalescing, combat deferral and watch recovery. Native sorting/grouping remains subject to tracker capacity and Blizzard special-quest priority. Headings hide during combat rather than retain potentially stale labels across pooled-row updates.
+## Warrior and controller
 
-Focused ordering and heading tests failed before implementation, then passed. Independent review found two issues: errors after a successful remove could discard recovery; choosing native order while grouping remained on could retain previous level sorting. Both now have regressions observed failing before their fixes and passing afterwards; reviewer confirmed the fixes. Full local verification: 51/51 test files, syntax 148 Lua files, package 95 files. Client rendering/performance/taint validation remains pending.
+- Configure each relevant standard action button and native gamepad page/set/button.
+- Confirm keyboard/gamepad mode switching clears the old location and uses the saved new one.
+- Test different native pages, stance replacement bars and possess layouts.
+- Test Overpower in Battle/Berserker stance, Revenge in Defensive stance, Execute, Victory Rush and Shield Block under their normal conditions.
+- Test gamepad preview outside combat, expiry after three seconds, page mismatch and missing/hidden destinations.
+- Check Battle Shout reminders, stance icon, shield corner and custom/native glow colors.
 
-## Visual revision: original-style sections
+## Utilities, graphics and launcher
 
-User rejected cramped compact headings and requested the original appearance. Original reference uses ObjectiveTrackerLineFont gold text, standalone section rows, normal native block gaps, and 1px gold dividers at 0.35 alpha with 4px between divider and text. Reimplement appearance independently.
+- Confirm out-of-range tint, cooldown/unusable greying and queued attack borders, including gamepad bars.
+- Confirm utility effects and Warrior glows coexist on the same button and stopping either leaves the other intact.
+- Check click-through on selected bars, Shift interaction and combat deferral.
+- Confirm the integrated Gamepad bindings overlays receive range and cooldown/unusable feedback, and disabling them clears those colors.
+- Change grass density, verify displayed value, change the client's preset, reload, then reset to the client default.
+- Drag the minimap button at different UI scales, reload and verify placement.
+- Hide the button, reopen with /aft and show it again.
 
-Replace gap labels with own full-height headings and reversible out-of-combat visual offsets on existing native rows. Keep native ContentsFrame and all native quest blocks; wrap ContentsFrame in an addon-owned scroll viewport bounded by the existing native content rectangle, so additional heading height cannot overlap other tracker modules. Do not override Update/GetContentsHeight/BuildQuestWatchInfos, create fake native blocks, or write native layout fields. Preserve and restore original parent/anchors, invalidate row snapshots when native AnchorBlock runs, defer all native geometry changes in combat, and restore when grouping is disabled. Add tests for full font/dividers, stable repeated refresh, viewport overflow, restoration, native row reuse, and combat no-writes. The scroll viewport only contains rows Blizzard already chose to display; all-quests mode remains outside scope. Live combat taint, item-button clicks and scrolling still require testing.
+## Integrated Gamepad bindings (new; needs client validation)
 
-Visual revision verification: full-size heading/divider/spacing regression failed before implementation and passed afterward. Review found stale scrollbar after collapse; a regression reproduced it and now passes. Tests also cover native chained anchors, installed AnchorBlock posthook, scroll-aware coordinates, viewport reuse, resize clamping and the API's non-nil scroll-child requirement. Original-style section rows are implemented; the viewport retains the existing native tracker area, so headings can introduce scrolling even for a small quest list. It does not reproduce the old addon's expanded all-quest capacity. Live visual/security testing remains required.
+- Disable standalone Gamepad Assist Forever and Controller Rebound. Start with fresh toolkit gamepad settings and confirm native controls remain unchanged until configured.
+- Open `/aft gamepad`, the minimap launcher and the class page. Confirm one editor in the shared window, including on Hunter/Paladin, and no extra Blizzard settings category or window.
+- Drop spells and macros onto all four buttons; select buttons in the diamond, switch Blizzard default/Contextual/Always, Clear assignment and enable/disable. Reject items/flyouts without losing the cursor or saved assignment. Verify narrow-window scaling and tooltip alignment.
+- Test Base and two stance/form profiles, including resolved inherited names/icons/behavior, explicit Blizzard default, and Use Base assignment; confirm changing the edited profile does not switch stance.
+- Reload while enabled, while disabled, and while the gamepad layout is unavailable. Confirm choices restore once layout/macros become ready. Test missing/renamed macros and form-list updates.
+- With the physical controller, test combat, enemy target, no target, hostile mouseover without target, friendly/dead selected target, and soft target alone. Confirm macros retain their own target rules.
+- Test LT, RT, LT+RT, LB, RB, LB+RB, stance and possess layers, and holding/releasing buttons across a context transition. Native behavior must remain intact.
+- Test menu/dialog interactions and normal jump when Context is inactive. Check icons/cooldowns/utility colors at multiple UI scales and after layout changes.
+- Enter combat with the editor open; it hides without changing secure bindings. Verify deferred macro/form refresh and `/aft gamepad off` after combat. Check for taint and blocked/forbidden action reports.
 
-## Spacing and Edit Mode height correction
+## Focused gamepad editor visual check
 
-User reported large gaps growing on each quest update and unnecessary scrolling despite spare Edit Mode space. Old row coordinates could already contain custom offsets, and copying them into a refreshed layout accumulated space. Rebuild visual positions from row heights and fixed section gaps instead. Bound the addon viewport by the parent container's available bottom edge, stopping before subsequent visible modules; retain original native rectangle as fallback when container geometry is unavailable. Native module size/layout state remain untouched. Regressions reproduce stale offsets and a too-short viewport, then verify stable spacing through twenty hooked native updates, Edit Mode growth/shrinkage, and space reserved for other sections.
+- Confirm the Y/X/B/A diamond matches the physical controller, with a gold outline on the selected button and a single editor to its right.
+- Empty slots should show a muted button letter and Blizzard default; no question-mark texture. Assigned icons should retain a visible button-letter label.
+- Switch to a form that inherits a Base spell or macro: the editor should show its actual icon, name and behavior with Inherited from Base. Change Base, return to the form, and verify the updated value. Also test inheriting an empty Base.
+- Drop onto each diamond button and the larger editor slot; click without a cursor to select without changing assignments. Verify long spell/macro names, missing macros, profile dropdown, tooltips and narrow-window scaling.
+
+## Hunter
+
+- Disable Hunter Assist Forever, install the toolkit, then reload on a Hunter. Confirm Hunter reminders, Reactive abilities and Gamepad bindings appear together after shared pages. Confirm other classes do not start Hunter features.
+- Check ammo cutoff colors/counts and one warning per low-ammo episode; check pet health/happiness, pulse preview, and Cheetah/Pack in combat. Move icons and verify positions survive Apply & Reload.
+- Configure both normal and gamepad destinations for each reactive ability. Preview in each input mode. Open destination choices with the native gamepad UI active and confirm no protected-action errors.
+- Trigger Mongoose Bite and learned Counterattack: a valid opportunity glows; an unrelated GCD does not erase it; casting clears it immediately. A real spell cooldown blocks Counterattack; Mongoose Bite still glows when the client reports an opportunity during its own cooldown. Subsequent opportunities must glow again without a reload.
+- Check low mana, different learned ranks, missing/restricted cooldown data and a proc arriving during cooldown. Capture `/aft hunter` output if the result is wrong. Local mocks cannot establish actual client signal timing.
+- Switch gamepad pages, sets, input mode and native frame replacements. Only the selected visible destination should glow; the previous destination and Counterattack icon must clear. Check the overlay GCD swipe and confirm action/binding/tooltip are unchanged.
+- Close settings and enter combat with previews active: previews stop; unchanged settings close normally, changed Hunter settings request one reload before closing.
+
+## Gamepad glows and queued overrides
+
+- Compare class proc previews on Face buttons and square buttons. Both Face and D-pad buttons should use the same square animated effects as standard action bars. Check default and custom colors, UI scale, and expanded bars.
+- Override a Face button with Raptor Strike, Heroic Strike, Cleave or Maul. With custom queued highlights disabled, queue the attack using the controller and confirm the checked indicator appears, then clears when consumed or canceled.
+- Enable custom queued highlights and repeat with default and custom colors. The custom square highlight should follow the override, without highlighting the original hidden action.
+- Repeat with a supported conditional macro and a macro containing multiple next-swing commands, including when only the second command is queued. An unrelated tooltip spell should not prevent the queued indicator.
+- Change Base/form assignments, disable overrides, and switch between standard and gamepad layouts. Confirm stale indicators disappear, including during combat transitions, with no protected-action errors.
+
+These checks require the live client; local regression tests cannot confirm rendering, controller input, or client taint behavior.
+
+## Paladin migration
+
+- Disable Paladin Assist Forever, reload on a Paladin, and open both Paladin pages. Verify class pages appear last, gamepad bindings stay under Paladin, and edits request Apply & Reload. Other classes should not run Paladin features.
+- Enable the current aura icon: verify 36px default, size changes, dragging in preview and saved position after reload. Switch between learned auras and cancel your own aura; verify the active icon is colored and the missing icon is grayscale Devotion Aura with an animated red glow, without extra darkening or a shield overlay. Another Paladin's aura must not suppress this warning. Repeat in combat and with both action-bar layouts; disabling the feature hides the icon/glow, and closing settings or entering combat ends positioning preview.
+- Put the Holy Strike/Judgement macro at its selected destination. Verify Judgement defaults to green and also glows outside combat with a living attackable target/mouseover, but clears for a dead/friendly unit or no unit. Holy Strike defaults to unchecked with native color and only contributes in combat when enabled. Verify Judgement color priority, that the GCD alone does not hide readiness, and that a real spell cooldown does. Saved color and checkbox preferences must survive the update.
+- Test Exorcism against living Demon/Undead target and mouseover, other creature types, corpses, friendly units and no target. Check glow conditions and grayscale cleanup with utility cooldown and range coloring also enabled.
+- Cast a seal while disabled, re-enable, and verify the configured delay is measured from that cast. Command damage procs must not reset it. Check combat and attackable target/mouseover visibility, reload and death.
+- With a shield equipped, verify Righteous Fury aura recovery after reload, a successful cast, restricted aura fallback, five-minute reminder threshold, and shield removal. Toggle the Righteous Fury icon glow off/on without hiding a due icon, and repeat in positioning preview. Preview/drag/resize the icon and verify position survives reload. Closing settings or entering combat ends previews.
+- Select standard and gamepad destinations separately for all three button reminders. Change page, set, stance and toolkit overrides; confirm glows/grayscale move cleanly, including while buttons expand. Preview the current destination. All effects remain square.
+- Watch for protected-action errors when editing dropdowns, changing layouts and entering combat. Local tests cannot establish client taint behavior.
+
+## Kings reminder / shared buff tracker
+
+- With readable buffs, cast Kings, replace it with Freedom, and let Freedom expire: no warning while either buff remains, grayscale Kings/red glow when neither remains. Dispel Kings and verify the warning returns without waiting for an estimated timer. Greater Kings and Kings from another Paladin must suppress the reminder; Might/Wisdom must not.
+- In Paladin reminders, toggle Hide icon artwork (glow only), change size, preview/drag and reload. Check normal and gamepad layouts. Closing settings, entering combat, disabling the feature and stopping the module must end positioning previews and release unwanted glows.
+- Add available Kings/Greater Kings/Freedom spells to Tracked Buffs or Tracked Bars, with the viewer visible and entries hiding while inactive. Leave combat once to discover identities. Run `/aft paladin buffs` with Kings active, Freedom active, then neither, both in and out of combat. Compare aura/tracked fields and raw tracked reasons. Low-level testing can start with the available subset. Capture any secret/protected-action errors.
+- Confirm that Kings cast on a target cannot count as Kings on yourself. Hidden tracked icons do not exclude another Paladin's Kings; when direct all-caster data is restricted, unknown must hide the reminder. Combat missing detection is not established by the DK self-buff example alone.
+- Remove/reorder tracked entries, hide their viewer, show cooldown-manager settings or Edit Mode, and reload during combat: no stale frames or preview icons may produce false results. Leave combat and confirm discovery recovers.
+- Verify Righteous Fury retains its existing shield, remaining-duration and cast-timer behavior.
+
+## Native quest tracker baseline (experimental branch only)
+
+- Disable QuestTagsForever and reload; enable Quest tracker enhancements in `/aft`. Confirm exactly the native tracker remains, native quest clicks/item buttons/progress still work, and existing class/gamepad settings are unaffected.
+- Check normal, elite, dungeon and raid quest title levels/tags and preserved native text colors. Check long/wrapped titles for clipping or overlap (tags should be skipped when they would change title height), quest count, campaign entries, tracker collapse/expand and late-loading Blizzard frames.
+- Toggle the features off: original titles must return without changing text that Blizzard or another addon has since replaced. Recycled quest rows must not retain the old quest's title.
+- Record `/aft quests status`, then `/aft quests debug on` and `/aft quests test`. Wait and compare status. Repeat in combat. A native sort request may legitimately do nothing; only an increased observed native/combat update count proves that update path ran. Never treat this as an actual level-up simulation.
+- While in combat, gain quest progress/complete an objective. Native tracker updates must continue; toolkit title updates wait until combat ends. Check BugGrabber for GetAuraDataByIndex/ShouldShowMawBuffs errors. Repeat with only the toolkit and BugGrabber enabled to isolate other addons.
+- On a real level-up during combat, record errors and status counters, then leave combat and confirm title refresh. This remains the final reproduction check before extending the layout-related enhancements.
+
+## Quest level sorting and zone grouping
+
+- With several watched quests in at least three zones, verify each zone has a separate full-size gold heading with a thin divider before later zones and the current zone is first; the others retain quest-log zone order. Within each zone, verify ascending/descending levels and stable equal-level ordering. No combined Other category.
+- Change zones and subzones, enter/leave an interior, then reload: current-zone detection should remain correct. Class/profession quest-log categories remain their own groups.
+- Select Blizzard order with grouping on: verify native within-zone order replaces the previous level order. Turn grouping off: verify global level sorting, then Blizzard order. Disable enhancements and verify native sorting resumes.
+- Confirm the same quests remain tracked after every reorder and reload, the selected quest/map navigation and quest item buttons still work, and untracking a quest stays untracked. Check normal and gamepad UI for excessive refresh animations or stalls.
+- Gain quest progress in combat and change zones in combat: no watch mutations; headings hide, native objectives continue updating, and custom order/headings return after combat. Check BugGrabber and diagnostic native/combat counters, including a real combat level-up when possible.
+- Check headings at multiple UI scales, long localized zone names, collapsed trackers, full trackers and with campaign/special-priority quests. Verify normal section spacing across repeated quest updates and wrapped long zone names. Increase/decrease the tracker height in Edit Mode: scrolling should disappear when the displayed quests fit, and return only when they exceed the available area. Check mouse-wheel/scrollbar behavior and that the viewport stops before the next visible tracker section. Collapse/expand while scrolled and disable grouping: the native parent/anchors must restore without orphan scrollbars. Scroll changes pause in combat. Native capacity/priority can limit display or take precedence over watch order.
+- If sorting pauses, capture `/aft quests status`. Sorting deliberately avoids repeatedly fighting another addon or the native sort. Changing an ordering option explicitly retries. The debug refresh command requests native sorting and can cause this pause.
+
+- Quest tracking circles: verify the whole left-side POI button (including highlight/animation) is visible and clickable before/after scrolling, changing UI scale and reloading. Quest titles, wrapping width, right-side controls and scrollbar must retain their alignment; disabling grouping restores the original left edge.
+- Zone precedence: after quest updates, verify current-zone quests stay together first even when quests in other zones have lower levels. Ascending/descending must only reorder quests inside a zone.

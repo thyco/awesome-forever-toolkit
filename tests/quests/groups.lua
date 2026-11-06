@@ -81,10 +81,10 @@ w.env.QuestObjectiveTracker = tracker
 quests:InstallHooks()
 quests.Order.Metadata = function()
     return {
-        [11] = {zone = 'Westfall', group = 1},
-        [12] = {zone = 'Westfall', group = 1},
-        [13] = {zone = 'Elwynn Forest', group = 2},
-        [14] = {zone = 'Redridge Mountains', group = 3},
+        [11] = {id = 11, zone = 'Westfall', group = 1, current = true, level = 12, logIndex = 1},
+        [12] = {id = 12, zone = 'Westfall', group = 1, current = true, level = 18, logIndex = 2},
+        [13] = {id = 13, zone = 'Elwynn Forest', group = 2, current = false, level = 9, logIndex = 3},
+        [14] = {id = 14, zone = 'Redridge Mountains', group = 3, current = false, level = 8, logIndex = 4},
     }
 end
 
@@ -115,6 +115,7 @@ quests.Config.Set('groupZones', false)
 quests.Groups:Refresh()
 assert(contents:GetParent() == tracker, 'restore original native content parent')
 assert(contents.anchors.BOTTOM[2] == tracker and contents:GetNumPoints() == 4, 'restore original anchors')
+assert(contents.anchors.LEFT[4] == 0 and contents:GetWidth() == 260, 'restore original left edge and width')
 assert(blocks[1]:GetTop() == 490 and blocks[3]:GetTop() == 390, 'restore native quest positions')
 assert(not quests.Groups.Viewport.frame:IsShown())
 
@@ -210,5 +211,26 @@ for update = 1, 20 do
     assert(viewport.maximum == 0, 'quest update must not invent overflowing content')
 end
 w.nativeOffset = nil
+
+-- The POI button is anchored outside the quest title's left edge.
+local left = viewport.frame.anchors.LEFT[4]
+local inset = contents.anchors.TOPLEFT[4]
+assert(left <= -24 and inset == -left, 'clip area must include the native tracking button without shifting text')
+assert(contents:GetWidth() == 260, 'left gutter must not change quest wrapping width')
+assert(20 - 7 - 32 + inset >= 0, '32px POI button must fit inside scroll clipping')
+
+quests.Groups:Restore()
+-- Native layout can diverge from watch-list order; grouping must win in the visible rows too.
+for index, block in ipairs({blocks[4], blocks[1], blocks[3], blocks[2]}) do
+    block:SetPoint('TOP', contents, 'TOP', 0, -10 - (index - 1) * 50)
+end
+quests.Groups:Refresh()
+assert(blocks[1]:GetTop() == 466 and blocks[2]:GetTop() == 416, 'current zone remains together before lower-level quests elsewhere')
+assert(blocks[3]:GetTop() == 337 and blocks[4]:GetTop() == 258, 'zone order precedes levels across zones')
+
+quests.Config.Set('sortOrder', 'descending')
+quests.Groups:Refresh()
+assert(blocks[2]:GetTop() == 466 and blocks[1]:GetTop() == 416, 'descending only reverses quests inside the zone')
+assert(blocks[3]:GetTop() == 337 and blocks[4]:GetTop() == 258, 'descending levels do not reorder zones')
 
 print('quest zone sections: PASS')

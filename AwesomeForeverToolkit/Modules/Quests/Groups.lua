@@ -54,6 +54,27 @@ function Groups:Refresh()
         end
     end)
     table.sort(rows, function(a, b) return a.top > b.top end)
+
+    -- Native display order can differ from the watch list after a tracker update.
+    -- Apply the same zone-first ordering to the visible quest rows as well.
+    local ids, byID = {}, {}
+    for _, row in ipairs(rows) do
+        if row.info then
+            local id = Client.Number(row.block.id)
+            ids[#ids + 1], byID[id] = id, row
+        end
+    end
+    local desired = addon.Order:Desired(ids, metadata)
+    if desired then
+        local index = 1
+        for position, row in ipairs(rows) do
+            if row.info then
+                rows[position] = byID[desired[index]]
+                index = index + 1
+            end
+        end
+    end
+
     if #rows == 0 then
         self.Viewport:Restore()
         return
