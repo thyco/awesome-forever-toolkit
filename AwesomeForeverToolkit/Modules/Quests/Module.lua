@@ -18,11 +18,12 @@ function addon:InstallHooks()
         end
         local methods = tracker and hooked[tracker]
         if methods then
-            for _, method in ipairs({'Update', 'UpdateSingle'}) do
+            for _, method in ipairs({'Update', 'UpdateSingle', 'AnchorBlock'}) do
                 if not methods[method] and type(tracker[method]) == 'function' then
-                    hooksecurefunc(tracker, method, function()
+                    hooksecurefunc(tracker, method, function(_, block)
                         if not self.active or not self.Config.Get('enabled') then return end
 
+                        if method == 'AnchorBlock' then self.QuestViewport:NativeAnchor(block) end
                         self.Groups:Hide()
                         if method == 'Update' then
                             self.nativeUpdates = self.nativeUpdates + 1
@@ -74,7 +75,7 @@ function addon:Refresh()
 
     if not self.Config.Get('enabled') then
         self.Titles:RestoreAll()
-        self.Groups:Hide()
+        self.Groups:Restore()
         if self.countLabel then self.countLabel:Hide() end
         return
     end
@@ -173,7 +174,7 @@ function addon:Diagnostics(command)
         .. ' | pending=' .. tostring(self.pending) .. ' | native updates=' .. self.nativeUpdates
         .. ' | combat updates=' .. self.combatUpdates .. ' | real level-up events=' .. self.levelUps)
     if self.lastError then print('Last decoration error: ' .. self.lastError) end
-    print('Zone headings skipped for space: ' .. self.Groups.skipped)
+    print('Zone layout fallbacks: ' .. self.Groups.skipped)
     if self.Order.failure then print('Quest sorting: ' .. self.Order.failure) end
     if type(issecurevariable) == 'function' and QuestObjectiveTracker then
         for _, method in ipairs({'Update', 'GetContentsHeight', 'BuildQuestWatchInfos', 'EnumQuestWatchData', 'OnBlockHeaderClick'}) do

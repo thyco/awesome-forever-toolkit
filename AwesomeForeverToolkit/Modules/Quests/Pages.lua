@@ -16,7 +16,7 @@ root.Window:RegisterPage({
             {value = 'descending', label = 'Highest level first'},
         })
         layout:Field('Checkbox', 'groupZones', 'Group by zone (current zone first)')
-        layout:Text('Each zone has its own heading. Sorting waits until combat ends. Headings hide during combat and use existing gaps.')
+        layout:Text('Each zone has its own heading. Scroll for more objectives. Sorting and scrolling wait until combat ends.')
         layout:Text('Title changes wait until combat ends. Blizzard continues updating objective progress normally.')
         layout:Finish()
     end,
