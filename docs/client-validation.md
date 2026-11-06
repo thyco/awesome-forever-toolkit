@@ -106,3 +106,13 @@ These checks require the live client; local regression tests cannot confirm rend
 - Record `/aft quests status`, then `/aft quests debug on` and `/aft quests test`. Wait and compare status. Repeat in combat. A native sort request may legitimately do nothing; only an increased observed native/combat update count proves that update path ran. Never treat this as an actual level-up simulation.
 - While in combat, gain quest progress/complete an objective. Native tracker updates must continue; toolkit title updates wait until combat ends. Check BugGrabber for GetAuraDataByIndex/ShouldShowMawBuffs errors. Repeat with only the toolkit and BugGrabber enabled to isolate other addons.
 - On a real level-up during combat, record errors and status counters, then leave combat and confirm title refresh. This remains the final reproduction check before extending the layout-related enhancements.
+
+## Quest level sorting and zone grouping
+
+- With several watched quests in at least three zones, verify each zone has a separate compact heading and the current zone is first; the others retain quest-log zone order. Within each zone, verify ascending/descending levels and stable equal-level ordering. No combined Other category.
+- Change zones and subzones, enter/leave an interior, then reload: current-zone detection should remain correct. Class/profession quest-log categories remain their own groups.
+- Select Blizzard order with grouping on: verify native within-zone order replaces the previous level order. Turn grouping off: verify global level sorting, then Blizzard order. Disable enhancements and verify native sorting resumes.
+- Confirm the same quests remain tracked after every reorder and reload, the selected quest/map navigation and quest item buttons still work, and untracking a quest stays untracked. Check normal and gamepad UI for excessive refresh animations or stalls.
+- Gain quest progress in combat and change zones in combat: no watch mutations; headings hide, native objectives continue updating, and custom order/headings return after combat. Check BugGrabber and diagnostic native/combat counters, including a real combat level-up when possible.
+- Check headings at multiple UI scales, long localized zone names, collapsed trackers, full trackers and with campaign/special-priority quests. Headings must fit existing gaps; skipped headings appear in status. Native capacity/priority can limit display or take precedence over watch order.
+- If sorting pauses, capture `/aft quests status`. Sorting deliberately avoids repeatedly fighting another addon or the native sort. Changing an ordering option explicitly retries. The debug refresh command requests native sorting and can cause this pause.

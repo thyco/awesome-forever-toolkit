@@ -23,6 +23,7 @@ function addon:InstallHooks()
                     hooksecurefunc(tracker, method, function()
                         if not self.active or not self.Config.Get('enabled') then return end
 
+                        self.Groups:Hide()
                         if method == 'Update' then
                             self.nativeUpdates = self.nativeUpdates + 1
                             if InCombatLockdown() then self.combatUpdates = self.combatUpdates + 1 end
@@ -66,8 +67,14 @@ function addon:Refresh()
     end
 
     self.pending = false
+    if self.orderPending then
+        self.orderPending = false
+        self.Order:Refresh()
+    end
+
     if not self.Config.Get('enabled') then
         self.Titles:RestoreAll()
+        self.Groups:Hide()
         if self.countLabel then self.countLabel:Hide() end
         return
     end
@@ -87,27 +94,42 @@ function addon:Refresh()
         end
     end
     self:RefreshCount()
+    self.Groups:Refresh()
 end
 
 function addon:Start()
     if self.started then return end
     self.started = true
-    local defaults = {enabled = false, showTags = true, showCount = true}
-    self.Config = root.Config.NewStore('character', 'quests', defaults, function(_, value)
+    local defaults = {enabled = false, showTags = true, showCount = true, sortOrder = 'ascending', groupZones = true}
+    self.Config = root.Config.NewStore('character', 'quests', defaults, function(key, value)
+        if key == 'sortOrder' then return value == 'native' or value == 'ascending' or value == 'descending' end
         return type(value) == 'boolean'
     end)
-    self.Config.Subscribe(function() self:RequestRefresh() end)
+    self.Config.Subscribe(function(key)
+        if key == 'sortOrder' and self.Config.Get(key) == 'native' then
+            self.Order.nativeReset = true
+        end
+        if key == 'enabled' or key == 'sortOrder' or key == 'groupZones' then
+            self.Order:Reset()
+            self.orderPending = true
+        end
+        self:RequestRefresh()
+    end)
+    self.orderPending = true
 
     local frame = CreateFrame('Frame')
     self.frame = frame
     for _, event in ipairs({'ADDON_LOADED', 'PLAYER_ENTERING_WORLD', 'QUEST_LOG_UPDATE',
         'QUEST_WATCH_LIST_CHANGED', 'QUEST_DATA_LOAD_RESULT', 'PLAYER_LEVEL_UP',
-        'PLAYER_REGEN_DISABLED', 'PLAYER_REGEN_ENABLED', 'ZONE_CHANGED_NEW_AREA'}) do
+        'PLAYER_REGEN_DISABLED', 'PLAYER_REGEN_ENABLED', 'ZONE_CHANGED_NEW_AREA', 'ZONE_CHANGED', 'ZONE_CHANGED_INDOORS'}) do
         frame:RegisterEvent(event)
     end
     frame:SetScript('OnEvent', function(_, event)
         if not self.active then return end
         if event == 'PLAYER_LEVEL_UP' then self.levelUps = self.levelUps + 1 end
+
+        self.orderPending = true
+        self.Groups:Hide()
         self:RequestRefresh()
     end)
     frame:SetScript('OnUpdate', function()
@@ -151,6 +173,8 @@ function addon:Diagnostics(command)
         .. ' | pending=' .. tostring(self.pending) .. ' | native updates=' .. self.nativeUpdates
         .. ' | combat updates=' .. self.combatUpdates .. ' | real level-up events=' .. self.levelUps)
     if self.lastError then print('Last decoration error: ' .. self.lastError) end
+    print('Zone headings skipped for space: ' .. self.Groups.skipped)
+    if self.Order.failure then print('Quest sorting: ' .. self.Order.failure) end
     if type(issecurevariable) == 'function' and QuestObjectiveTracker then
         for _, method in ipairs({'Update', 'GetContentsHeight', 'BuildQuestWatchInfos', 'EnumQuestWatchData', 'OnBlockHeaderClick'}) do
             local ok, secure, source = pcall(issecurevariable, QuestObjectiveTracker, method)

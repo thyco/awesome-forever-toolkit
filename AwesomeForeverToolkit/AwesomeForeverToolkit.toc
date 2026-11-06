@@ -42,6 +42,8 @@ Modules/Utilities/Features/BarClickThrough.lua
 Modules/Utilities/Runtime.lua
 Modules/Quests/Module.lua
 Modules/Quests/Titles.lua
+Modules/Quests/Order.lua
+Modules/Quests/Groups.lua
 Modules/Warrior/Module.lua
 Modules/Warrior/Config.lua
 Modules/Warrior/Services/Stance.lua
