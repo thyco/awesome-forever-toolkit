@@ -76,7 +76,7 @@ end
 tracker.EnumerateActiveBlocks = function(_, callback)
     for _, block in ipairs(blocks) do callback(block) end
 end
-tracker.AnchorBlock = function(_, block) block:SetPoint('TOP', contents, 'TOP', 0, -100) end
+tracker.AnchorBlock = function(_, block) block:SetPoint('TOP', contents, 'TOP', 0, w.nativeOffset or -100) end
 w.env.QuestObjectiveTracker = tracker
 quests:InstallHooks()
 quests.Order.Metadata = function()
@@ -149,5 +149,66 @@ viewport:Scroll(40)
 viewport.frame:SetHeight(400)
 quests.Groups:Refresh()
 assert(viewport.maximum == 0 and viewport.offset == 0, 'resize clamps scroll offset')
+
+-- Native relayout can leave large offsets; presentation must not preserve those gaps.
+quests.Groups:Restore()
+blocks[3].id = 13
+for index, block in ipairs(blocks) do
+    block:SetPoint('TOP', contents, 'TOP', 0, -160 - (index - 1) * 120)
+end
+
+quests.Groups:Refresh()
+
+assert(blocks[1]:GetTop() == 466, 'first zone starts beneath header, ignoring old blank offsets')
+assert(blocks[3]:GetTop() == 337, 'zone spacing is derived from row heights, not old positions')
+
+-- Edit Mode gives the container more room than the native quest module used.
+local container = w.env.CreateFrame('Frame')
+container.bottom = 50
+container.GetBottom = function(self) return self.bottom end
+container.modules = {tracker}
+container.bottomModulePadding = 10
+container.moduleSpacing = 10
+tracker.parentContainer = container
+viewport.frame.GetTop = function() return 500 end
+
+quests.Groups:Refresh()
+
+assert(viewport.frame:GetHeight() == 440, 'use available Edit Mode height')
+assert(viewport.maximum == 0 and not viewport.slider:IsShown(), 'do not scroll when all quest rows fit')
+assert(tracker:GetHeight() == 240, 'do not write native module height')
+
+local other = w.env.CreateFrame('Frame')
+other.IsShown = function() return true end
+other.GetTop = function() return 220 end
+container.modules[2] = other
+quests.Groups:Refresh()
+assert(viewport.frame:GetHeight() == 270, 'reserve room for the following native tracker section')
+assert(viewport.maximum > 0)
+
+container.modules[2] = nil
+container.bottom = 300
+quests.Groups:Refresh()
+assert(viewport.frame:GetHeight() == 190, 'shrinking Edit Mode height updates viewport')
+assert(viewport.maximum > 0)
+
+container.bottom = 0
+quests.Groups:Refresh()
+assert(viewport.frame:GetHeight() == 490 and viewport.maximum == 0, 'growing Edit Mode height removes unnecessary scrolling')
+
+for update = 1, 20 do
+    -- Simulate native relayout inheriting an already shifted position from an earlier row.
+    for _, block in ipairs(blocks) do
+        w.nativeOffset = block:GetTop() - contents:GetTop() - 30
+        tracker:AnchorBlock(block)
+    end
+
+    w:tick(0.2)
+
+    assert(blocks[1]:GetTop() == 466, 'quest update must not accumulate leading spacing')
+    assert(blocks[3]:GetTop() == 337, 'quest update must not accumulate inter-zone spacing')
+    assert(viewport.maximum == 0, 'quest update must not invent overflowing content')
+end
+w.nativeOffset = nil
 
 print('quest zone sections: PASS')

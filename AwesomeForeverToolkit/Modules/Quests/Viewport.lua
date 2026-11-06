@@ -66,6 +66,8 @@ function Viewport:Attach(tracker)
     if not contents or type(contents.GetNumPoints) ~= 'function' then return false end
 
     self.contents = contents
+    self.tracker = tracker
+    self.extended = nil
     self.original = {parent = contents:GetParent(), points = points(contents),
         width = contents:GetWidth(), height = contents:GetHeight()}
     local frame = self.frame or CreateFrame('ScrollFrame', nil, tracker)
@@ -104,8 +106,57 @@ function Viewport:Attach(tracker)
     return true
 end
 
+-- Frame coordinates are converted to pixels before comparing different native scales.
+function Viewport:AvailableHeight()
+    local tracker = self.tracker
+    local container = tracker and (tracker.parentContainer or Client.Read(tracker.GetParent, tracker))
+    if not container or not Client.Table(container.modules) then return nil end
+    local top = Client.Number(Client.Read(self.frame.GetTop, self.frame))
+    local bottom = Client.Number(Client.Read(container.GetBottom, container))
+    if not top or not bottom then return nil end
+
+    local scale = Client.Number(Client.Read(self.frame.GetEffectiveScale, self.frame)) or 1
+    local containerScale = Client.Number(Client.Read(container.GetEffectiveScale, container)) or scale
+    if scale <= 0 or containerScale <= 0 then return nil end
+    top = top * scale
+    local padding = Client.Number(container.bottomModulePadding) or 10
+    bottom = bottom * containerScale + math.max(0, padding) * containerScale
+    local spacing = math.max(0, Client.Number(container.moduleSpacing) or 10) * containerScale
+
+    for _, module in pairs(container.modules) do
+        if module ~= tracker and Client.Read(module.IsShown, module) == true then
+            local moduleTop = Client.Number(Client.Read(module.GetTop, module))
+            local moduleScale = Client.Number(Client.Read(module.GetEffectiveScale, module)) or containerScale
+            if not moduleTop or moduleScale <= 0 then return nil end
+            moduleTop = moduleTop * moduleScale
+            if moduleTop <= top then bottom = math.max(bottom, moduleTop + spacing) end
+        end
+    end
+    return math.max(1, (top - bottom) / scale)
+end
+
+function Viewport:FitAvailableArea()
+    local available = self:AvailableHeight()
+    if available then
+        if not self.extended then
+            self.frame:ClearAllPoints()
+            for _, point in ipairs(self.original.points) do
+                if not point[1]:find('BOTTOM', 1, true) then self.frame:SetPoint(unpack(point)) end
+            end
+            self.extended = true
+        end
+        if self.frame:GetHeight() ~= available then self.frame:SetHeight(available) end
+    elseif self.extended then
+        -- Unknown native geometry: return to the module's own rectangle instead of overlapping it.
+        self.frame:ClearAllPoints()
+        for _, point in ipairs(self.original.points) do self.frame:SetPoint(unpack(point)) end
+        self.extended = nil
+    end
+end
+
 function Viewport:Resize(height)
     if InCombatLockdown() or not self.attached then return end
+    self:FitAvailableArea()
     local visibleHeight = Client.Number(self.frame:GetHeight()) or 0
     self.contents:SetWidth(self.frame:GetWidth())
     self.contents:SetHeight(math.max(visibleHeight, height))

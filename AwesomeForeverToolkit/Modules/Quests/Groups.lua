@@ -65,7 +65,7 @@ function Groups:Refresh()
         self.parent = contents
     end
     local previousGroup
-    local used, extra, height = 0, 0, 0
+    local used, cursor, height = 0, 10, 0
     for _, row in ipairs(rows) do
         local info = row.info
         if info and info.group ~= previousGroup then
@@ -85,7 +85,7 @@ function Groups:Refresh()
             label:SetWidth(Client.Number(Client.Read(row.block.GetWidth, row.block)) or 200)
             label:SetText(info.zone)
             local labelHeight = Client.Number(Client.Read(label.GetStringHeight, label)) or 14
-            extra = extra + labelHeight + 10 + (used > 1 and 5 or 0)
+            cursor = cursor + labelHeight + 10 + (used > 1 and 5 or 0)
 
             label:ClearAllPoints()
             label:SetPoint('BOTTOMLEFT', row.block, 'TOPLEFT', 0, 10)
@@ -96,12 +96,15 @@ function Groups:Refresh()
             label:Show()
         end
 
-        if not self.Viewport:OffsetRow(row.block, row.top - contentTop, extra) then
+        if not self.Viewport:OffsetRow(row.block, -cursor, 0) then
             self:Restore()
             self.skipped = 1
             return
         end
-        height = math.max(height, contentTop - row.bottom + extra)
+        -- Native updates may inherit our previous visual offsets through chained anchors.
+        -- Only use the row's size; never carry its old vertical position into the new layout.
+        height = cursor + math.max(0, row.top - row.bottom)
+        cursor = height + 10
         previousGroup = info and info.group
     end
     self.Viewport:Resize(height)
