@@ -24,7 +24,7 @@ function addon:InstallHooks()
                         if not self.active or not self.Config.Get('enabled') then return end
 
                         if method == 'AnchorBlock' then self.QuestViewport:NativeAnchor(block) end
-                        self.Groups:Hide()
+                        if not InCombatLockdown() or method == 'Update' then self.Groups:OnChange() end
                         if method == 'Update' then
                             self.nativeUpdates = self.nativeUpdates + 1
                             if InCombatLockdown() then self.combatUpdates = self.combatUpdates + 1 end
@@ -64,6 +64,7 @@ end
 function addon:Refresh()
     if InCombatLockdown() then
         self.pending = true
+        self.Groups:Validate()
         return
     end
 
@@ -130,11 +131,21 @@ function addon:Start()
         if event == 'PLAYER_LEVEL_UP' then self.levelUps = self.levelUps + 1 end
 
         self.orderPending = true
-        self.Groups:Hide()
+        self.Groups:OnChange()
         self:RequestRefresh()
     end)
-    frame:SetScript('OnUpdate', function()
-        if self.active and self.pending and not InCombatLockdown() then self:Refresh() end
+    frame:SetScript('OnUpdate', function(_, elapsed)
+        if not self.active or not self.pending then return end
+        if InCombatLockdown() then
+            self.combatCheckElapsed = (self.combatCheckElapsed or 0) + elapsed
+            if self.combatCheckElapsed >= 0.1 then
+                self.combatCheckElapsed = 0
+                self.Groups:Validate()
+            end
+        else
+            self.combatCheckElapsed = 0
+            self:Refresh()
+        end
     end)
     self:RequestRefresh()
 end

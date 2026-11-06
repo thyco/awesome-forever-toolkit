@@ -1,7 +1,7 @@
 local _, root = ...
 local addon = root.modules.Quests
 local Client = root.Client
-local Groups = {labels = {}, dividers = {}, skipped = 0, Viewport = addon.QuestViewport}
+local Groups = {labels = {}, dividers = {}, associations = {}, skipped = 0, Viewport = addon.QuestViewport}
 addon.Groups = Groups
 
 function Groups:Hide()
@@ -14,15 +14,67 @@ function Groups:Hide()
     end
 end
 
+-- Combat validation changes only our own artwork, never native rows or anchors.
+function Groups:Validate()
+    if self.Viewport.slider then self.Viewport.slider:SetEnabled(not InCombatLockdown()) end
+    local tracker = QuestObjectiveTracker
+    local contents = tracker and tracker.ContentsFrame
+    if not addon.Config.Get('enabled') or not addon.Config.Get('groupZones')
+        or contents ~= self.parent or Client.Read(tracker and tracker.IsShown, tracker) ~= true
+        or Client.Read(contents and contents.IsShown, contents) ~= true then
+        self:Hide()
+        return
+    end
+
+    local contentTop = Client.Number(Client.Read(contents.GetTop, contents))
+    local rows, readable = {}, contentTop ~= nil
+    local ok = pcall(tracker.EnumerateActiveBlocks, tracker, function(block)
+        if Client.Read(block.IsShown, block) == true then
+            local top = Client.Number(Client.Read(block.GetTop, block))
+            local bottom = Client.Number(Client.Read(block.GetBottom, block))
+            if not top or not bottom then readable = false; return end
+            rows[block] = {top = top, bottom = bottom}
+        end
+    end)
+
+    for index, record in pairs(self.associations) do
+        local block = record.block
+        local row = rows[block]
+        local valid = record.valid and ok and readable and row ~= nil
+            and Client.Number(block.id) == record.id
+            and Client.Read(block.GetParent, block) == record.parent
+        if valid then
+            local boundary = contentTop
+            for other, position in pairs(rows) do
+                if other ~= block and position.top >= row.top then
+                    boundary = math.min(boundary, position.bottom)
+                end
+            end
+            valid = row.top + record.space <= boundary
+        end
+
+        if not valid then
+            record.valid = false
+            self.labels[index]:Hide()
+            self.dividers[index]:Hide()
+        end
+    end
+end
+
+function Groups:OnChange()
+    if InCombatLockdown() then self:Validate() else self:Hide() end
+end
+
 function Groups:Restore()
     self:Hide()
     self.Viewport:Restore()
 end
 
 function Groups:Refresh()
+    if InCombatLockdown() then self:Validate(); return end
     self:Hide()
+    self.associations = {}
     self.skipped = 0
-    if InCombatLockdown() then return end
     if not addon.Config.Get('enabled') or not addon.Config.Get('groupZones') then
         self.Viewport:Restore()
         return
@@ -106,7 +158,10 @@ function Groups:Refresh()
             label:SetWidth(Client.Number(Client.Read(row.block.GetWidth, row.block)) or 200)
             label:SetText(info.zone)
             local labelHeight = Client.Number(Client.Read(label.GetStringHeight, label)) or 14
-            cursor = cursor + labelHeight + 10 + (used > 1 and 5 or 0)
+            local space = labelHeight + 10 + (used > 1 and 5 or 0)
+            cursor = cursor + space
+            self.associations[used] = {block = row.block, id = Client.Number(row.block.id),
+                parent = Client.Read(row.block.GetParent, row.block), space = space, valid = true}
 
             label:ClearAllPoints()
             label:SetPoint('BOTTOMLEFT', row.block, 'TOPLEFT', 0, 10)

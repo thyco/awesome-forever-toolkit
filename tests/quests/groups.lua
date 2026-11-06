@@ -77,6 +77,7 @@ tracker.EnumerateActiveBlocks = function(_, callback)
     for _, block in ipairs(blocks) do callback(block) end
 end
 tracker.AnchorBlock = function(_, block) block:SetPoint('TOP', contents, 'TOP', 0, w.nativeOffset or -100) end
+tracker.Update = function() end
 w.env.QuestObjectiveTracker = tracker
 quests:InstallHooks()
 quests.Order.Metadata = function()
@@ -105,10 +106,30 @@ quests.Groups.Viewport:Scroll(40)
 assert(quests.Groups.Viewport.offset == 40)
 
 w.combat = true
+w:fire('PLAYER_REGEN_DISABLED')
+tracker:Update()
+w:tick(0.2)
 quests.Groups:Refresh()
 quests.Groups.Viewport:Scroll(80)
 assert(quests.Groups.Viewport.offset == 40, 'scroll geometry is frozen in combat')
-for _, label in ipairs(labels) do assert(not label:IsShown()) end
+for _, label in ipairs(labels) do assert(label:IsShown(), 'stable combat headers must remain visible') end
+assert(not quests.Groups.Viewport.slider:IsEnabled(), 'scrolling still locks in combat')
+
+blocks[3].id = 999
+w:fire('QUEST_LOG_UPDATE')
+w:tick(0.2)
+assert(not labels[2]:IsShown() and not quests.Groups.dividers[2]:IsShown(), 'hide only recycled-row heading and divider')
+assert(labels[1]:IsShown() and labels[3]:IsShown(), 'unaffected zone headers remain visible')
+blocks[3].id = 13
+blocks[4].hidden = true
+w:tick(0.2)
+assert(not labels[3]:IsShown() and labels[1]:IsShown(), 'a disappeared row invalidates only its own header')
+blocks[4].hidden = nil
+
+w.combat = false
+w:fire('PLAYER_REGEN_ENABLED')
+w:tick(0.2)
+for _, label in ipairs(labels) do assert(label:IsShown(), 'rebuild invalidated headers after combat') end
 
 w.combat = false
 quests.Config.Set('groupZones', false)
@@ -232,5 +253,18 @@ quests.Config.Set('sortOrder', 'descending')
 quests.Groups:Refresh()
 assert(blocks[2]:GetTop() == 466 and blocks[1]:GetTop() == 416, 'descending only reverses quests inside the zone')
 assert(blocks[3]:GetTop() == 337 and blocks[4]:GetTop() == 258, 'descending levels do not reorder zones')
+
+w.combat = true
+w:fire('PLAYER_REGEN_DISABLED')
+local originalTop = blocks[3].GetTop
+blocks[3].GetTop = function() return blocks[1]:GetBottom() - 10 end
+w:tick(0.2)
+assert(not labels[2]:IsShown(), 'hide a header if native relayout removes its reserved space')
+assert(labels[1]:IsShown() and labels[3]:IsShown(), 'space loss does not blanket-hide all zones')
+blocks[3].GetTop = originalTop
+w.combat = false
+w:fire('PLAYER_REGEN_ENABLED')
+w:tick(0.2)
+assert(labels[2]:IsShown())
 
 print('quest zone sections: PASS')
