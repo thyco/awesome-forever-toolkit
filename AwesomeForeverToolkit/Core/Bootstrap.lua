@@ -14,7 +14,8 @@ SlashCmdList.AWESOMEFOREVERTOOLKIT = function(message)
         return
     end
 
-    local module = command == "warrior" and addon.modules.Warrior
+    local module = command == "quests" and addon.modules.Quests
+        or command == "warrior" and addon.modules.Warrior
         or command == "hunter" and addon.modules.Hunter
         or command == "paladin" and addon.modules.Paladin
         or command == "utilities" and addon.modules.Utilities

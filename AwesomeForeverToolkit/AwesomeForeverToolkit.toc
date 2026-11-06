@@ -6,7 +6,7 @@
 ## Version: 0.1.0
 ## SavedVariables: AwesomeForeverToolkitDB
 ## SavedVariablesPerCharacter: AwesomeForeverToolkitCharacterDB
-## OptionalDeps: UtilsAssistForever, WarriorAssistForever, HunterAssistForever, PaladinAssistForever, Blizzard_GamepadActionBars
+## OptionalDeps: UtilsAssistForever, WarriorAssistForever, HunterAssistForever, PaladinAssistForever, QuestTagsForever, Blizzard_GamepadActionBars
 
 Libs/LibStub/LibStub.lua
 Libs/LibCustomGlow-1.0/LibCustomGlow-1.0.lua
@@ -40,6 +40,8 @@ Modules/Utilities/Features/CooldownGrey.lua
 Modules/Utilities/Features/GamepadOverlay.lua
 Modules/Utilities/Features/BarClickThrough.lua
 Modules/Utilities/Runtime.lua
+Modules/Quests/Module.lua
+Modules/Quests/Titles.lua
 Modules/Warrior/Module.lua
 Modules/Warrior/Config.lua
 Modules/Warrior/Services/Stance.lua
@@ -86,6 +88,7 @@ UI/Window.lua
 UI/DisplayLocation.lua
 UI/Pages.lua
 Modules/Utilities/Pages.lua
+Modules/Quests/Pages.lua
 Modules/Warrior/Pages.lua
 Modules/Hunter/Pages.lua
 Modules/Paladin/Pages.lua

@@ -123,3 +123,11 @@ The approved PNG and its generation prompt live under `artwork/`. `python3 scrip
 ## Attribution
 
 Feature code derives from the author's Warrior Assist Forever, Hunter Assist Forever and Utils Assist Forever projects. Utils' click-through behavior derives from BarNoClicky by mostlyharmlessx; cooldown greying adapts GreyOnCooldown behavior. LibCustomGlow and LibStub are bundled with their original notices; see `AwesomeForeverToolkit/Libs/`. Source-library formatting is preserved.
+
+## Experimental native quest tracker branch
+
+`codex/native-quest-tracker` currently contains the first combat-validation baseline, not the complete QuestTagsForever feature set. It enhances the existing Blizzard tracker; no separate tracker is created. Disable QuestTagsForever and reload before using it. The toolkit skips this module if QuestTagsForever is loaded.
+
+Enable **Quest tracker → Enable quest tracker enhancements** in `/aft`. Per-character options add quest levels and E/D/R tags to the native quest headers and a quest-log count. Title edits/new hooks wait until combat ends, while Blizzard's objective progress continues normally. Tags are skipped when they would change the native title height. Disabling restores still-owned title changes outside combat. Sorting, grouping, filters, all-quest mode, scrolling, quest-log/map decorations and TomTom remain pending until this baseline is validated in the client.
+
+For repeatable diagnostics, run `/aft quests debug on`, then `/aft quests test`, wait a moment, and run `/aft quests status`. Repeat in and out of combat. The test queues toolkit decoration and calls the normal `C_QuestLog.SortQuestWatches()` engine API; it does not call native tracker Update/MarkDirty or synthesize a level-up event. It may reorder watched quests using Blizzard's normal sort. Compare native/combat update counts before and after; unchanged counts mean no native update was exercised. `/aft quests debug off` disables test commands, and reload also disarms them. Diagnostics report method taint where the client supports `issecurevariable`; these observations and local tests are not proof of taint-free operation. Test a real combat level-up when available.

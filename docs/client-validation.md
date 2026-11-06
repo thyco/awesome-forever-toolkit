@@ -97,3 +97,12 @@ These checks require the live client; local regression tests cannot confirm rend
 - Confirm that Kings cast on a target cannot count as Kings on yourself. Hidden tracked icons do not exclude another Paladin's Kings; when direct all-caster data is restricted, unknown must hide the reminder. Combat missing detection is not established by the DK self-buff example alone.
 - Remove/reorder tracked entries, hide their viewer, show cooldown-manager settings or Edit Mode, and reload during combat: no stale frames or preview icons may produce false results. Leave combat and confirm discovery recovers.
 - Verify Righteous Fury retains its existing shield, remaining-duration and cast-timer behavior.
+
+## Native quest tracker baseline (experimental branch only)
+
+- Disable QuestTagsForever and reload; enable Quest tracker enhancements in `/aft`. Confirm exactly the native tracker remains, native quest clicks/item buttons/progress still work, and existing class/gamepad settings are unaffected.
+- Check normal, elite, dungeon and raid quest title levels/tags and preserved native text colors. Check long/wrapped titles for clipping or overlap (tags should be skipped when they would change title height), quest count, campaign entries, tracker collapse/expand and late-loading Blizzard frames.
+- Toggle the features off: original titles must return without changing text that Blizzard or another addon has since replaced. Recycled quest rows must not retain the old quest's title.
+- Record `/aft quests status`, then `/aft quests debug on` and `/aft quests test`. Wait and compare status. Repeat in combat. A native sort request may legitimately do nothing; only an increased observed native/combat update count proves that update path ran. Never treat this as an actual level-up simulation.
+- While in combat, gain quest progress/complete an objective. Native tracker updates must continue; toolkit title updates wait until combat ends. Check BugGrabber for GetAuraDataByIndex/ShouldShowMawBuffs errors. Repeat with only the toolkit and BugGrabber enabled to isolate other addons.
+- On a real level-up during combat, record errors and status counters, then leave combat and confirm title refresh. This remains the final reproduction check before extending the layout-related enhancements.

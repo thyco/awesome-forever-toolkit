@@ -134,7 +134,7 @@ function Window:Initialize()
         for _, entry in pairs(self.cache) do entry.frame:SetWidth(math.max(1, width)) end
     end)
     self.navigation = {}
-    local rank = {general = 1, utilities = 2, graphics = 3, ["warrior.reminders"] = 4, ["warrior.stance"] = 5, ["hunter.reminders"] = 4, ["hunter.reactive"] = 5, ["paladin.reminders"] = 4, ["paladin.abilities"] = 5, ["gamepad.bindings"] = 6}
+    local rank = {general = 1, utilities = 2, graphics = 3, quests = 4, ["warrior.reminders"] = 4, ["warrior.stance"] = 5, ["hunter.reminders"] = 4, ["hunter.reactive"] = 5, ["paladin.reminders"] = 4, ["paladin.abilities"] = 5, ["gamepad.bindings"] = 6}
     table.sort(self.order, function(a, b)
         if (a.parent ~= nil) ~= (b.parent ~= nil) then return a.parent == nil end
 
