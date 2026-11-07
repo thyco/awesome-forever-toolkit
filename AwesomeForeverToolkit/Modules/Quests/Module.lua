@@ -186,6 +186,7 @@ function addon:Diagnostics(command)
         .. ' | combat updates=' .. self.combatUpdates .. ' | real level-up events=' .. self.levelUps)
     if self.lastError then print('Last decoration error: ' .. self.lastError) end
     print('Zone layout fallbacks: ' .. self.Groups.skipped)
+    self.Groups:Diagnostics()
     if self.Order.failure then print('Quest sorting: ' .. self.Order.failure) end
     if type(issecurevariable) == 'function' and QuestObjectiveTracker then
         for _, method in ipairs({'Update', 'GetContentsHeight', 'BuildQuestWatchInfos', 'EnumQuestWatchData', 'OnBlockHeaderClick'}) do

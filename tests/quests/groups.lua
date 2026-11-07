@@ -119,6 +119,7 @@ blocks[3].id = 999
 w:fire('QUEST_LOG_UPDATE')
 w:tick(0.2)
 assert(not labels[2]:IsShown() and not quests.Groups.dividers[2]:IsShown(), 'hide only recycled-row heading and divider')
+assert(quests.Groups.associations[2].hiddenReason == 'associated quest changed or unreadable')
 assert(labels[1]:IsShown() and labels[3]:IsShown(), 'unaffected zone headers remain visible')
 blocks[3].id = 13
 blocks[4].hidden = true
@@ -260,6 +261,9 @@ local originalTop = blocks[3].GetTop
 blocks[3].GetTop = function() return blocks[1]:GetBottom() - 10 end
 w:tick(0.2)
 assert(not labels[2]:IsShown(), 'hide a header if native relayout removes its reserved space')
+assert(quests.Groups.associations[2].hiddenReason == 'native relayout removed header space')
+quests:Diagnostics('status')
+assert(table.concat(w.messages, '\n'):find('native relayout removed header space', 1, true), 'status must report the original hide reason')
 assert(labels[1]:IsShown() and labels[3]:IsShown(), 'space loss does not blanket-hide all zones')
 blocks[3].GetTop = originalTop
 w.combat = false

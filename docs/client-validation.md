@@ -119,3 +119,5 @@ These checks require the live client; local regression tests cannot confirm rend
 
 - Quest tracking circles: verify the whole left-side POI button (including highlight/animation) is visible and clickable before/after scrolling, changing UI scale and reloading. Quest titles, wrapping width, right-side controls and scrollbar must retain their alignment; disabling grouping restores the original left edge.
 - Zone precedence: after quest updates, verify current-zone quests stay together first even when quests in other zones have lower levels. Ascending/descending must only reorder quests inside a zone.
+
+- If combat headers still disappear, run `/aft quests status` while they are missing and capture the zone header validation lines. Each header retains its first hide reason until the next out-of-combat rebuild, distinguishing row replacement, hidden contents, unreadable geometry and lost header space.

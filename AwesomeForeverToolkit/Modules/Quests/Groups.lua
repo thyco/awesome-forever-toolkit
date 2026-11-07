@@ -19,9 +19,18 @@ function Groups:Validate()
     if self.Viewport.slider then self.Viewport.slider:SetEnabled(not InCombatLockdown()) end
     local tracker = QuestObjectiveTracker
     local contents = tracker and tracker.ContentsFrame
-    if not addon.Config.Get('enabled') or not addon.Config.Get('groupZones')
-        or contents ~= self.parent or Client.Read(tracker and tracker.IsShown, tracker) ~= true
-        or Client.Read(contents and contents.IsShown, contents) ~= true then
+    local unavailable
+    if not addon.Config.Get('enabled') or not addon.Config.Get('groupZones') then
+        unavailable = 'grouping disabled'
+    elseif contents ~= self.parent then
+        unavailable = 'native contents replaced'
+    elseif Client.Read(tracker and tracker.IsShown, tracker) ~= true then
+        unavailable = 'native tracker hidden or unreadable'
+    elseif Client.Read(contents and contents.IsShown, contents) ~= true then
+        unavailable = 'native contents hidden or unreadable'
+    end
+    self.validationState = unavailable
+    if unavailable then
         self:Hide()
         return
     end
@@ -40,25 +49,45 @@ function Groups:Validate()
     for index, record in pairs(self.associations) do
         local block = record.block
         local row = rows[block]
-        local valid = record.valid and ok and readable and row ~= nil
-            and Client.Number(block.id) == record.id
-            and Client.Read(block.GetParent, block) == record.parent
-        if valid then
-            local boundary = contentTop
-            for other, position in pairs(rows) do
-                if other ~= block and position.top >= row.top then
-                    boundary = math.min(boundary, position.bottom)
+        local reason = record.hiddenReason
+        if not reason then
+            if not ok then reason = 'native row enumeration failed'
+            elseif not readable then reason = 'row geometry unavailable'
+            elseif not row then reason = 'associated row missing or hidden'
+            elseif Client.Number(block.id) ~= record.id then reason = 'associated quest changed or unreadable'
+            elseif Client.Read(block.GetParent, block) ~= record.parent then reason = 'associated row parent changed'
+            else
+                local boundary = contentTop
+                for other, position in pairs(rows) do
+                    if other ~= block and position.top >= row.top then
+                        boundary = math.min(boundary, position.bottom)
+                    end
+                end
+                if row.top + record.space > boundary then
+                    reason = 'native relayout removed header space'
                 end
             end
-            valid = row.top + record.space <= boundary
         end
 
-        if not valid then
+        if reason then
             record.valid = false
+            record.hiddenReason = reason
             self.labels[index]:Hide()
             self.dividers[index]:Hide()
         end
     end
+end
+
+function Groups:Diagnostics()
+    print('Zone header validation: ' .. (self.validationState or 'native contents available'))
+    local count = 0
+    for index, record in ipairs(self.associations) do
+        count = count + 1
+        local shown = Client.Read(self.labels[index].IsShown, self.labels[index]) == true
+        print((record.zone or tostring(record.id)) .. ': ' .. (shown and 'shown' or 'hidden')
+            .. ' | ' .. (record.hiddenReason or self.validationState or 'association valid'))
+    end
+    if count == 0 then print('No zone header associations have been built.') end
 end
 
 function Groups:OnChange()
@@ -74,6 +103,7 @@ function Groups:Refresh()
     if InCombatLockdown() then self:Validate(); return end
     self:Hide()
     self.associations = {}
+    self.validationState = nil
     self.skipped = 0
     if not addon.Config.Get('enabled') or not addon.Config.Get('groupZones') then
         self.Viewport:Restore()
@@ -160,7 +190,7 @@ function Groups:Refresh()
             local labelHeight = Client.Number(Client.Read(label.GetStringHeight, label)) or 14
             local space = labelHeight + 10 + (used > 1 and 5 or 0)
             cursor = cursor + space
-            self.associations[used] = {block = row.block, id = Client.Number(row.block.id),
+            self.associations[used] = {block = row.block, id = Client.Number(row.block.id), zone = info.zone,
                 parent = Client.Read(row.block.GetParent, row.block), space = space, valid = true}
 
             label:ClearAllPoints()
