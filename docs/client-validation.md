@@ -121,3 +121,5 @@ These checks require the live client; local regression tests cannot confirm rend
 - Zone precedence: after quest updates, verify current-zone quests stay together first even when quests in other zones have lower levels. Ascending/descending must only reorder quests inside a zone.
 
 - If combat headers still disappear, run `/aft quests status` while they are missing and capture the zone header validation lines. Each header retains its first hide reason until the next out-of-combat rebuild, distinguishing row replacement, hidden contents, unreadable geometry and lost header space.
+
+- Trigger a quest update immediately before entering combat: valid headers and later-zone dividers must reappear even if their out-of-combat rebuild was deferred. A row previously invalidated by replacement or missing space must remain hidden until rebuilt after combat.

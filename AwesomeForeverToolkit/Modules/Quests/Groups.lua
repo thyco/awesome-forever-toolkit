@@ -74,6 +74,11 @@ function Groups:Validate()
             record.hiddenReason = reason
             self.labels[index]:Hide()
             self.dividers[index]:Hide()
+        else
+            -- A pre-combat update may have hidden artwork before its queued rebuild could run.
+            -- Restore only validated addon artwork; native geometry stays untouched.
+            self.labels[index]:Show()
+            self.dividers[index]:SetShown(index > 1)
         end
     end
 end

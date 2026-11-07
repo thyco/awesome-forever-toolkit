@@ -119,3 +119,7 @@ These checks require the live client; local regression tests cannot confirm rend
 
 - Quest tracking circles: verify the whole left-side POI button (including highlight/animation) is visible and clickable before/after scrolling, changing UI scale and reloading. Quest titles, wrapping width, right-side controls and scrollbar must retain their alignment; disabling grouping restores the original left edge.
 - Zone precedence: after quest updates, verify current-zone quests stay together first even when quests in other zones have lower levels. Ascending/descending must only reorder quests inside a zone.
+
+## Hidden-but-valid combat header race
+
+Live diagnostics reported native contents available with headers hidden and associations valid. Reproduced by firing QUEST_LOG_UPDATE out of combat (hiding artwork), then entering combat before the queued rebuild. Validation had a hide-invalid branch but no show-valid branch. It now restores only validated existing addon labels and the appropriate dividers. Invalidated associations retain their hide reason and remain hidden. The regression failed before the fix and covers the exact diagnostic state, first-zone divider suppression, later-divider recovery, and existing selective invalidation/combat geometry guards.

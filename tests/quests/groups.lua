@@ -105,6 +105,12 @@ assert(blocks[3]:GetTop() == 337, 'repeated refresh must not accumulate spacing'
 quests.Groups.Viewport:Scroll(40)
 assert(quests.Groups.Viewport.offset == 40)
 
+-- A pre-combat event hides artwork and queues a rebuild, but combat can start before the next frame.
+w:fire('QUEST_LOG_UPDATE')
+for _, label in ipairs(labels) do assert(not label:IsShown()) end
+quests:Diagnostics('status')
+assert(table.concat(w.messages, '\n'):find('hidden | association valid', 1, true), 'reproduce the reported diagnostic state')
+
 w.combat = true
 w:fire('PLAYER_REGEN_DISABLED')
 tracker:Update()
@@ -112,7 +118,9 @@ w:tick(0.2)
 quests.Groups:Refresh()
 quests.Groups.Viewport:Scroll(80)
 assert(quests.Groups.Viewport.offset == 40, 'scroll geometry is frozen in combat')
-for _, label in ipairs(labels) do assert(label:IsShown(), 'stable combat headers must remain visible') end
+for _, label in ipairs(labels) do assert(label:IsShown(), 'valid headers hidden before combat must reappear') end
+assert(not quests.Groups.dividers[1]:IsShown(), 'first zone has no divider after recovery')
+assert(quests.Groups.dividers[2]:IsShown() and quests.Groups.dividers[3]:IsShown(), 'later dividers recover with their headers')
 assert(not quests.Groups.Viewport.slider:IsEnabled(), 'scrolling still locks in combat')
 
 blocks[3].id = 999
