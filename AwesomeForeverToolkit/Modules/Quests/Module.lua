@@ -102,7 +102,7 @@ end
 function addon:Start()
     if self.started then return end
     self.started = true
-    local defaults = {enabled = false, showTags = true, showCount = true, sortOrder = 'ascending', groupZones = true}
+    local defaults = {enabled = true, showTags = true, showCount = true, sortOrder = 'ascending', groupZones = true}
     self.Config = root.Config.NewStore('character', 'quests', defaults, function(key, value)
         if key == 'sortOrder' then return value == 'native' or value == 'ascending' or value == 'descending' end
         return type(value) == 'boolean'
