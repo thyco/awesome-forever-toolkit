@@ -33,10 +33,10 @@ root.Window:RegisterPage({
 
             if item.value == "battleShout" then
                 layout:Field("ChoiceDropdown", "battleShoutMode", "Display mode", {
-                    {value = "underlay", label = "Always-visible underlay"},
+                    {value = "underlay", label = "Combat-only underlay"},
                     {value = "tracked", label = "Tracked combat reminder"},
                 })
-                layout:Text("Underlay stays visible behind TellMeWhen, in and out of combat. Align both icons, use an opaque TMW aura icon and set its absent/underlay opacity to zero. Close settings after positioning to restore the low display layer.")
+                layout:Text("Underlay stays visible behind TellMeWhen during combat only. Positioning preview remains available outside combat. Align both icons, use an opaque TMW aura icon and set its absent/underlay opacity to zero. Close settings after positioning to restore the low display layer.")
                 layout:Field("Dropdown", "leadSeconds", "Tracked mode: remind before expiry", W.Options(1, 60, 1, "", " seconds"))
                 layout:Field("Checkbox", "battleShoutNativeColor", "Use Blizzard native glow")
                 layout:Field("Color", "glowColor", "Custom glow color")
