@@ -154,7 +154,7 @@ function Widgets.Number(parent, label, y, setting, options)
     edit:SetPoint("TOPLEFT", 266, y)
     edit:SetSize(110, 26)
     edit:SetAutoFocus(false)
-    edit:SetNumeric(true)
+    edit:SetNumeric(not options.allowDecimal)
     edit:SetMaxLetters(6)
     edit.refresh = function() edit:SetText(tostring(setting:GetValue())) end
 

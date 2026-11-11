@@ -139,4 +139,28 @@ shared.loaded.ForeverTargetCastbar = true
 shared:fire("ADDON_LOADED", "ForeverTargetCastbar")
 assert(shared.bar.point[2] == shared.env.TargetFrame)
 assert(not shared.mover:Preview())
+-- Percentage fields convert to the existing normalized account values.
+local numeric = setup({enabled = true, x = 0.5, y = 0.38, scale = 100})
+numeric.root.Window:Open()
+numeric.root.Window:ShowPage("targetCastbar")
+local controls = numeric.root.Window.controls
+local horizontal = assert(controls["targetCastbar.x"], "horizontal percentage field")
+local vertical = assert(controls["targetCastbar.y"], "vertical percentage field")
+assert(tonumber(horizontal:GetText()) == 50 and tonumber(vertical:GetText()) == 38)
+
+horizontal:SetText("47.25")
+horizontal.scripts.OnEnterPressed(horizontal)
+vertical:SetText("32.5")
+vertical.scripts.OnEnterPressed(vertical)
+assert(numeric.mover.Get("x") == 0.4725 and numeric.mover.Get("y") == 0.325)
+horizontal:SetText("101")
+horizontal.scripts.OnEnterPressed(horizontal)
+assert(numeric.mover.Get("x") == 0.4725, "out-of-range input must not change position")
+
+numeric.mover:Preview()
+numeric.mover.anchor.centerX, numeric.mover.anchor.centerY = 290, 540
+numeric.mover.anchor.scripts.OnDragStart(numeric.mover.anchor)
+numeric.mover.anchor.scripts.OnDragStop(numeric.mover.anchor)
+assert(tonumber(horizontal:GetText()) == 50 and tonumber(vertical:GetText()) == 50,
+    "dragging refreshes displayed percentages")
 print("target castbar: PASS")

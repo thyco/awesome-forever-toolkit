@@ -45,7 +45,20 @@ root.Window:RegisterPage({
     id = "targetCastbar", label = "Target castbar", available = available,
     build = function(parent, context)
         local mover = addon.TargetCastbar
-        local layout = root.Widgets.Layout(parent, context, "targetCastbar", mover)
+        local percentSettings = {
+            Get = function(key)
+                local value = mover.Get(key)
+                if key == "x" or key == "y" then
+                    return math.floor(value * 10000 + 0.5) / 100
+                end
+                return value
+            end,
+            Set = function(key, value)
+                if key == "x" or key == "y" then value = value / 100 end
+                mover.Set(key, value)
+            end,
+        }
+        local layout = root.Widgets.Layout(parent, context, "targetCastbar", percentSettings)
         local function report(ok, reason)
             if not ok then print("Awesome Forever Toolkit: " .. tostring(reason)) end
         end
@@ -54,6 +67,19 @@ root.Window:RegisterPage({
         layout:Text("Moves Blizzard's target castbar. Position and scale are account-wide. Disable ForeverTargetCastbar before enabling this feature.")
         layout:Field("Checkbox", "enabled", "Enable target castbar positioning")
         layout:Field("ChoiceDropdown", "scale", "Scale", root.Widgets.Options(50, 300, 5, "", "%"))
+        layout:Text("Position is measured from the left and bottom edges. Enter 0–100%; decimals are supported. Press Enter to apply.")
+        local feedback = root.Widgets.Text(parent, "", 20, layout.y - 95)
+        local percentageOptions = {
+            allowDecimal = true,
+            validate = function(value)
+                return root.Client.Number(value) ~= nil and value >= 0 and value <= 100
+            end,
+            feedback = feedback,
+            message = "Enter a percentage from 0 to 100.",
+        }
+        layout:Field("Number", "x", "Horizontal position (%)", percentageOptions)
+        layout:Field("Number", "y", "Vertical position (%)", percentageOptions)
+        layout.y = layout.y - 30
         layout:Text("Drag the preview outside combat. The bar's centre is anchored to a percentage of the screen, independently of the target frame. Scaling is relative to its native size.")
         layout:Button("preview", "Move / preview castbar", function() report(mover:Preview()) end)
         layout:Button("lock", "Lock / hide preview", function() mover:ClosePreview() end)

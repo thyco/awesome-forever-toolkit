@@ -135,7 +135,7 @@ For repeatable diagnostics, run `/aft quests debug on`, then `/aft quests test`,
 
 ## Target castbar positioning
 
-Disable the standalone ForeverTargetCastbar addon, then enable **Target castbar → Enable target castbar positioning** in `/aft`. Use **Move / preview castbar** outside combat and drag the preview into place. Close settings or use **Lock / hide preview** when finished. The preview uses Blizzard's target castbar template; the actual castbar remains Blizzard-owned and keeps its native casts, channels and interruptibility display.
+Disable the standalone ForeverTargetCastbar addon, then enable **Target castbar → Enable target castbar positioning** in `/aft`. Use **Move / preview castbar** outside combat and drag the preview into place. Use **Horizontal position (%)** and **Vertical position (%)** to fine-tune the location numerically (0–100, with decimals). X is measured from the left, Y from the bottom; dragging refreshes both fields. Close settings or use **Lock / hide preview** when finished. The preview uses Blizzard's target castbar template; the actual castbar remains Blizzard-owned and keeps its native casts, channels and interruptibility display.
 
 Position and scale are saved account-wide in `AwesomeForeverToolkitDB.targetCastbar`. The centre of the bar is anchored to screen percentages, independently of the target frame's position. Reset restores 50% across, 38% up from the bottom and 100% scale. Scale is a multiplier of the native bar and still inherits the target frame's Edit Mode scale; the preview follows that effective scale. Disabling positioning restores the native anchors and scale captured when positioning was enabled.
 

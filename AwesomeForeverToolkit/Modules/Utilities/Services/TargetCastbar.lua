@@ -48,6 +48,7 @@ function Mover:SavePosition()
     x, y = x * scale / width, y * scale / height
     self.Set("x", math.max(0, math.min(1, x)))
     self.Set("y", math.max(0, math.min(1, y)))
+    if root.Window then root.Window:Refresh() end
 end
 
 function Mover:ClosePreview()
