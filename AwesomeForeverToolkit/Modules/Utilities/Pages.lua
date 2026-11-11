@@ -40,3 +40,27 @@ root.Window:RegisterPage({
         layout:Finish()
     end,
 })
+
+root.Window:RegisterPage({
+    id = "targetCastbar", label = "Target castbar", available = available,
+    build = function(parent, context)
+        local mover = addon.TargetCastbar
+        local layout = root.Widgets.Layout(parent, context, "targetCastbar", mover)
+        local function report(ok, reason)
+            if not ok then print("Awesome Forever Toolkit: " .. tostring(reason)) end
+        end
+
+        layout:Heading("Target castbar")
+        layout:Text("Moves Blizzard's target castbar. Position and scale are account-wide. Disable ForeverTargetCastbar before enabling this feature.")
+        layout:Field("Checkbox", "enabled", "Enable target castbar positioning")
+        layout:Field("ChoiceDropdown", "scale", "Scale", root.Widgets.Options(50, 300, 5, "", "%"))
+        layout:Text("Drag the preview outside combat. The bar's centre is anchored to a percentage of the screen, independently of the target frame. Scaling is relative to its native size.")
+        layout:Button("preview", "Move / preview castbar", function() report(mover:Preview()) end)
+        layout:Button("lock", "Lock / hide preview", function() mover:ClosePreview() end)
+        layout:Button("reset", "Reset position and scale", function()
+            report(mover:Reset())
+            root.Window:Refresh()
+        end)
+        layout:Finish()
+    end,
+})

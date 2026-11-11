@@ -28,6 +28,7 @@ Modules/Gamepad/OverlayRuntime.lua
 Modules/Gamepad/ConfigurationActions.lua
 Modules/Utilities/Module.lua
 Modules/Utilities/Config.lua
+Modules/Utilities/Services/TargetCastbar.lua
 Modules/Utilities/Services/Graphics.lua
 Modules/Utilities/Services/Macros.lua
 Modules/Utilities/Services/NextSwing.lua

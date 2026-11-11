@@ -18,6 +18,7 @@ function addon:StartFeatures()
     end
 
     self.started = true
+    if self.TargetCastbar then self.TargetCastbar:Start() end
     self.Config.Subscribe(function(key)
         if key == "queuedGlowColor" or key == "queuedGlowNativeColor" then
             self.QueuedGlow.SetColor()
@@ -56,7 +57,12 @@ function addon:Refresh(discover, rebuild, refreshCooldown)
     end
 end
 
+function addon:ClearPreviews()
+    if self.TargetCastbar then self.TargetCastbar:ClosePreview() end
+end
+
 function addon:Stop()
+    if self.TargetCastbar then self.TargetCastbar:Stop() end
     for _, feature in ipairs(self.features) do feature:Stop() end
     self.running = false
     self:SetPolling(false)
