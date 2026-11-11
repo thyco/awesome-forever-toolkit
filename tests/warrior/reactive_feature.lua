@@ -12,6 +12,7 @@ local function setup(options)
         [6572] = { startTime = 0, duration = 0, isActive = false, isEnabled = true },
     }
     world.env.AwesomeForeverToolkitDB.warrior = {
+        battleShoutMode = "tracked",
         overpowerBar = 1, overpowerButton = 1,
         revengeBar = 1, revengeButton = 2,
     }

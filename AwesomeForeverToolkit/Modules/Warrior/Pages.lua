@@ -4,7 +4,7 @@ local W = root.Widgets
 local function available() return addon.active == true end
 local sizes = W.Options(16, 128, 4, "", " pixels")
 local abilities = {
-    {value = "battleShout", label = "Battle Shout", description = "Combat reminder for your Battle Shout buff"},
+    {value = "battleShout", label = "Battle Shout", description = "Battle Shout reminder or underlay for another addon’s aura icon"},
     {value = "overpower", label = "Overpower", description = "Battle Stance usability or Berserker Stance opening"},
     {value = "revenge", label = "Revenge", description = "Defensive Stance usability"},
     {value = "execute", label = "Execute", description = "Battle or Berserker Stance usability"},
@@ -32,7 +32,12 @@ root.Window:RegisterPage({
             layout:Field("Checkbox", item.value .. "Enabled", "Enable " .. item.label .. " reminder")
 
             if item.value == "battleShout" then
-                layout:Field("Dropdown", "leadSeconds", "Remind before expiry", W.Options(1, 60, 1, "", " seconds"))
+                layout:Field("ChoiceDropdown", "battleShoutMode", "Display mode", {
+                    {value = "underlay", label = "Always-visible underlay"},
+                    {value = "tracked", label = "Tracked combat reminder"},
+                })
+                layout:Text("Underlay stays visible behind TellMeWhen, in and out of combat. Align both icons, use an opaque TMW aura icon and set its absent/underlay opacity to zero. Close settings after positioning to restore the low display layer.")
+                layout:Field("Dropdown", "leadSeconds", "Tracked mode: remind before expiry", W.Options(1, 60, 1, "", " seconds"))
                 layout:Field("Checkbox", "battleShoutNativeColor", "Use Blizzard native glow")
                 layout:Field("Color", "glowColor", "Custom glow color")
                 layout:Field("Dropdown", "iconSize", "Icon size", sizes)

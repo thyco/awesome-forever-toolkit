@@ -5,6 +5,7 @@ addon.Config = Config
 
 local defaults = {
     battleShoutEnabled = true,
+    battleShoutMode = "underlay",
     leadSeconds = 10,
     battleShoutNativeColor = false,
     battleShoutHideIcon = false,
@@ -92,6 +93,10 @@ local function validValue(key, value)
     if key == "overpowerButton" or key == "revengeButton" or key == "executeButton"
         or key == "victoryRushButton" or key == "shieldBlockButton" then
         return value >= 1 and value <= 12 and value == math.floor(value)
+    end
+
+    if key == "battleShoutMode" then
+        return value == "underlay" or value == "tracked"
     end
 
     if key == "leadSeconds" then

@@ -13,7 +13,7 @@ end
 
 local auraStates = { present = true, missing = true, unknown = true }
 local auraQualities = { exact = true, estimated = true, none = true }
-local outputs = { none = true, ["icon-late"] = true, ["icon-missing"] = true }
+local outputs = { underlay = true, none = true, ["icon-late"] = true, ["icon-missing"] = true }
 local stances = { battle = true, defensive = true, berserker = true, unknown = true }
 local signals = { usable = true, ["low-rage"] = true, overlay = true,
     opening = true, inactive = true, unknown = true }
@@ -81,7 +81,8 @@ local function reactiveDiagnostics(kind, title, status)
 end
 
 local function diagnostics()
-    local aura = addon.BattleShoutAura.Status()
+    local underlay = addon.Config.Get("battleShoutMode") == "underlay"
+    local aura = not underlay and addon.BattleShoutAura.Status() or {}
     local feature = addon.BattleShoutReminder:Status()
     if not addon.Client.Readable(aura) or type(aura) ~= "table" then
         aura = {}
@@ -99,6 +100,7 @@ local function diagnostics()
     print("Awesome Forever Toolkit 0.1.0 / client 16001 / Warrior " .. warrior)
     print("Enabled: " .. tostring(addon.Config.Get("battleShoutEnabled"))
         .. " / lead: " .. addon.Config.Get("leadSeconds") .. "s")
+    print("Battle Shout mode: " .. addon.Config.Get("battleShoutMode"))
     print("Battle Shout: " .. label(aura.state, auraStates, "unknown")
         .. " / " .. label(aura.quality, auraQualities, "none") .. " / due in " .. remaining)
     print("Reminder: " .. label(feature.output, outputs, "none"))
@@ -167,7 +169,8 @@ frame:SetScript("OnEvent", function(_, event, ...)
     addon:OnEvent(event, ...)
 end)
 frame:SetScript("OnUpdate", function(_, elapsed)
-    if not addon.active or not addon.BattleShoutReminder.running or not addon.Client.InCombat() then
+    if not addon.active or not addon.BattleShoutReminder.running
+        or addon.Config.Get("battleShoutMode") == "underlay" or not addon.Client.InCombat() then
         elapsedCheck = 0
         return
     end

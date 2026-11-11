@@ -19,6 +19,7 @@ function H.new()
 
             return self.width or 64, self.height or 64
         end
+        function value:SetClipsChildren(clips) self.clips = clips end
         function value:SetFrameStrata(strata) self.strata = strata end
         function value:SetToplevel(topLevel) self.topLevel = topLevel end
         function value:Raise() self.raised = true end
@@ -54,6 +55,7 @@ function H.new()
 
             function texture:SetAllPoints(target) self.points = target end
             function texture:SetTexture(path) self.path = path end
+            function texture:SetDesaturated(value) self.desaturation = value and 1 or 0 end
             function texture:SetAlpha(alpha) self.alpha = alpha end
             function texture:SetPoint(...) self.point = { ... } end
             function texture:ClearAllPoints() self.point = nil end
@@ -308,7 +310,7 @@ function H.new()
 
 
     world.root = {}
-    world.env.AwesomeForeverToolkitDB = {warrior = {}}
+    world.env.AwesomeForeverToolkitDB = {warrior = {battleShoutMode = "tracked"}}
     world.env.AwesomeForeverToolkitCharacterDB = {}
     local loaded = {}
 
@@ -319,7 +321,7 @@ function H.new()
                 loaded[name] = true
             end
         end
-        for _, file in ipairs({"Core/Addon", "Core/Config", "Services/Client", "Services/Buttons", "Services/Glow", "Modules/Warrior/Module"}) do
+        for _, file in ipairs({"Core/Addon", "Core/Config", "Services/Client", "Services/Buttons", "Services/Glow", "Services/ReminderIcon", "Modules/Warrior/Module"}) do
             if not loaded[file] then
                 assert(loadfile("AwesomeForeverToolkit/" .. file .. ".lua", "t", self.env))("AwesomeForeverToolkit", self.root)
                 loaded[file] = true

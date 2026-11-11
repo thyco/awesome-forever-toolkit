@@ -18,6 +18,7 @@ Services/TrackedBuffFrames.lua
 Services/BuffTracker.lua
 Services/Buttons.lua
 Services/Glow.lua
+Services/ReminderIcon.lua
 Modules/Gamepad/Module.lua
 Modules/Gamepad/Config.lua
 Modules/Gamepad/OverlayLogic.lua

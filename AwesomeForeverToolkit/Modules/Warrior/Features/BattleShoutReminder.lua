@@ -8,11 +8,15 @@ function Reminder:Initialize()
 end
 
 function Reminder:OnAuraUpdate(updateInfo)
+    if addon.Config.Get("battleShoutMode") == "underlay" then return end
+
     addon.BattleShoutAura.Refresh(updateInfo)
     self:Refresh(false)
 end
 
 function Reminder:OnPlayerCast(spellID)
+    if addon.Config.Get("battleShoutMode") == "underlay" then return end
+
     if self.running and addon.BattleShoutAura.ObservePlayerCast(spellID) then
         self:Refresh(false)
     end
@@ -20,6 +24,17 @@ end
 
 function Reminder:Refresh(sampleAura)
     if not self.running then
+        return
+    end
+
+    if addon.Config.Get("battleShoutMode") == "underlay" then
+        local enabled = addon.Config.Get("battleShoutEnabled")
+        self.output = enabled and "underlay" or "none"
+
+        if not enabled or addon.Client.InCombat() then
+            addon.BattleShoutIcon:SetPreview(false)
+        end
+        addon.BattleShoutIcon:SetVisible(enabled)
         return
     end
 

@@ -26,6 +26,7 @@ function H.new()
         local value = create(...)
         function value:CreateTexture() return env.CreateFrame("Texture", nil, self) end
         function value:CreateFontString() return env.CreateFrame("FontString", nil, self) end
+        function value:SetClipsChildren(clips) self.clips = clips end
         function value:GetScript(event) return self.scripts[event] end
         function value:RegisterUnitEvent(event, unit) self.events[event] = unit end
         function value:SetToplevel(top) self.topLevel = top end
