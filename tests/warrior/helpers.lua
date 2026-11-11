@@ -310,7 +310,7 @@ function H.new()
 
 
     world.root = {}
-    world.env.AwesomeForeverToolkitDB = {warrior = {battleShoutMode = "tracked"}}
+    world.env.AwesomeForeverToolkitDB = {warrior = {}}
     world.env.AwesomeForeverToolkitCharacterDB = {}
     local loaded = {}
 

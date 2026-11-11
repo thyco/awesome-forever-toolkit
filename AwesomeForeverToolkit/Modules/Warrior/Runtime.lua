@@ -1,7 +1,6 @@
 local _, root = ...
 local addon = root.modules.Warrior
 local frame = CreateFrame("Frame")
-local elapsedCheck = 0
 
 local function label(value, allowed, fallback)
     if not addon.Client.Readable(value) or type(value) ~= "string" then
@@ -11,9 +10,7 @@ local function label(value, allowed, fallback)
     return allowed[value] and value or fallback
 end
 
-local auraStates = { present = true, missing = true, unknown = true }
-local auraQualities = { exact = true, estimated = true, none = true }
-local outputs = { underlay = true, none = true, ["icon-late"] = true, ["icon-missing"] = true }
+local outputs = { underlay = true, none = true }
 local stances = { battle = true, defensive = true, berserker = true, unknown = true }
 local signals = { usable = true, ["low-rage"] = true, overlay = true,
     opening = true, inactive = true, unknown = true }
@@ -81,29 +78,12 @@ local function reactiveDiagnostics(kind, title, status)
 end
 
 local function diagnostics()
-    local underlay = addon.Config.Get("battleShoutMode") == "underlay"
-    local aura = not underlay and addon.BattleShoutAura.Status() or {}
     local feature = addon.BattleShoutReminder:Status()
-    if not addon.Client.Readable(aura) or type(aura) ~= "table" then
-        aura = {}
-    end
-    if not addon.Client.Readable(feature) or type(feature) ~= "table" then
-        feature = {}
-    end
-
-    local deadline = addon.Client.Number(aura.deadline)
-    local now = addon.Client.Number(GetTime())
-    local remaining = deadline and now
-        and string.format("%.1fs", math.max(0, deadline - now)) or "unknown"
     local warrior = addon.Client.IsWarrior() and "active" or "inactive"
 
     print("Awesome Forever Toolkit 0.1.0 / client 16001 / Warrior " .. warrior)
-    print("Enabled: " .. tostring(addon.Config.Get("battleShoutEnabled"))
-        .. " / lead: " .. addon.Config.Get("leadSeconds") .. "s")
-    print("Battle Shout mode: " .. addon.Config.Get("battleShoutMode"))
-    print("Battle Shout: " .. label(aura.state, auraStates, "unknown")
-        .. " / " .. label(aura.quality, auraQualities, "none") .. " / due in " .. remaining)
-    print("Reminder: " .. label(feature.output, outputs, "none"))
+    print("Battle Shout underlay enabled: " .. tostring(addon.Config.Get("battleShoutEnabled")))
+    print("Reminder: " .. label(member(feature, "output"), outputs, "none"))
 
     local reactive = addon.ReactiveAbilities:Status()
     print("Stance: " .. label(member(reactive, "stance"), stances, "unknown"))
@@ -125,12 +105,9 @@ function addon:StartRuntime()
     }) do
         frame:RegisterEvent(event)
     end
-
-    frame:RegisterUnitEvent("UNIT_AURA", "player")
-    frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 end
 
-function addon:OnEvent(event, _, updateInfo, spellID)
+function addon:OnEvent(event)
     if event == "PLAYER_LOGIN" then
         self:Start()
         return
@@ -148,14 +125,6 @@ function addon:OnEvent(event, _, updateInfo, spellID)
 
     if event == "PLAYER_ENTERING_WORLD" then
         reminder:Initialize()
-    elseif event == "UNIT_AURA" then
-        -- RegisterUnitEvent already limits delivery to the player; the unit
-        -- event payload can be secret when auras are restricted.
-        reminder:OnAuraUpdate(updateInfo)
-        return
-    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        reminder:OnPlayerCast(spellID)
-        return
     end
 
     if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED" then
@@ -165,21 +134,6 @@ function addon:OnEvent(event, _, updateInfo, spellID)
     reminder:Refresh()
 end
 
-frame:SetScript("OnEvent", function(_, event, ...)
-    addon:OnEvent(event, ...)
-end)
-frame:SetScript("OnUpdate", function(_, elapsed)
-    if not addon.active or not addon.BattleShoutReminder.running
-        or addon.Config.Get("battleShoutMode") == "underlay" or not addon.Client.InCombat() then
-        elapsedCheck = 0
-        return
-    end
-
-    elapsedCheck = elapsedCheck + elapsed
-    if elapsedCheck < 0.1 then
-        return
-    end
-
-    elapsedCheck = 0
-    addon.BattleShoutReminder:Refresh(false)
+frame:SetScript("OnEvent", function(_, event)
+    addon:OnEvent(event)
 end)

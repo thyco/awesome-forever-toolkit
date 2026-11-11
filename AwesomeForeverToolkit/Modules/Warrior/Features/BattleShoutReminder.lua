@@ -7,57 +7,18 @@ function Reminder:Initialize()
     self.running = true
 end
 
-function Reminder:OnAuraUpdate(updateInfo)
-    if addon.Config.Get("battleShoutMode") == "underlay" then return end
+function Reminder:Refresh()
+    if not self.running then return end
 
-    addon.BattleShoutAura.Refresh(updateInfo)
-    self:Refresh(false)
-end
-
-function Reminder:OnPlayerCast(spellID)
-    if addon.Config.Get("battleShoutMode") == "underlay" then return end
-
-    if self.running and addon.BattleShoutAura.ObservePlayerCast(spellID) then
-        self:Refresh(false)
-    end
-end
-
-function Reminder:Refresh(sampleAura)
-    if not self.running then
-        return
-    end
-
-    if addon.Config.Get("battleShoutMode") == "underlay" then
-        local enabled = addon.Config.Get("battleShoutEnabled")
-        local visible = enabled and addon.Client.InCombat()
-        self.output = visible and "underlay" or "none"
-
-        if not enabled or addon.Client.InCombat() then
-            addon.BattleShoutIcon:SetPreview(false)
-        end
-        addon.BattleShoutIcon:SetVisible(visible)
-        return
-    end
-
-    local status = sampleAura == false and addon.BattleShoutAura.Status() or addon.BattleShoutAura.Refresh()
     local enabled = addon.Config.Get("battleShoutEnabled")
-    local output = "none"
+    local combat = addon.Client.InCombat()
+    local visible = enabled and combat
+    self.output = visible and "underlay" or "none"
 
-    if addon.Client.InCombat() and enabled then
-        if status.state == "missing" or (status.state == "unknown" and status.lastConfirmedMissing) then
-            output = "icon-missing"
-        elseif status.deadline and GetTime() >= status.deadline - addon.Config.Get("leadSeconds") then
-            output = "icon-late"
-        end
-    end
-
-    self.output = output
-
-    if not enabled or addon.Client.InCombat() then
+    if not enabled or combat then
         addon.BattleShoutIcon:SetPreview(false)
     end
-
-    addon.BattleShoutIcon:SetVisible(output == "icon-late" or output == "icon-missing")
+    addon.BattleShoutIcon:SetVisible(visible)
 end
 
 function Reminder:Stop()

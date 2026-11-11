@@ -1,46 +1,30 @@
 local H = dofile("tests/warrior/helpers.lua")
 local world = H.new()
-local addon = world:load({ "Core", "Services/Config", "Services/Client", "Services/Timers" })
+local addon = world:load({ "Core", "Services/Config", "Services/Client" })
 
 addon.Config.Initialize()
-H.equal(addon.Config.Get("leadSeconds"), 10)
+H.equal(addon.Config.Get("iconSize"), 36)
 H.equal(addon.Config.Get("glowColor"), "ff00ff00")
 H.equal(addon.Config.Get("iconX"), 0)
 H.equal(addon.Config.Get("iconY"), -270)
 
-local timer = addon.Timers.New()
-timer:StartFrom(0, 180, "estimated")
-world.time = 169.9
-H.equal(timer:IsDue(10), false)
-world.time = 170
-H.equal(timer:IsDue(10), true)
-H.equal(timer:Quality(), "estimated")
-H.equal(timer:Remaining(), 10)
-
-timer:SetDeadline(200, "exact")
-H.equal(timer:Quality(), "exact")
-H.equal(timer:IsDue(10), false)
-timer:Clear()
-H.equal(timer:Remaining(), nil)
-H.equal(timer:IsDue(10), false)
-
 local invalid = H.new()
-invalid.env.AwesomeForeverToolkitDB.warrior = { leadSeconds = 61, glowColor = "bad", iconX = math.huge }
-local other = invalid:load({ "Core", "Services/Config", "Services/Client", "Services/Timers" })
+invalid.env.AwesomeForeverToolkitDB.warrior = { iconSize = 61, glowColor = "bad", iconX = math.huge }
+local other = invalid:load({ "Core", "Services/Config", "Services/Client" })
 other.Config.Initialize()
-H.equal(other.Config.Get("leadSeconds"), 10)
+H.equal(other.Config.Get("iconSize"), 36)
 H.equal(other.Config.Get("glowColor"), "ff00ff00")
 H.equal(other.Config.Get("iconX"), 0)
 
 local changes = 0
 other.Config.Subscribe(function(key, value)
     changes = changes + 1
-    H.equal(key, "leadSeconds")
-    H.equal(value, 15)
+    H.equal(key, "iconSize")
+    H.equal(value, 48)
 end)
-other.Config.Set("leadSeconds", 15)
+other.Config.Set("iconSize", 48)
 H.equal(changes, 1)
-H.equal(other.Config.Get("leadSeconds"), 15)
+H.equal(other.Config.Get("iconSize"), 48)
 
 local color = other.Config.GetColor("glowColor")
 H.equal(color[1], 0)

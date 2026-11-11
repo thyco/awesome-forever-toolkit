@@ -101,12 +101,11 @@ env.strmatch = string.match
 env.WOW_PROJECT_ID, env.WOW_PROJECT_MAINLINE = 1, 1
 world:load({ "Libs/LibStub/LibStub", "Libs/LibCustomGlow-1.0/LibCustomGlow-1.0",
     "Core", "Services/Config", "Services/Client", "Services/Glow",
-    "Services/Timers", "Services/BattleShoutAura", "Services/BattleShoutIcon", "Features/BattleShoutReminder" })
+    "Services/BattleShoutIcon", "Features/BattleShoutReminder" })
 
 local addon = world.addon
 addon.Config.Initialize()
 addon.BattleShoutIcon:Initialize()
-addon.BattleShoutAura.Initialize()
 addon.BattleShoutReminder:Initialize()
 
 local glow = world.addon.Glow
@@ -201,19 +200,19 @@ glow.Set(icon.frame, owner, true)
 H.equal(overlay[key], effect, "reactivation reuses reserved effect")
 H.equal(effect.ProcStartAnim.plays, 2, "reactivation flashes once")
 
--- The same prepared icon handles both late and missing combat reminders.
+-- The prepared underlay remains active regardless of buff state.
 local reminder = addon.BattleShoutReminder
 world.auras = { { name = "Battle Shout", expirationTime = 5 } }
 reminder:Refresh()
 
-H.equal(reminder.output, "icon-late", "late buff chooses screen icon")
+H.equal(reminder.output, "underlay", "combat shows underlay")
 H.equal(effect.visible, true, "screen effect active")
 H.equal(icon.visible, true, "screen icon visible")
 
 world.auras = {}
 reminder:Refresh()
 
-H.equal(reminder.output, "icon-missing", "missing buff chooses screen")
+H.equal(reminder.output, "underlay", "buff changes leave underlay active")
 H.equal(effect.visible, true, "screen effect remains active")
 H.equal(world.combatFrameCreations, 0, "all combat output transitions allocate no frames")
 

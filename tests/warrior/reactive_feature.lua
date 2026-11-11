@@ -12,7 +12,6 @@ local function setup(options)
         [6572] = { startTime = 0, duration = 0, isActive = false, isEnabled = true },
     }
     world.env.AwesomeForeverToolkitDB.warrior = {
-        battleShoutMode = "tracked",
         overpowerBar = 1, overpowerButton = 1,
         revengeBar = 1, revengeButton = 2,
     }
@@ -645,7 +644,7 @@ do
     H.equal(world.glowActive[item], nil, "CDM receives no Battle Shout glow")
     H.equal(world.glowActive[addon.BattleShoutIcon.frame], true, "Battle Shout icon remains active")
     H.equal(world.glowActive[world.overpowerButton], true, "reactive owner remains active")
-    H.equal(addon.BattleShoutReminder:Status().output, "icon-late")
+    H.equal(addon.BattleShoutReminder:Status().output, "underlay")
 end
 
 -- Battle and Berserker Overpower keep independent native/custom choices.

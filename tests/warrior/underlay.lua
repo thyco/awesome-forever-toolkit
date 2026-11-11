@@ -1,20 +1,21 @@
 local H = dofile("tests/helpers.lua")
 local w = H.new()
+w.env.AwesomeForeverToolkitDB.warrior = {battleShoutMode = "tracked", leadSeconds = 10}
 local root = w:loadManifest()
 w:fire("PLAYER_LOGIN")
 local warrior = root.modules.Warrior
 local icon = warrior.BattleShoutIcon
 
-assert(warrior.Config.Get("battleShoutMode") == "underlay")
+assert(warrior.Config.GetDefault("battleShoutMode") == nil)
+assert(warrior.Config.GetDefault("leadSeconds") == nil)
 assert(not icon.frame:IsShown(), "underlay is hidden outside combat")
 assert(icon.frame.strata == "BACKGROUND", "underlay is below other addon icons")
 assert(icon.frame.clips == true, "glow is confined to the coverable rectangle")
 assert(icon.texture.desaturation == 1, "underlay uses cooldown grayscale")
 
-local refresh, status, observe = warrior.BattleShoutAura.Refresh, warrior.BattleShoutAura.Status, warrior.BattleShoutAura.ObservePlayerCast
-warrior.BattleShoutAura.Refresh = function() error("underlay must not query auras") end
-warrior.BattleShoutAura.Status = function() error("underlay must not inspect aura state") end
-warrior.BattleShoutAura.ObservePlayerCast = function() error("underlay must not observe casts") end
+assert(warrior.BattleShoutAura == nil, "removed tracker must not be loaded")
+w.env.C_UnitAuras.GetAuraDataBySpellName = function() error("underlay must not query auras") end
+w.env.C_UnitAuras.GetUnitAuras = function() error("underlay must not enumerate auras") end
 w.combat = true
 w:fire("PLAYER_REGEN_DISABLED")
 w:fire("UNIT_AURA", "player", {})
@@ -47,16 +48,6 @@ assert(not icon.frame:IsShown())
 assert(other.frame:IsShown(), "disabling Battle Shout does not hide another underlay")
 warrior.Config.Set("battleShoutEnabled", true)
 assert(not icon.frame:IsShown(), "outside combat only preview can show the underlay")
-warrior.BattleShoutAura.Refresh = refresh
-warrior.BattleShoutAura.Status = status
-warrior.BattleShoutAura.ObservePlayerCast = observe
-warrior.Config.Set("battleShoutMode", "tracked")
-assert(not icon.frame:IsShown(), "tracked mode restores combat-only behavior")
-assert(icon.texture.desaturation == 0)
-assert(not icon.frame.clips)
-warrior.Config.Set("battleShoutMode", "underlay")
-assert(not icon.frame:IsShown(), "outside combat only preview can show the underlay")
-
 w.combat = true
 w:fire("PLAYER_REGEN_DISABLED")
 assert(icon.frame:IsShown(), "entering combat shows the underlay again")

@@ -32,7 +32,7 @@ function Icon:ApplySettings()
         size = addon.Config.Get("iconSize"),
         x = addon.Config.Get("iconX"), y = addon.Config.Get("iconY"),
         hideArtwork = addon.Config.Get("battleShoutHideIcon"),
-        underlay = addon.Config.Get("battleShoutMode") == "underlay",
+        underlay = true,
         color = color,
     })
 end
