@@ -49,16 +49,6 @@ root.Window:RegisterPage({
             addon.AuraIcon:SetPreview(true)
         end)
 
-        layout:Heading('Blessing of Kings')
-        layout:Text('Warns when Kings and Greater Kings are missing, unless Freedom is active. Counts Kings from other Paladins. Other blessings do not suppress it. Hides the warning when buff information is unavailable.')
-        layout:Field('Checkbox', 'blessingReminderEnabled', 'Enable missing-Kings reminder')
-        layout:Field('Checkbox', 'blessingHideIcon', 'Hide icon artwork (glow only)')
-        layout:Field('ChoiceDropdown', 'blessingIconSize', 'Kings icon size (px)', W.Options(16, 128, 4))
-        layout:Button('blessingPreview', 'Move / preview Kings reminder', function()
-            addon.BlessingReminder:SetPreview(true)
-        end)
-        layout:Text('Combat detection depends on what Blizzard exposes. Use /aft paladin buffs to check detection while testing.')
-
         layout:Heading('Seal refresh')
         layout:Text('Estimates seal duration from successful casts. Shows in combat or with a living attackable target/mouseover. After reload, a refresh is due until a seal cast is observed.')
         layout:Field('Checkbox', 'sealGlowEnabled', 'Enable seal reminder')

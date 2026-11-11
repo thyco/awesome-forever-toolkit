@@ -74,7 +74,6 @@ Modules/Hunter/Features/AspectWarning.lua
 Modules/Paladin/Module.lua
 Modules/Paladin/Config.lua
 Modules/Paladin/Services/Client.lua
-Modules/Paladin/Services/Blessings.lua
 Modules/Paladin/Services/Cooldowns.lua
 Modules/Paladin/Services/Timers.lua
 Modules/Paladin/Services/PopupIcons.lua
@@ -84,7 +83,6 @@ Modules/Paladin/Features/ExorcismGlow.lua
 Modules/Paladin/Features/SealReminder.lua
 Modules/Paladin/Features/RighteousFuryReminder.lua
 Modules/Paladin/Features/AuraIcon.lua
-Modules/Paladin/Features/BlessingReminder.lua
 Modules/Paladin/Runtime.lua
 UI/Widgets.lua
 UI/Window.lua
